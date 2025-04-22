@@ -4,6 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+
+//スプリングアーム（カメラ用のコンポーネント）
+#include "GameFramework/SpringArmComponent.h"
+//カメラのコンポーネント
+#include "Camera/CameraComponent.h"
+
 #include "Class_AchiLess.generated.h"
 
 UCLASS()
@@ -19,7 +25,7 @@ protected:
 	// ゲーム開始時のみ呼ばれるファイル
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// 毎フレーム呼ばれる（更新用）
 	virtual void Tick(float DeltaTime) override;
 
@@ -49,6 +55,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* AchilessMesh;
+
+	UPROPERTY(VisibleAnywhere)
+	USpringArmComponent* CameraSpringArm;
+
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* Camera;
 
 
 };

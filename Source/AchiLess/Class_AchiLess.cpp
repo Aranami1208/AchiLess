@@ -3,6 +3,13 @@
 
 #include "Class_AchiLess.h"
 
+//スプリングアーム（カメラ用のコンポーネント）
+#include "GameFramework/SpringArmComponent.h"
+
+//カメラのコンポーネント
+#include "Camera/CameraComponent.h"
+
+
 // Sets default values
 AClass_AchiLess::AClass_AchiLess()
 {
@@ -12,6 +19,21 @@ AClass_AchiLess::AClass_AchiLess()
 
 	AchilessMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AchiLessMesh"));
 	RootComponent = AchilessMesh;//ルートコンポーネントに設定
+
+	//SpringArmの設定
+	//スプリングアームコンポーネントの生成
+	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
+	CameraSpringArm->SetupAttachment(RootComponent);//ルートコンポーネントにアタッチ？
+	CameraSpringArm->TargetArmLength = 600.f;//対象のオブジェクトからの距離 
+	CameraSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 100.f));//デフォルトのカメラの位置
+	CameraSpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));//デフォルトのカメラのローテーション
+	//ここからよくわからん
+	CameraSpringArm->bInheritPitch = true;
+	CameraSpringArm->bInheritYaw = true;
+
+	//カメラコンポーネントの生成
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(CameraSpringArm);//スプリングアームにカメラをアタッチ
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
 
