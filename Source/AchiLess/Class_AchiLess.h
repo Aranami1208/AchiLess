@@ -42,7 +42,7 @@ private:
 	//調整用パラメータ
 	UPROPERTY(EditAnywhere)
 
-	float Acceleration = 100.f;//加速の強さ
+	float Acceleration = 1000.f;//加速の強さ
 
 	UPROPERTY(EditAnywhere)
 	float TurnSpeed = 50.f;
