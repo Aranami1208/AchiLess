@@ -30,6 +30,7 @@ private:
 	//“ü—ÍŠÖ”
 	void Pitch(float Value);
 	void Yaw(float Value);
+	void Roll(float Value);
 
 	void Accelerate(float Value);//‰Á‘¬
 

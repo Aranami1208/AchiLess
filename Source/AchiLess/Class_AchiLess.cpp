@@ -79,6 +79,7 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis("Pitch", this, &AClass_AchiLess::Pitch);
 	PlayerInputComponent->BindAxis("Yaw", this, &AClass_AchiLess::Yaw);
 	PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Accelerate);
+	PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Roll);
 
 }
 
@@ -91,6 +92,10 @@ void AClass_AchiLess::Pitch(float Value)
 void AClass_AchiLess::Yaw(float Value)
 {
 	AddActorLocalRotation(FRotator(0.f, Value * TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f));
+}
+
+void AClass_AchiLess::Roll(float Value)
+{
 }
 
 void AClass_AchiLess::Accelerate(float Value)
