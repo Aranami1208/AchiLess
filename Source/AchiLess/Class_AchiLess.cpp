@@ -14,7 +14,8 @@
 AClass_AchiLess::AClass_AchiLess() :
 	AchilessMesh(nullptr),
 	CameraSpringArm(nullptr),
-	Camera(nullptr)
+	Camera(nullptr),
+	bIsAcceleration(false)
 {
  	//–ˆƒtƒŒ[ƒ€Tick()‚ðŒÄ‚Ôˆ—
 	PrimaryActorTick.bCanEverTick = true;
@@ -50,6 +51,7 @@ AClass_AchiLess::AClass_AchiLess() :
 
 	//‰Šú‘¬“x
 	MaxSpeed = 5000.f;
+	MiniSpeed = 1000.f;
 	CurrentSpeed = 0.f;
 
 }
@@ -71,6 +73,13 @@ void AClass_AchiLess::Tick(float DeltaTime)
 
 	//ˆÚ“®‚ÆÕ“Ë”»’èˆ— 
 	AddActorWorldOffset(Velocity * DeltaTime, true);
+
+	
+	if(bIsAcceleration)return;
+
+	//‰Á‘¬‚µ‚Ä‚¢‚È‚¢‚Æ‚«‚Ìˆ—
+	CurrentSpeed = FMath::Clamp(CurrentSpeed - (AirFriction * GetWorld()->GetDeltaSeconds()), MiniSpeed, MaxSpeed);
+
 
 }
 
@@ -104,6 +113,13 @@ void AClass_AchiLess::Roll(float Value)
 void AClass_AchiLess::Accelerate(float Value)
 {
 	//Clamp‚Í”ÍˆÍ§ŒÀ
-	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * Acceleration * GetWorld()->GetDeltaSeconds()), 0.f, MaxSpeed);
+	bIsAcceleration = true;
+	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * Acceleration * GetWorld()->GetDeltaSeconds()), MiniSpeed, MaxSpeed);
+	
+}
+
+void AClass_AchiLess::AcceleReleased()
+{
+	bIsAcceleration = false;
 }
 
