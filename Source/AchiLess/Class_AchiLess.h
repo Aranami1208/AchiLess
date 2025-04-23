@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Accelerate(float Value);//加速
 
+	UFUNCTION(BlueprintCallable)
+	void AcceleReleased();
+
 
 private:
 	
@@ -45,12 +48,16 @@ private:
 
 	float CurrentSpeed;//現在のスピード
 	float MaxSpeed;//最大スピード
+	float MiniSpeed;//最低スピード
 
+	UPROPERTY(EditAnywhere)
+	bool bIsAcceleration;//アクセルが押されているかどうか
 
 	//調整用パラメータ
 	UPROPERTY(EditAnywhere)
 
 	float Acceleration = 1000.f;//加速の強さ
+	float AirFriction = 500;//空気摩擦の減速量
 
 	UPROPERTY(EditAnywhere)
 	float TurnSpeed = 50.f;
