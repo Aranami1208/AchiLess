@@ -48,7 +48,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0‚ÉŽ©“®‚Å‘€ì‚ð“n‚·
 
 	//‰Šú‘¬“x
-	MaxSpeed = 3000.f;
+	MaxSpeed = 5000.f;
 	CurrentSpeed = 0.f;
 
 }
@@ -78,8 +78,9 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	PlayerInputComponent->BindAxis("Pitch", this, &AClass_AchiLess::Pitch);
 	PlayerInputComponent->BindAxis("Yaw", this, &AClass_AchiLess::Yaw);
+	PlayerInputComponent->BindAxis("Roll", this, &AClass_AchiLess::Roll);
 	PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Accelerate);
-	PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Roll);
+	
 
 }
 
@@ -96,6 +97,7 @@ void AClass_AchiLess::Yaw(float Value)
 
 void AClass_AchiLess::Roll(float Value)
 {
+	AddActorLocalRotation(FRotator(0.f, 0.f, Value * TurnSpeed * GetWorld()->GetDeltaSeconds()));
 }
 
 void AClass_AchiLess::Accelerate(float Value)
