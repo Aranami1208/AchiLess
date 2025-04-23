@@ -34,9 +34,10 @@ AClass_AchiLess::AClass_AchiLess() :
 	CameraSpringArm->TargetArmLength = 2000.f;//対象のオブジェクトからの距離 
 	CameraSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 1000.f));//デフォルトのカメラの位置
 	CameraSpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));//デフォルトのカメラのローテーション
-	//ここからよくわからん
+	//スプリングアームの回転許可設定
 	CameraSpringArm->bInheritPitch = true;
 	CameraSpringArm->bInheritYaw = true;
+	CameraSpringArm->bInheritRoll = true;
 	//CameraSpringArm->bUsePawnControlRotation = true;
 
 
@@ -76,10 +77,10 @@ void AClass_AchiLess::Tick(float DeltaTime)
 // Called to bind functionality to input
 void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAxis("Pitch", this, &AClass_AchiLess::Pitch);
-	PlayerInputComponent->BindAxis("Yaw", this, &AClass_AchiLess::Yaw);
-	PlayerInputComponent->BindAxis("Roll", this, &AClass_AchiLess::Roll);
-	PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Accelerate);
+	//PlayerInputComponent->BindAxis("Pitch", this, &AClass_AchiLess::Pitch);
+	//PlayerInputComponent->BindAxis("Yaw", this, &AClass_AchiLess::Yaw);
+	//PlayerInputComponent->BindAxis("Roll", this, &AClass_AchiLess::Roll);
+	//PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Accelerate);
 	
 
 }
@@ -92,7 +93,7 @@ void AClass_AchiLess::Pitch(float Value)
 
 void AClass_AchiLess::Yaw(float Value)
 {
-	AddActorLocalRotation(FRotator(0.f, Value * TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f));
+	//AddActorLocalRotation(FRotator(0.f, Value * TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f));
 }
 
 void AClass_AchiLess::Roll(float Value)

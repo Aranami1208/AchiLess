@@ -26,14 +26,21 @@ public:
 	// 入力系コンポーネント
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-private:
-	//入力関数
-	void Pitch(float Value);
-	void Yaw(float Value);
-	void Roll(float Value);
 
+	//入力関数ブルプリから呼び出し可能
+
+	UFUNCTION(BlueprintCallable)
+	void Pitch(float Value);
+	UFUNCTION(BlueprintCallable)
+	void Yaw(float Value);
+	UFUNCTION(BlueprintCallable)
+	void Roll(float Value);
+	UFUNCTION(BlueprintCallable)
 	void Accelerate(float Value);//加速
 
+
+private:
+	
 	FVector Velocity;//移動方向のベクトル
 
 	float CurrentSpeed;//現在のスピード
