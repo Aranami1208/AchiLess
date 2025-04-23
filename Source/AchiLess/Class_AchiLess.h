@@ -4,12 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-
-//スプリングアーム（カメラ用のコンポーネント）
-#include "GameFramework/SpringArmComponent.h"
-//カメラのコンポーネント
-#include "Camera/CameraComponent.h"
-
 #include "Class_AchiLess.generated.h"
 
 UCLASS()
@@ -56,11 +50,13 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* AchilessMesh;
 
+	
 	UPROPERTY(VisibleAnywhere)
-	USpringArmComponent* CameraSpringArm;
+	class USpringArmComponent* CameraSpringArm;
 
 	UPROPERTY(VisibleAnywhere)
-	UCameraComponent* Camera;
+	class UCameraComponent* Camera;
+	
 
 
 };
