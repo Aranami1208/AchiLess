@@ -3,19 +3,8 @@
 
 #include "Class_AchiLess.h"
 
-//スプリングアーム（カメラ用のコンポーネント）
-#include "GameFramework/SpringArmComponent.h"
-
-//カメラのコンポーネント
-#include "Camera/CameraComponent.h"
-
-
 // Sets default values
-AClass_AchiLess::AClass_AchiLess() :
-	AchilessMesh(nullptr),
-	CameraSpringArm(nullptr),
-	Camera(nullptr),
-	bIsAcceleration(false)
+AClass_AchiLess::AClass_AchiLess()
 {
  	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
@@ -24,34 +13,10 @@ AClass_AchiLess::AClass_AchiLess() :
 	AchilessMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AchiLessMesh"));
 	RootComponent = AchilessMesh;//ルートコンポーネントに設定
 
-	
-	//SpringArmの設定
-	//スプリングアームコンポーネントの生成
-	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
-
-	//bUseControllerRotationYaw = true;
-
-	CameraSpringArm->SetupAttachment(RootComponent);//ルートコンポーネントにアタッチ？
-	CameraSpringArm->TargetArmLength = 2000.f;//対象のオブジェクトからの距離 
-	CameraSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 1000.f));//デフォルトのカメラの位置
-	CameraSpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));//デフォルトのカメラのローテーション
-	//スプリングアームの回転許可設定
-	CameraSpringArm->bInheritPitch = true;
-	CameraSpringArm->bInheritYaw = true;
-	CameraSpringArm->bInheritRoll = true;
-	//CameraSpringArm->bUsePawnControlRotation = true;
-
-
-	//カメラコンポーネントの生成
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-
-	Camera->SetupAttachment(CameraSpringArm);//スプリングアームにカメラをアタッチ
-	
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
 
 	//初期速度
-	MaxSpeed = 5000.f;
-	MiniSpeed = 1000.f;
+	MaxSpeed = 3000.f;
 	CurrentSpeed = 0.f;
 
 }
@@ -74,23 +39,14 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	//移動と衝突判定処理 
 	AddActorWorldOffset(Velocity * DeltaTime, true);
 
-	
-	if(bIsAcceleration)return;
-
-	//加速していないときの処理
-	CurrentSpeed = FMath::Clamp(CurrentSpeed - (AirFriction * GetWorld()->GetDeltaSeconds()), MiniSpeed, MaxSpeed);
-
-
 }
 
 // Called to bind functionality to input
 void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	//PlayerInputComponent->BindAxis("Pitch", this, &AClass_AchiLess::Pitch);
-	//PlayerInputComponent->BindAxis("Yaw", this, &AClass_AchiLess::Yaw);
-	//PlayerInputComponent->BindAxis("Roll", this, &AClass_AchiLess::Roll);
-	//PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Accelerate);
-	
+	PlayerInputComponent->BindAxis("Pitch", this, &AClass_AchiLess::Pitch);
+	PlayerInputComponent->BindAxis("Yaw", this, &AClass_AchiLess::Yaw);
+	PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Accelerate);
 
 }
 
@@ -102,24 +58,12 @@ void AClass_AchiLess::Pitch(float Value)
 
 void AClass_AchiLess::Yaw(float Value)
 {
-	//AddActorLocalRotation(FRotator(0.f, Value * TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f));
-}
-
-void AClass_AchiLess::Roll(float Value)
-{
-	AddActorLocalRotation(FRotator(0.f, 0.f, Value * TurnSpeed * GetWorld()->GetDeltaSeconds()));
+	AddActorLocalRotation(FRotator(0.f, Value * TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f));
 }
 
 void AClass_AchiLess::Accelerate(float Value)
 {
 	//Clampは範囲制限
-	bIsAcceleration = true;
-	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * Acceleration * GetWorld()->GetDeltaSeconds()), MiniSpeed, MaxSpeed);
-	
-}
-
-void AClass_AchiLess::AcceleReleased()
-{
-	bIsAcceleration = false;
+	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * Acceleration * GetWorld()->GetDeltaSeconds()), 0.f, MaxSpeed);
 }
 
