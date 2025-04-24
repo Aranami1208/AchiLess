@@ -56,7 +56,7 @@ private:
 	//調整用パラメータ
 	UPROPERTY(EditAnywhere)
 
-	float Acceleration = 1000.f;//加速の強さ
+	float Acceleration = 1500.f;//加速の強さ
 	float AirFriction = 500;//空気摩擦の減速量
 
 	UPROPERTY(EditAnywhere)

@@ -50,7 +50,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0‚É©“®‚Å‘€ì‚ğ“n‚·
 
 	//‰Šú‘¬“x
-	MaxSpeed = 5000.f;
+	MaxSpeed = 6000.f;
 	MiniSpeed = 1000.f;
 	CurrentSpeed = 0.f;
 
