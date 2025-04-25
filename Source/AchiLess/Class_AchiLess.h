@@ -46,8 +46,14 @@ private:
 	
 	FVector Velocity;//移動方向のベクトル
 
+	//privateでもブルプリから読み取りのみ可能
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float CurrentSpeed;//現在のスピード
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float MaxSpeed;//最大スピード
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float MiniSpeed;//最低スピード
 
 	UPROPERTY(EditAnywhere)
