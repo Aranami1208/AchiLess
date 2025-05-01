@@ -1,6 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Class_AchiLess.h"
 
 //スプリングアーム（カメラ用のコンポーネント）
@@ -52,6 +50,9 @@ AClass_AchiLess::AClass_AchiLess() :
 	//初期速度
 	MaxSpeed = 6000.f;
 	MiniSpeed = 1000.f;
+
+	//最大旋回速度
+	MaxRotationSpeed = 1.0f;
 	CurrentSpeed = 0.f;
 
 }
@@ -96,6 +97,7 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AClass_AchiLess::Pitch(float Value)
 {
+	Value = FMath::Clamp(Value, -MaxRotationSpeed, MaxRotationSpeed);
 	//ピッチ操作
 	AddActorLocalRotation(FRotator(Value * TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
 }

@@ -45,6 +45,8 @@ public:
 private:
 	
 	FVector Velocity;//移動方向のベクトル
+	
+	float MaxRotationSpeed;
 
 	// privateでもブルプリから読み取りのみ可
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -56,6 +58,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float MiniSpeed;//最低スピード
 
+	
 	UPROPERTY(EditAnywhere)
 	bool bIsAcceleration;//アクセルが押されているかどうか
 
