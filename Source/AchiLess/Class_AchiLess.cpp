@@ -7,6 +7,7 @@
 //カメラのコンポーネント
 #include "Camera/CameraComponent.h"
 
+#include "ADataManager.h"
 
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
@@ -15,6 +16,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	Camera(nullptr),
 	bIsAcceleration(false)
 {
+
  	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
 	
@@ -54,6 +56,9 @@ AClass_AchiLess::AClass_AchiLess() :
 	//最大旋回速度
 	MaxRotationSpeed = 1.0f;
 	CurrentSpeed = 0.f;
+	FString name;
+
+	UADataManager::ReadJsonData(name, parameter);
 
 }
 
@@ -79,7 +84,7 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	if(bIsAcceleration)return;
 
 	//加速していないときの処理
-	CurrentSpeed = FMath::Clamp(CurrentSpeed - (AirFriction * GetWorld()->GetDeltaSeconds()), MiniSpeed, MaxSpeed);
+	CurrentSpeed = FMath::Clamp(CurrentSpeed - (parameter.AirFriction * GetWorld()->GetDeltaSeconds()), parameter.MinSpeed, parameter.MaxSpeed);
 
 
 }
@@ -99,7 +104,7 @@ void AClass_AchiLess::Pitch(float Value)
 {
 	Value = FMath::Clamp(Value, -MaxRotationSpeed, MaxRotationSpeed);
 	//ピッチ操作
-	AddActorLocalRotation(FRotator(Value * TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
+	AddActorLocalRotation(FRotator(Value * parameter.TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
 }
 
 void AClass_AchiLess::Yaw(float Value)
@@ -109,14 +114,14 @@ void AClass_AchiLess::Yaw(float Value)
 
 void AClass_AchiLess::Roll(float Value)
 {
-	AddActorLocalRotation(FRotator(0.f, 0.f, Value * TurnSpeed * GetWorld()->GetDeltaSeconds()));
+	AddActorLocalRotation(FRotator(0.f, 0.f, Value * parameter.TurnSpeed * GetWorld()->GetDeltaSeconds()));
 }
 
 void AClass_AchiLess::Accelerate(float Value)
 {
 	//Clampは範囲制限
 	bIsAcceleration = true;
-	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * Acceleration * GetWorld()->GetDeltaSeconds()), MiniSpeed, MaxSpeed);
+	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * parameter.Accelerate * GetWorld()->GetDeltaSeconds()), parameter.MinSpeed, parameter.MaxSpeed);
 	
 }
 

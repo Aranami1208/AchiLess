@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "DataStruct.h"
 #include "Class_AchiLess.generated.h"
+
 
 UCLASS()
 class ACHILESS_API AClass_AchiLess : public APawn
@@ -20,6 +22,10 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+
+	UPROPERTY(BlueprintReadOnly)
+	FDataStruct parameter;
+
 	// 毎フレーム呼ばれる（更新用）
 	virtual void Tick(float DeltaTime) override;
 
@@ -45,6 +51,8 @@ public:
 private:
 	
 	FVector Velocity;//移動方向のベクトル
+
+	
 	
 	float MaxRotationSpeed;
 
