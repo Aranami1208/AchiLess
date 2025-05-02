@@ -7,9 +7,9 @@
 #include "Misc/DateTime.h"
 
 static const FString RootName("InventoryObject");
-static const FString WritePath(FPaths::ProjectSavedDir() / "json");
-static const FString FileName("JsonData.json");
-static const FString FilePathFull(WritePath / FileName);
+static const FString WritePath(FPaths::ProjectContentDir() / "Json");
+//static const FString FileName("JsonData.json");
+//static const FString FilePathFull(WritePath / FileName);
 
 bool UADataManager::WriteJsonData(FString Name, FDataStruct& DataS)
 {
@@ -17,19 +17,27 @@ bool UADataManager::WriteJsonData(FString Name, FDataStruct& DataS)
 	return false;
 }
 
-bool UADataManager::ReadJsonData(FString& Name, FDataStruct& DataS)
+bool UADataManager::ReadJsonData(FString Name, FDataStruct& DataS)
 {
 	FString Data;
 
 	//データの読み込みに失敗した場合処理終了
-	if (!FFileHelper::LoadFileToString(Data, *FilePathFull))return false;
+	if (!FFileHelper::LoadFileToString(Data, *(WritePath/Name)))
+	{
+		UE_DEBUG_BREAK();
+		return false;
+	}
 
 	TSharedPtr<FJsonObject> JsonRootObject = MakeShareable(new FJsonObject());
 
 	//Jsonを読み込むためのリーダーを作成
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory <>::Create(Data);
 
-	if (!FJsonSerializer::Deserialize(JsonReader, JsonRootObject))return false;
+	if (!FJsonSerializer::Deserialize(JsonReader, JsonRootObject))
+	{
+		UE_DEBUG_BREAK();
+		return false;
+	}
 
 	//Jsonの文字列からJsonオブジェクトによみこみ
 	Name = JsonRootObject->GetStringField("Name");

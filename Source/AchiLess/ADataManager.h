@@ -22,5 +22,5 @@ class ACHILESS_API UADataManager : public UObject
 public:
 	static bool WriteJsonData(FString Name, FDataStruct& DataS);
 
-	static bool ReadJsonData(FString& Name, FDataStruct& DataS);
+	static bool ReadJsonData(FString Name, FDataStruct& DataS);
 };

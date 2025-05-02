@@ -7,6 +7,8 @@
 //カメラのコンポーネント
 #include "Camera/CameraComponent.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 #include "ADataManager.h"
 
 // Sets default values
@@ -17,14 +19,14 @@ AClass_AchiLess::AClass_AchiLess() :
 	bIsAcceleration(false)
 {
 
- 	//毎フレームTick()を呼ぶ処理
+	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 
 	AchilessMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AchiLessMesh"));
 	RootComponent = AchilessMesh;//ルートコンポーネントに設定
 
-	
+
 	//SpringArmの設定
 	//スプリングアームコンポーネントの生成
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
@@ -46,7 +48,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
 	Camera->SetupAttachment(CameraSpringArm);//スプリングアームにカメラをアタッチ
-	
+
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
 
 	//初期速度
@@ -58,10 +60,9 @@ AClass_AchiLess::AClass_AchiLess() :
 	CurrentSpeed = 0.f;
 	FString name;
 
-	UADataManager::ReadJsonData(name, parameter);
-
+	UADataManager::ReadJsonData("TypeBalance.json", parameter);
+	
 }
-
 // Called when the game starts or when spawned
 void AClass_AchiLess::BeginPlay()
 {
