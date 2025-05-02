@@ -51,16 +51,15 @@ AClass_AchiLess::AClass_AchiLess() :
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
 
-	//初期速度
-	MaxSpeed = 6000.f;
-	MiniSpeed = 1000.f;
 
-	//最大旋回速度
-	MaxRotationSpeed = 1.0f;
-	CurrentSpeed = 0.f;
-	FString name;
+	UADataManager::ReadJsonData("TypeSpeed.json", parameter);
 
-	UADataManager::ReadJsonData("TypeBalance.json", parameter);
+	FString ModelFilePath("Assets/Models/AhiLess");
+	FString ContentsPath = FPaths::ProjectContentDir();
+
+	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *( ContentsPath / ModelFilePath / parameter.MeshFileName), NULL, LOAD_None, NULL);
+	AchilessMesh->SetStaticMesh(Mesh);
+	AchilessMesh->SetupAttachment(RootComponent);
 	
 }
 // Called when the game starts or when spawned
@@ -103,7 +102,7 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AClass_AchiLess::Pitch(float Value)
 {
-	Value = FMath::Clamp(Value, -MaxRotationSpeed, MaxRotationSpeed);
+	Value = FMath::Clamp(Value,- parameter.MaxRotationSpeed, parameter.MaxRotationSpeed);
 	//ピッチ操作
 	AddActorLocalRotation(FRotator(Value * parameter.TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
 }

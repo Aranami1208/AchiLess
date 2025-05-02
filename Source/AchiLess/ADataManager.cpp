@@ -48,6 +48,7 @@ bool UADataManager::ReadJsonData(FString Name, FDataStruct& DataS)
 	DataS.MaxSpeed = JsonRootObject->GetNumberField("MaxSpeed");
 	DataS.MinSpeed = JsonRootObject->GetNumberField("MinSpeed");
 	DataS.TurnSpeed = JsonRootObject->GetNumberField("TurnSpeed");
+	DataS.MeshFileName = JsonRootObject->GetStringField("Mesh");
 
 	return true;
 	
