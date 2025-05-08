@@ -22,9 +22,10 @@ AClass_AchiLess::AClass_AchiLess() :
 	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
 
+	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 
 	AchilessMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AchiLessMesh"));
-	RootComponent = AchilessMesh;//ルートコンポーネントに設定
+	RootComponent = DefaultSceneRoot;//ルートコンポーネントに設定
 
 
 	//SpringArmの設定
@@ -54,13 +55,24 @@ AClass_AchiLess::AClass_AchiLess() :
 
 	UADataManager::ReadJsonData("TypeSpeed.json", parameter);
 
-	FString ModelFilePath("Assets/Models/AhiLess");
+	FString ModelFilePath("/Game/Assets/Models/AhiLess");
 	FString ContentsPath = FPaths::ProjectContentDir();
+	FString FullPath = (ModelFilePath /parameter.MeshFileName/ parameter.MeshFileName+"."+parameter.MeshFileName);
 
-	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *( ContentsPath / ModelFilePath / parameter.MeshFileName), NULL, LOAD_None, NULL);
-	AchilessMesh->SetStaticMesh(Mesh);
-	AchilessMesh->SetupAttachment(RootComponent);
+	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
 	
+	if (!Mesh)
+	{
+		UE_DEBUG_BREAK();
+	}
+
+	if (!AchilessMesh->SetStaticMesh(Mesh))
+	{
+		//メッシュがセットできなかったら
+		UE_DEBUG_BREAK();
+	}
+	AchilessMesh->SetupAttachment(RootComponent);
+	//UE_DEBUG_BREAK();
 }
 // Called when the game starts or when spawned
 void AClass_AchiLess::BeginPlay()

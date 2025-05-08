@@ -26,6 +26,10 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FDataStruct parameter;
 
+	//ルートのためのコンポーネント
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USceneComponent> DefaultSceneRoot;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> AchilessMesh;
 

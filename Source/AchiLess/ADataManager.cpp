@@ -8,8 +8,6 @@
 
 static const FString RootName("InventoryObject");
 static const FString WritePath(FPaths::ProjectContentDir() / "Json");
-//static const FString FileName("JsonData.json");
-//static const FString FilePathFull(WritePath / FileName);
 
 bool UADataManager::WriteJsonData(FString Name, FDataStruct& DataS)
 {
