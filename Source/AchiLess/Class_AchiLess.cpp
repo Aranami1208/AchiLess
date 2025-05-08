@@ -56,7 +56,6 @@ AClass_AchiLess::AClass_AchiLess() :
 	UADataManager::ReadJsonData("TypeSpeed.json", parameter);
 
 	FString ModelFilePath("/Game/Assets/Models/AhiLess");
-	FString ContentsPath = FPaths::ProjectContentDir();
 	FString FullPath = (ModelFilePath /parameter.MeshFileName/ parameter.MeshFileName+"."+parameter.MeshFileName);
 
 	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
