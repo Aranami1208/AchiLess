@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "DataStruct.h"
 #include "Class_AchiLess.generated.h"
+
 
 UCLASS()
 class ACHILESS_API AClass_AchiLess : public APawn
@@ -20,6 +22,17 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+
+	UPROPERTY(BlueprintReadOnly)
+	FDataStruct parameter;
+
+	//ルートのためのコンポーネント
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USceneComponent> DefaultSceneRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UStaticMeshComponent> AchilessMesh;
+
 	// 毎フレーム呼ばれる（更新用）
 	virtual void Tick(float DeltaTime) override;
 
@@ -46,7 +59,11 @@ private:
 	
 	FVector Velocity;//移動方向のベクトル
 
-	//privateでもブルプリから読み取りのみ可能
+	
+	
+	float MaxRotationSpeed;
+
+	// privateでもブルプリから読み取りのみ可
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float CurrentSpeed;//現在のスピード
 
@@ -56,21 +73,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float MiniSpeed;//最低スピード
 
+	
 	UPROPERTY(EditAnywhere)
 	bool bIsAcceleration;//アクセルが押されているかどうか
 
-	//調整用パラメータ
-	UPROPERTY(EditAnywhere)
-
-	float Acceleration = 1500.f;//加速の強さ
-	float AirFriction = 500;//空気摩擦の減速量
-
-	UPROPERTY(EditAnywhere)
-	float TurnSpeed = 50.f;
-
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* AchilessMesh;
-
+	
+	
 	
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* CameraSpringArm;
