@@ -22,9 +22,10 @@ AClass_AchiLess::AClass_AchiLess() :
 	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
 
+	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 
 	AchilessMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AchiLessMesh"));
-	RootComponent = AchilessMesh;//ルートコンポーネントに設定
+	RootComponent = DefaultSceneRoot;//ルートコンポーネントに設定
 
 
 	//SpringArmの設定
@@ -51,17 +52,26 @@ AClass_AchiLess::AClass_AchiLess() :
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
 
-	//初期速度
-	MaxSpeed = 6000.f;
-	MiniSpeed = 1000.f;
 
-	//最大旋回速度
-	MaxRotationSpeed = 1.0f;
-	CurrentSpeed = 0.f;
-	FString name;
+	UADataManager::ReadJsonData("TypeSpeed.json", parameter);
 
-	UADataManager::ReadJsonData("TypeBalance.json", parameter);
+	FString ModelFilePath("/Game/Assets/Models/AhiLess");
+	FString FullPath = (ModelFilePath /parameter.MeshFileName/ parameter.MeshFileName+"."+parameter.MeshFileName);
+
+	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
 	
+	if (!Mesh)
+	{
+		UE_DEBUG_BREAK();
+	}
+
+	if (!AchilessMesh->SetStaticMesh(Mesh))
+	{
+		//メッシュがセットできなかったら
+		UE_DEBUG_BREAK();
+	}
+	AchilessMesh->SetupAttachment(RootComponent);
+	//UE_DEBUG_BREAK();
 }
 // Called when the game starts or when spawned
 void AClass_AchiLess::BeginPlay()
@@ -103,7 +113,7 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AClass_AchiLess::Pitch(float Value)
 {
-	Value = FMath::Clamp(Value, -MaxRotationSpeed, MaxRotationSpeed);
+	Value = FMath::Clamp(Value,- parameter.MaxRotationSpeed, parameter.MaxRotationSpeed);
 	//ピッチ操作
 	AddActorLocalRotation(FRotator(Value * parameter.TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
 }

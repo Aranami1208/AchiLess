@@ -26,6 +26,13 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FDataStruct parameter;
 
+	//ルートのためのコンポーネント
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USceneComponent> DefaultSceneRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UStaticMeshComponent> AchilessMesh;
+
 	// 毎フレーム呼ばれる（更新用）
 	virtual void Tick(float DeltaTime) override;
 
@@ -70,18 +77,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool bIsAcceleration;//アクセルが押されているかどうか
 
-	//調整用パラメータ
-	UPROPERTY(EditAnywhere)
-
-	float Acceleration = 1500.f;//加速の強さ
-	float AirFriction = 500;//空気摩擦の減速量
-
-	UPROPERTY(EditAnywhere)
-	float TurnSpeed = 50.f;
-
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* AchilessMesh;
-
+	
+	
 	
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* CameraSpringArm;

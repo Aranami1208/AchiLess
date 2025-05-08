@@ -1,5 +1,6 @@
 {
-"Name":"TypeBalance",
+  "Name": "TypeBalance",
+"Mesh": "TypeBalance",
 "Accelerate":"1500",
 "AirFriction":"500",
 "MaxRotationSpeed":"1.0",
