@@ -21,14 +21,14 @@ protected:
 
 public:	
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UMeshComponent> MeshComponent;
+	TObjectPtr<UStaticMeshComponent> MeshComponent;
 
 	UPROPERTY(EditAnywhere)
-	UMaterialInterface* BaseMaterial;
+	UMaterialInterface* BaseMaterial = LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Assets/Models/Meteor/Texture/BaseMaterial.BaseMaterial"));
 
 	UPROPERTY(EditAnywhere)
-	FVector MinScale = FVector(0.5f);
+	FVector MinScale = FVector(0.2f);
 
 	UPROPERTY(EditANywhere)
-	FVector MaxScale = FVector(2.0f);
+	FVector MaxScale = FVector(0.4f);
 };
