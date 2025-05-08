@@ -7,7 +7,7 @@
 #include "RandomActorSpawner.generated.h"
 
 //プロトタイプ宣言
-class ATriggerBox;
+class UBoxComponent;
 
 UCLASS()
 class ACHILESS_API ARandomActorSpawner : public AActor
@@ -35,6 +35,6 @@ public:
 
 	//生成する範囲
 	UPROPERTY(EditAnywhere, Category = "Spawner")
-	TObjectPtr<ATriggerBox> SpawnArea;
+	TObjectPtr<UBoxComponent> SpawnArea;
 
 };
