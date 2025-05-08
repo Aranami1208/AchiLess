@@ -53,7 +53,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
 
 
-	UADataManager::ReadJsonData("TypeSpeed.json", parameter);
+	UADataManager::ReadJsonData("TypeBalance.json", parameter);
 
 	FString ModelFilePath("/Game/Assets/Models/AhiLess");
 	FString FullPath = (ModelFilePath /parameter.MeshFileName/ parameter.MeshFileName+"."+parameter.MeshFileName);
@@ -62,6 +62,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	
 	if (!Mesh)
 	{
+		//メッシュがセットできなかったら
 		UE_DEBUG_BREAK();
 	}
 
