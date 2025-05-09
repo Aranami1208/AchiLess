@@ -30,5 +30,5 @@ public:
 	FVector MinScale = FVector(0.2f);
 
 	UPROPERTY(EditANywhere)
-	FVector MaxScale = FVector(0.4f);
+	FVector MaxScale = FVector(2.0f);
 };
