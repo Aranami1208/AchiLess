@@ -4,7 +4,7 @@
 "Accelerate":"1500",
 "AirFriction":"500",
 "MaxRotationSpeed":"1.3",
-"MaxSpeed":"6000",
-"MinSpeed":"1000",
+"MaxSpeed":"950",
+"MinSpeed":"40",
 "TurnSpeed":"50.0"
 }
