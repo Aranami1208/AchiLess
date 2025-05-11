@@ -23,7 +23,7 @@ protected:
 
 public:
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditAnywhere)
 	FDataStruct parameter;
 
 	//ルートのためのコンポーネント

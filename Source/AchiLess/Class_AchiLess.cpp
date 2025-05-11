@@ -19,6 +19,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	bIsAcceleration(false)
 {
 
+
 	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -60,14 +61,20 @@ void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//AchilessName = "TypeSpeed";
+	AchilessName = "TypeSpeed";
 
-	UADataManager::ReadJsonData(AchilessName+".json", parameter);
+	//データマネージャー
+	UADataManager* DataManager = NewObject<UADataManager>();
+
+	DataManager->ReadJsonData(AchilessName+".json", parameter);
 
 	FString ModelFilePath("/Game/Assets/Models/AhiLess");
 	FString FullPath = (ModelFilePath / parameter.MeshFileName / parameter.MeshFileName + "." + parameter.MeshFileName);
 
 	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
+
+	MaxSpeed = parameter.MaxSpeed;
+	MiniSpeed = parameter.MinSpeed;
 
 	if (!Mesh)
 	{
