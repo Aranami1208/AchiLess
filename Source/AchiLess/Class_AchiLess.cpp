@@ -53,7 +53,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0‚É©“®‚Å‘€ì‚ğ“n‚·
 
 
-	UADataManager::ReadJsonData("TypeBalance.json", parameter);
+	UADataManager::ReadJsonData("TypeSpeed.json", parameter);
 
 	FString ModelFilePath("/Game/Assets/Models/AhiLess");
 	FString FullPath = (ModelFilePath /parameter.MeshFileName/ parameter.MeshFileName+"."+parameter.MeshFileName);
