@@ -61,7 +61,7 @@ void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AchilessName = "TypeSpeed";
+	//AchilessName = "TypeSpeed";
 
 	//データマネージャー
 	UADataManager* DataManager = NewObject<UADataManager>();
