@@ -60,6 +60,39 @@ AClass_AchiLess::AClass_AchiLess() :
 void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AchilessName = "TypeSpeed";
+
+	//データマネージャー
+	UADataManager* DataManager = NewObject<UADataManager>();
+
+	DataManager->ReadJsonData(AchilessName+".json", parameter);
+
+	FString ModelFilePath("/Game/Assets/Models/AhiLess");
+	FString FullPath = (ModelFilePath / parameter.MeshFileName / parameter.MeshFileName + "." + parameter.MeshFileName);
+
+	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
+
+	MaxSpeed = parameter.MaxSpeed;
+	MiniSpeed = parameter.MinSpeed;
+
+	if (!Mesh)
+	{
+		//メッシュがセットできなかったら
+		
+		UE_DEBUG_BREAK();
+		return;
+	}
+
+	if (!AchilessMesh->SetStaticMesh(Mesh))
+	{
+		UKismetSystemLibrary::PrintString(this, "Could not set mesh");
+		//メッシュがセットできなかったら
+		UE_DEBUG_BREAK();
+
+	}
+	
+	//UE_DEBUG_BREAK();
 	
 	//AchilessName = "TypeSpeed";
 	UKismetSystemLibrary::PrintString(this, AchilessName);
