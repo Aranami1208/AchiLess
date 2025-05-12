@@ -23,7 +23,7 @@ protected:
 
 public:
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditAnywhere)
 	FDataStruct parameter;
 
 	//ルートのためのコンポーネント
@@ -59,9 +59,10 @@ private:
 	
 	FVector Velocity;//移動方向のベクトル
 
-	
-	
 	float MaxRotationSpeed;
+
+	UPROPERTY(EditAnywhere)
+	FString AchilessName;
 
 	// privateでもブルプリから読み取りのみ可
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

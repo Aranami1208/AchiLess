@@ -19,6 +19,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	bIsAcceleration(false)
 {
 
+
 	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -52,32 +53,46 @@ AClass_AchiLess::AClass_AchiLess() :
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
 
-
-	UADataManager::ReadJsonData("TypeBalance.json", parameter);
-
-	FString ModelFilePath("/Game/Assets/Models/AhiLess");
-	FString FullPath = (ModelFilePath /parameter.MeshFileName/ parameter.MeshFileName+"."+parameter.MeshFileName);
-
-	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
+	AchilessMesh->SetupAttachment(DefaultSceneRoot);
 	
-	if (!Mesh)
-	{
-		//メッシュがセットできなかったら
-		UE_DEBUG_BREAK();
-	}
-
-	if (!AchilessMesh->SetStaticMesh(Mesh))
-	{
-		//メッシュがセットできなかったら
-		UE_DEBUG_BREAK();
-	}
-	AchilessMesh->SetupAttachment(RootComponent);
-	//UE_DEBUG_BREAK();
 }
 // Called when the game starts or when spawned
 void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	//AchilessName = "TypeSpeed";
+	UKismetSystemLibrary::PrintString(this, AchilessName);
+	//データマネージャー
+	UADataManager* DataManager = NewObject<UADataManager>();
+
+	DataManager->ReadJsonData(AchilessName+".json", parameter);
+
+	FString ModelFilePath("/Game/Assets/Models/AhiLess");
+	FString FullPath = (ModelFilePath / parameter.MeshFileName / parameter.MeshFileName + "." + parameter.MeshFileName);
+
+	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
+
+	MaxSpeed = parameter.MaxSpeed;
+	MiniSpeed = parameter.MinSpeed;
+
+	if (!Mesh)
+	{
+		//メッシュがセットできなかったら
+		
+		UE_DEBUG_BREAK();
+		return;
+	}
+
+	if (!AchilessMesh->SetStaticMesh(Mesh))
+	{
+		UKismetSystemLibrary::PrintString(this, "Could not set mesh");
+		//メッシュがセットできなかったら
+		UE_DEBUG_BREAK();
+
+	}
+	
+	//UE_DEBUG_BREAK();
 	
 }
 

@@ -50,6 +50,7 @@ bool UADataManager::ReadJsonData(FString Name, FDataStruct& DataS)
 	DataS.TurnSpeed = JsonRootObject->GetNumberField("TurnSpeed");
 	DataS.MeshFileName = JsonRootObject->GetStringField("Mesh");
 
+	UE_DEBUG_BREAK();
 	return true;
 	
 }

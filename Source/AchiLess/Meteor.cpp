@@ -48,14 +48,16 @@ void AMeteor::BeginPlay()
 	//アセットレジストリのフィルター
 	FARFilter Filter;
 	//FName ClassName = (FName)(UTexture::StaticClass()->GetName());
-	FName ClassName = FName("Texture2D");
-	Filter.ClassNames.Add(ClassName);
+	//FName ClassName = FName("Texture2D");
+	//Filter.ClassNames.Add(ClassName);
+
+	Filter.ClassPaths.Add(UTexture2D::StaticClass()->GetClassPathName());
 	Filter.PackagePaths.Add(*TextureFolderPath);
 	Filter.bRecursivePaths = true;
 
 	//フィルターで絞ったアセットをリストに渡す
 	AssetRegistryModule.Get().GetAssets(Filter, AssetDataList);
-	UE_DEBUG_BREAK();
+	//UE_DEBUG_BREAK();
 	//テクスチャがなかった場合は処理しない
 	if (AssetDataList.Num() <= 0)
 	{
