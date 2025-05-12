@@ -1,0 +1,6 @@
+{
+  "MaxSpeed": 800.0,
+  "MaxRotationSpeed": 2.0
+  "Acceleration": 400.0,
+  "JumpHeight": 200.0
+}
