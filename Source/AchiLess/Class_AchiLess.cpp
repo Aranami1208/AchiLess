@@ -60,9 +60,9 @@ AClass_AchiLess::AClass_AchiLess() :
 void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
-
-	AchilessName = "TypeSpeed";
-
+	
+	//AchilessName = "TypeSpeed";
+	UKismetSystemLibrary::PrintString(this, AchilessName);
 	//データマネージャー
 	UADataManager* DataManager = NewObject<UADataManager>();
 
