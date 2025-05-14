@@ -51,6 +51,8 @@ AClass_AchiLess::AClass_AchiLess() :
 
 	Camera->SetupAttachment(CameraSpringArm);//スプリングアームにカメラをアタッチ
 
+	
+
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
 
 	AchilessMesh->SetupAttachment(DefaultSceneRoot);
@@ -60,6 +62,8 @@ AClass_AchiLess::AClass_AchiLess() :
 void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Camera->FieldOfView = 120;
 
 	//AchilessName = "TypeSpeed";
 
