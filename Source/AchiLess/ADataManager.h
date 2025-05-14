@@ -7,6 +7,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Dom/JsonObject.h"
 #include "DataStruct.h"
+#include "GameFramework/HUD.h"
 #include "ADataManager.generated.h"
 
 /**
