@@ -27,8 +27,8 @@ public:
 	UMaterialInterface* BaseMaterial = LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Assets/Models/Meteor/Texture/BaseMaterial.BaseMaterial"));
 
 	UPROPERTY(EditAnywhere)
-	FVector MinScale = FVector(0.2f);
+	FVector MinScale = FVector(1.0f);
 
 	UPROPERTY(EditANywhere)
-	FVector MaxScale = FVector(2.0f);
+	FVector MaxScale = FVector(10.0f);
 };
