@@ -7,6 +7,7 @@
 #include "DataStruct.h"
 #include "SelectLevelActor.generated.h"
 
+
 UCLASS()
 class ACHILESS_API ASelectLevelActor : public AActor
 {
@@ -20,14 +21,30 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//すべてのJsonを読み込む
 	void LoadAllJson();
+
+	//セレクﾄレベルのウィジェットを生成
+	void CreateSelectLevelWidget();
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-private:
+	UFUNCTION(BlueprintCallable)
+	void AchiLessSelectLeft();
+	UFUNCTION(BlueprintCallable)
+	void AchiLessSelectRight();
+
+public:
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	//AchiLessのパラメータ
-	TArray<FDataStruct> AchiLessParameters;
+	TArray<FDataStruct> AchiLessParams;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int SelectIndex = 0;
+
+	//ファイルの個数
+	int FileNum;
+
 };

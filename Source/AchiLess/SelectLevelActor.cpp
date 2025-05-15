@@ -9,7 +9,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
-
 // Sets default values
 ASelectLevelActor::ASelectLevelActor()
 {
@@ -23,52 +22,44 @@ void ASelectLevelActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//BPのリファレンス
-	FString WidgetPath = "/Game/UI/BP_SelectAchiLess.BP_SelectAchiLess";
+	LoadAllJson();
 
-	//クラスを取得
-	TSubclassOf<UUserWidget> WidgetClass = TSoftClassPtr<UUserWidget>(FSoftObjectPath(*WidgetPath)).LoadSynchronous();
 
-	//0番目のコントローラのポインタ取得
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-
-	if (!WidgetClass || !PlayerController)
-	{
-		UKismetSystemLibrary::PrintString(this, "NoWidgetClass or PlayerController");
-		return;
-	}
-
-	//CleateWidgetする
-
-	UUserWidget* UserWidget = UWidgetBlueprintLibrary::Create(GetWorld(), WidgetClass, PlayerController);
-
-	//UserWidget->AddToViewport(0);
 }
 
 void ASelectLevelActor::LoadAllJson()
 {
-	//すべてのJsonのパス
-	TArray<FString> JsonFilePaths;
-	FString Directory(FPaths::ProjectContentDir() / "Json");
+	TArray<FString> FilePaths;
 
-	//ディレクトリーからファイルパスを取得
-	IFileManager::Get().FindFiles(JsonFilePaths, *Directory, true, false);
+	FString Directory(FPaths::ProjectContentDir() + "Json/");
 
-	//データマネージャー
+	IFileManager::Get().FindFiles(FilePaths, *(Directory + "*.json"), true, false);
+
+	FileNum = FilePaths.Num();
+
+	//UKismetSystemLibrary::PrintString(this, Directory);
+
+	UKismetSystemLibrary::PrintString(this, "Files:" + FString::FromInt(FilePaths.Num()));
+
 	UADataManager* DataManager = NewObject<UADataManager>();
 
-	//取得できたファイル分だけ繰り返す
-	for (const FString& FileName : JsonFilePaths)
+	for (const FString FilePath : FilePaths)
 	{
-		//データ一次保持用
 		FDataStruct Data;
-
-		//データを取得
-		DataManager->ReadJsonData(FileName, Data);
-
-		//リストに追加
-		AchiLessParameters.Add(Data);
+		DataManager->ReadJsonData(FilePath, Data);
+		AchiLessParams.Add(Data);
 	}
+}
+
+void ASelectLevelActor::CreateSelectLevelWidget()
+{
+	FString WidgetPath("/ Game / UI / Layout.Layout");
+
+	//TSubclassOf<UUserWidget> WidgetClass = TSoftClassPtr<UUserWidget>(FSoftObjectPath(*WidgetPath)).LoadSynchronous() ;
+
+	//APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+
 }
 
 // Called every frame
@@ -76,5 +67,27 @@ void ASelectLevelActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ASelectLevelActor::AchiLessSelectLeft()
+{
+	UKismetSystemLibrary::PrintString(this, "push");
+	SelectIndex--;
+	if (SelectIndex < 0)
+	{
+		SelectIndex = FileNum - 1;
+	}
+	UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
+}
+
+void ASelectLevelActor::AchiLessSelectRight()
+{
+	UKismetSystemLibrary::PrintString(this, "push");
+	SelectIndex++;
+	if (SelectIndex >= FileNum)
+	{
+		SelectIndex = 0;
+	}
+	UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
 }
 
