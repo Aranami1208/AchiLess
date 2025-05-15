@@ -30,9 +30,21 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-private:
+	UFUNCTION(BlueprintCallable)
+	void AchiLessSelectLeft();
+	UFUNCTION(BlueprintCallable)
+	void AchiLessSelectRight();
 
+public:
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	//AchiLessのパラメータ
 	TArray<FDataStruct> AchiLessParams;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int SelectIndex = 0;
+
+	//ファイルの個数
+	int FileNum;
 
 };

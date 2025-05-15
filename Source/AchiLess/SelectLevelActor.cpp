@@ -31,9 +31,15 @@ void ASelectLevelActor::LoadAllJson()
 {
 	TArray<FString> FilePaths;
 
-	FString Directory(FPaths::ProjectContentDir() + "Json");
+	FString Directory(FPaths::ProjectContentDir() + "Json/");
 
-	IFileManager::Get().FindFiles(FilePaths, *Directory, true, false);
+	IFileManager::Get().FindFiles(FilePaths, *(Directory + "*.json"), true, false);
+
+	FileNum = FilePaths.Num();
+
+	//UKismetSystemLibrary::PrintString(this, Directory);
+
+	UKismetSystemLibrary::PrintString(this, "Files:" + FString::FromInt(FilePaths.Num()));
 
 	UADataManager* DataManager = NewObject<UADataManager>();
 
@@ -47,6 +53,12 @@ void ASelectLevelActor::LoadAllJson()
 
 void ASelectLevelActor::CreateSelectLevelWidget()
 {
+	FString WidgetPath("/ Game / UI / Layout.Layout");
+
+	//TSubclassOf<UUserWidget> WidgetClass = TSoftClassPtr<UUserWidget>(FSoftObjectPath(*WidgetPath)).LoadSynchronous() ;
+
+	//APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
 
 }
 
@@ -55,5 +67,27 @@ void ASelectLevelActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ASelectLevelActor::AchiLessSelectLeft()
+{
+	UKismetSystemLibrary::PrintString(this, "push");
+	SelectIndex--;
+	if (SelectIndex < 0)
+	{
+		SelectIndex = FileNum - 1;
+	}
+	UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
+}
+
+void ASelectLevelActor::AchiLessSelectRight()
+{
+	UKismetSystemLibrary::PrintString(this, "push");
+	SelectIndex++;
+	if (SelectIndex >= FileNum)
+	{
+		SelectIndex = 0;
+	}
+	UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
 }
 
