@@ -3,3 +3,12 @@
 
 #include "CharacterData.h"
 
+void UCharacterData::SetParameter(FDataStruct CharaParam)
+{
+	Parameter = CharaParam;
+}
+
+FDataStruct UCharacterData::GetParameter()
+{
+	return Parameter;
+}

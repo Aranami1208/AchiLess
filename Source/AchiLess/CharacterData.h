@@ -17,11 +17,13 @@ class ACHILESS_API UCharacterData : public UGameInstance
 
 public:
 	//parameterをセットする
+	UFUNCTION(BlueprintCallable)
 	void SetParameter(FDataStruct CharaParam);
+	FDataStruct GetParameter();
 
 private:
 
 	//プレイヤーのパラメータ情報を保持
-	FDataStruct Prameter;
+	FDataStruct Parameter;
 	
 };

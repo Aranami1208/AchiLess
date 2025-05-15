@@ -8,8 +8,12 @@
 #include "Camera/CameraComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
-#include "ADataManager.h"
+
+#include "ADataManager.h" 
+
+#include "CharacterData.h"
 
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
@@ -68,9 +72,13 @@ void AClass_AchiLess::BeginPlay()
 	//AchilessName = "TypeSpeed";
 
 	//データマネージャー
-	UADataManager* DataManager = NewObject<UADataManager>();
+	//UADataManager* DataManager = NewObject<UADataManager>();
 
-	DataManager->ReadJsonData(AchilessName+".json", parameter);
+	//DataManager->ReadJsonData(AchilessName+".json", parameter);
+
+	UCharacterData* CharacterData = Cast<UCharacterData>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	parameter = CharacterData->GetParameter();
 
 	FString ModelFilePath("/Game/Assets/Models/AhiLess");
 	FString FullPath = (ModelFilePath / parameter.MeshFileName / parameter.MeshFileName + "." + parameter.MeshFileName);
