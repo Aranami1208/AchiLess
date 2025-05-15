@@ -7,7 +7,7 @@
 #include "ADataManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
+
 
 // Sets default values
 ASelectLevelActor::ASelectLevelActor()
@@ -54,10 +54,6 @@ void ASelectLevelActor::LoadAllJson()
 void ASelectLevelActor::CreateSelectLevelWidget()
 {
 	FString WidgetPath("/ Game / UI / Layout.Layout");
-
-	//TSubclassOf<UUserWidget> WidgetClass = TSoftClassPtr<UUserWidget>(FSoftObjectPath(*WidgetPath)).LoadSynchronous() ;
-
-	//APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 
 }
