@@ -21,8 +21,10 @@ ASelectLevelActor::ASelectLevelActor()
 void ASelectLevelActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	LoadAllJson();
+
+
 }
 
 void ASelectLevelActor::LoadAllJson()
@@ -41,6 +43,11 @@ void ASelectLevelActor::LoadAllJson()
 		DataManager->ReadJsonData(FilePath, Data);
 		AchiLessParams.Add(Data);
 	}
+}
+
+void ASelectLevelActor::CreateSelectLevelWidget()
+{
+
 }
 
 // Called every frame

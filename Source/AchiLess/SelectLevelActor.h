@@ -23,6 +23,9 @@ protected:
 
 	void LoadAllJson();
 
+	//セレクﾄレベルのウィジェットを生成
+	void CreateSelectLevelWidget();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
