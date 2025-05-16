@@ -3,7 +3,8 @@
 "Mesh": "TypeSpeed",
 "Accelerate":"5000",
 "AirFriction":"800",
-"MaxRotationSpeed":"1.8",
+"MaxRotationSpeed": "1.8",
+"MaxBoost": "1500",
 "MaxSpeed":"1500",
 "MinSpeed":"300",
 "TurnSpeed":"70.0"

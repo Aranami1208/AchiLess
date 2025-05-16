@@ -24,6 +24,10 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float MaxRotationSpeed;
 
+	//ブースト容量
+	UPROPERTY(BlueprintReadOnly)
+	float MaxBoost;
+
 	//加速度
 	UPROPERTY(BlueprintReadOnly)
 	float Accelerate;

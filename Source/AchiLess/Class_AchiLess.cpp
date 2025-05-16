@@ -67,26 +67,28 @@ void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Camera->FieldOfView = 120;
+	Camera->FieldOfView = 90;
 
 	//AchilessName = "TypeSpeed";
 
 	//データマネージャー
 	//UADataManager* DataManager = NewObject<UADataManager>();
 
-	//DataManager->ReadJsonData(AchilessName+".json", parameter);
+	//DataManager->ReadJsonData(AchilessName+".json", MyParameter);
 
 	UCharacterData* CharacterData = Cast<UCharacterData>(UGameplayStatics::GetGameInstance(GetWorld()));
 
-	parameter = CharacterData->GetParameter();
+	MyParameter = CharacterData->GetParameter();
+
+	//ブーストを未使用状態にする
+	CurrentBoost = MyParameter.MaxBoost;
 
 	FString ModelFilePath("/Game/Assets/Models/AhiLess");
-	FString FullPath = (ModelFilePath / parameter.MeshFileName / parameter.MeshFileName + "." + parameter.MeshFileName);
+	FString FullPath = (ModelFilePath / MyParameter.MeshFileName / MyParameter.MeshFileName + "." + MyParameter.MeshFileName);
 
 	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
 
-	MaxSpeed = parameter.MaxSpeed;
-	MiniSpeed = parameter.MinSpeed;
+	
 
 	if (!Mesh)
 	{
@@ -114,17 +116,32 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FVector Forward = GetActorForwardVector();//進行方向ベクトルを取得する
-	Velocity = Forward * CurrentSpeed;//スピードを掛けた移動量
+	Velocity = Forward * CurrentSpeed + BoostRate;//スピードを掛けた移動量
 
 	//移動と衝突判定処理 
 	AddActorWorldOffset(Velocity * DeltaTime, true);
 
 	
-	if(bIsAcceleration)return;
+	if (!bIsAcceleration) {
 
-	//加速していないときの処理
-	CurrentSpeed = FMath::Clamp(CurrentSpeed - (parameter.AirFriction * GetWorld()->GetDeltaSeconds()), parameter.MinSpeed, parameter.MaxSpeed);
+		//加速していないときの処理
+		CurrentSpeed = FMath::Clamp(CurrentSpeed - (MyParameter.AirFriction * GetWorld()->GetDeltaSeconds()), MyParameter.MinSpeed, MyParameter.MaxSpeed);
+	}
 
+	//ブーストしていないときの処理
+	if (!bIsBoosting)
+	{
+		CurrentBoost = FMath::Clamp(CurrentBoost + BoostCost, 0, MyParameter.MaxBoost);
+		
+		//速度を通常時の状態に戻す
+		BoostRate = 1.0;
+
+		//ブーストゲージがマックス出ないときはスキップ
+		if (CurrentBoost != MyParameter.MaxBoost)return;
+
+		//ブーストロックを解除
+		if (BoostLock) BoostLock = false;
+	}
 
 }
 
@@ -141,9 +158,9 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AClass_AchiLess::Pitch(float Value)
 {
-	Value = FMath::Clamp(Value,- parameter.MaxRotationSpeed, parameter.MaxRotationSpeed);
+	Value = FMath::Clamp(Value,- MyParameter.MaxRotationSpeed, MyParameter.MaxRotationSpeed);
 	//ピッチ操作
-	AddActorLocalRotation(FRotator(Value * parameter.TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
+	AddActorLocalRotation(FRotator(Value * MyParameter.TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
 }
 
 void AClass_AchiLess::Yaw(float Value)
@@ -153,20 +170,46 @@ void AClass_AchiLess::Yaw(float Value)
 
 void AClass_AchiLess::Roll(float Value)
 {
-	AddActorLocalRotation(FRotator(0.f, 0.f, Value * parameter.TurnSpeed * GetWorld()->GetDeltaSeconds()));
+	AddActorLocalRotation(FRotator(0.f, 0.f, Value * MyParameter.TurnSpeed * GetWorld()->GetDeltaSeconds()));
 }
 
 void AClass_AchiLess::Accelerate(float Value)
 {
 	//Clampは範囲制限
 	bIsAcceleration = true;
-	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * parameter.Accelerate * GetWorld()->GetDeltaSeconds()), parameter.MinSpeed, parameter.MaxSpeed);
+	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * MyParameter.Accelerate * GetWorld()->GetDeltaSeconds()), MyParameter.MinSpeed, MyParameter.MaxSpeed);
 	
 }
 
 void AClass_AchiLess::AcceleReleased()
 {
 	bIsAcceleration = false;
+}
+
+void AClass_AchiLess::Boost(float Seconds)
+{
+	//ブーストロックがかかっているときは処理しない
+	if (BoostLock)return;
+
+	//ブースト状態
+	bIsBoosting = true;
+
+	CurrentBoost -= BoostCost;
+
+	//下限、使い切ったらブースト処理をしない
+	if (CurrentBoost <= 0)
+	{
+		CurrentBoost = 0;
+		BoostLock = true;
+		return;
+	}
+
+	BoostRate = 1.5f;
+}
+
+void AClass_AchiLess::BoostReleased()
+{
+	bIsBoosting = false;
 }
 
 

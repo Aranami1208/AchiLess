@@ -23,9 +23,6 @@ protected:
 
 public:
 
-	UPROPERTY(EditAnywhere)
-	FDataStruct parameter;
-
 	//ルートのためのコンポーネント
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USceneComponent> DefaultSceneRoot;
@@ -48,13 +45,22 @@ public:
 	void Yaw(float Value);
 	UFUNCTION(BlueprintCallable)
 	void Roll(float Value);
-	UFUNCTION(BlueprintCallable)
-	void Accelerate(float Value);//加速
 
+
+	//加速
+	UFUNCTION(BlueprintCallable)
+	void Accelerate(float Value);
+
+	//自動減速
 	UFUNCTION(BlueprintCallable)
 	void AcceleReleased();
 
-
+	//ブースト
+	UFUNCTION(BlueprintCallable)
+	void Boost(float Seconds);
+	UFUNCTION(BlueprintCallable)
+	void BoostReleased();
+	
 private:
 	
 	FVector Velocity;//移動方向のベクトル
@@ -66,19 +72,34 @@ private:
 
 	// privateでもブルプリから読み取りのみ可
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float CurrentSpeed;//現在のスピード
+	FDataStruct MyParameter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float MaxSpeed;//最大スピード
+	float CurrentSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float MiniSpeed;//最低スピード
-
+	float CurrentBoost;
 	
 	UPROPERTY(EditAnywhere)
 	bool bIsAcceleration;//アクセルが押されているかどうか
 
-	
+	//ブーストの無敵時間
+	UPROPERTY(EditAnywhere)
+	float InvincibleSec;
+
+	//加速率
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float BoostRate = 1;
+
+	UPROPERTY(EditAnywhere)
+	float BoostCost = 2;
+
+	//ブーストを使い切ったときにはロックを掛ける
+	UPROPERTY(EditAnywhere)
+	bool BoostLock = false;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsBoosting = false;
 	
 	
 	UPROPERTY(VisibleAnywhere)
