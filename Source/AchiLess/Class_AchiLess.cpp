@@ -54,7 +54,6 @@ AClass_AchiLess::AClass_AchiLess() :
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
 	Camera->SetupAttachment(CameraSpringArm);//スプリングアームにカメラをアタッチ
-
 	
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
@@ -116,7 +115,7 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FVector Forward = GetActorForwardVector();//進行方向ベクトルを取得する
-	Velocity = Forward * CurrentSpeed + BoostRate;//スピードを掛けた移動量
+	Velocity = Forward * CurrentSpeed * BoostRate;//スピードを掛けた移動量
 
 	//移動と衝突判定処理 
 	AddActorWorldOffset(Velocity * DeltaTime, true);
