@@ -63,12 +63,20 @@ public:
 	void BoostReleased();
 
 	UFUNCTION(BlueprintCallable)
-	void Beam(float sec);
+	void Beam();
+
+
+	//ビーム連射開始処理
+	UFUNCTION(BlueprintCallable)
+	void StartBeam();
+	//ビーム連射終了処理
+	UFUNCTION(BlueprintCallable)
+	void StopBeam();
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<ABeam> BeamClass;
 	
-	
+
 private:
 	
 	FVector Velocity;//移動方向のベクトル
@@ -116,6 +124,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* Camera;
 	
-
+	//ビーム連射用タイマーハンドル
+	FTimerHandle BeamTimerHandle;
 
 };

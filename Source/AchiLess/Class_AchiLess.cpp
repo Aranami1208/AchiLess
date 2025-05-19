@@ -6,6 +6,7 @@
 
 //カメラのコンポーネント
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -65,6 +66,8 @@ void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+	//視野角を設定
 	Camera->FieldOfView = 90;
 
 	//AchilessName = "TypeSpeed";
@@ -76,14 +79,17 @@ void AClass_AchiLess::BeginPlay()
 
 	UCharacterData* CharacterData = Cast<UCharacterData>(UGameplayStatics::GetGameInstance(GetWorld()));
 
+	//パラメータを取得
 	MyParameter = CharacterData->GetParameter();
 
 	//ブーストを未使用状態にする
 	CurrentBoost = MyParameter.MaxBoost;
 
+	//指定されたファイル名と特定のフォルダパスを結合
 	FString ModelFilePath("/Game/Assets/Models/AhiLess");
 	FString FullPath = (ModelFilePath / MyParameter.MeshFileName / MyParameter.MeshFileName + "." + MyParameter.MeshFileName);
 
+	//できたパスからメッシュをロード
 	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
 
 	
@@ -104,6 +110,9 @@ void AClass_AchiLess::BeginPlay()
 
 	}
 	
+
+	
+
 	//UE_DEBUG_BREAK();
 	
 }
@@ -210,17 +219,22 @@ void AClass_AchiLess::BoostReleased()
 	bIsBoosting = false;
 }
 
-void AClass_AchiLess::Beam(float sec)
+void AClass_AchiLess::Beam()
 {
-	
-	int second =  (int)(sec *= 10);
-	if (second % 5 == 0)
-	{
-		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), GetActorRotation());
-	}
-	
-
-	//ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), GetActorRotation());
+	ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), GetActorRotation());
 }
 
+void AClass_AchiLess::StartBeam()
+{
+	//押した瞬間に一発撃つ
+	Beam();
+
+	float BeamInterval = 0.1f;
+	GetWorldTimerManager().SetTimer(BeamTimerHandle,this,&AClass_AchiLess::Beam,BeamInterval,true);
+}
+
+void AClass_AchiLess::StopBeam()
+{
+	GetWorldTimerManager().ClearTimer(BeamTimerHandle);
+}
 

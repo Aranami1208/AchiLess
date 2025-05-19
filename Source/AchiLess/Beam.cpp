@@ -15,7 +15,18 @@ ABeam::ABeam()
 void ABeam::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FTimerHandle DestroyTimerHandle;
+
+	float DestroySeconds = 5;
+
+	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &ABeam::DestroyMe, DestroySeconds, false);
 	
+}
+
+void ABeam::DestroyMe()
+{
+	Destroy();
 }
 
 // Called every frame
