@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "DataStruct.h"
+#include "Beam.h"
 #include "Class_AchiLess.generated.h"
 
 
@@ -60,6 +61,13 @@ public:
 	void Boost(float Seconds);
 	UFUNCTION(BlueprintCallable)
 	void BoostReleased();
+
+	UFUNCTION(BlueprintCallable)
+	void Beam(float sec);
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<ABeam> BeamClass;
+	
 	
 private:
 	

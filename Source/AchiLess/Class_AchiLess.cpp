@@ -12,7 +12,6 @@
 
 
 #include "ADataManager.h" 
-
 #include "CharacterData.h"
 
 // Sets default values
@@ -209,6 +208,19 @@ void AClass_AchiLess::Boost(float Seconds)
 void AClass_AchiLess::BoostReleased()
 {
 	bIsBoosting = false;
+}
+
+void AClass_AchiLess::Beam(float sec)
+{
+	
+	int second =  (int)(sec *= 10);
+	if (second % 5 == 0)
+	{
+		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), GetActorRotation());
+	}
+	
+
+	//ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), GetActorRotation());
 }
 
 
