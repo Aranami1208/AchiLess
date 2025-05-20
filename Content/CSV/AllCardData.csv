@@ -1,3 +1,3 @@
-﻿RowName,CardID,Name,FravorText,CardImage,CardFunctionName,Tags
-BoostLight,1,BoostLight,Boost Light,/Game/Assets/Card/BuffDebuff/BoostLight.BoostLight,BoostLight,Buff;Silver
-ReleaseDebuff,2,ReleaseDebuff,Released Your Debuff,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff;Silver
+﻿RowName,CardID,Name,FravorText,CardImage,CardFunctionName,Tag,Rarity
+BoostLight,1,BoostLight,Boost Light,/Game/Assets/Card/BuffDebuff/BoostLight.BoostLight,BoostLight,Buff,2
+ReleaseDebuff,2,ReleaseDebuff,Released Your Debuff,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,2

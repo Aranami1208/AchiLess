@@ -30,5 +30,8 @@ struct FCardData : public FTableRowBase
 
     // タグ
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TArray<FName> Tags;
+    FName Tag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 Rarity;
 };
