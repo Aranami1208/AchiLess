@@ -8,7 +8,7 @@ public class AchiLess : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","Json","JsonUtilities" , "AssetRegistry" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","Json","JsonUtilities" , "AssetRegistry","Slate","SlateCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AssetRegistry" });
 

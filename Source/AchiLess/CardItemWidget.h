@@ -7,9 +7,9 @@
 #include "CardData.h"
 #include "CardItemWidget.generated.h"
 
-/**
- * 
- */
+
+  
+
 UCLASS()
 class ACHILESS_API UCardItemWidget : public UUserWidget
 {
@@ -17,11 +17,15 @@ class ACHILESS_API UCardItemWidget : public UUserWidget
 
 public:
 	void InitCard(const FCardData& InCard);
+
+	UFUNCTION()
+	void OnCardClicked();
 	
 protected:
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UButton* CardButton;
 
 	FCardData CardData;
 };
+ 
