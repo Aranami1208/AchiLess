@@ -3,6 +3,7 @@
 
 #include "CardDetail.h"
 
+
 void UCardDetail::ShowCardDetail(FCardData& InCard)
 {
     DetailImage->SetBrushFromSoftTexture(InCard.CardImage);

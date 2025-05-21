@@ -17,6 +17,7 @@ class ACHILESS_API UCardDetail : public UUserWidget
 {
 	GENERATED_BODY()
 
+
 public:
 
 	void ShowCardDetail(FCardData& InCard);
