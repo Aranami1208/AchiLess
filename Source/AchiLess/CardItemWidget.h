@@ -27,5 +27,8 @@ protected:
 	class UButton* CardButton = nullptr;
 
 	FCardData CardData;
+
+	UPROPERTY(EditAnyWhere,BlueprintReadWrite)
+	class UCardDetail* CardDetail;
 };
  

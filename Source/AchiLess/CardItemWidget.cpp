@@ -3,6 +3,7 @@
 
 #include "CardItemWidget.h"
 #include "Components/Button.h"
+#include "CardDetail.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -48,4 +49,12 @@ void UCardItemWidget::InitCard(const FCardData& InCard)
 void UCardItemWidget::OnCardClicked()
 {
 	UKismetSystemLibrary::PrintString(this, "OnCardClicked");
+
+	if (!CardDetail)
+	{
+		UKismetSystemLibrary::PrintString(this, "CardDetailNotFound");
+		return;
+	}
+
+	CardDetail->ShowCardDetail(CardData);
 }
