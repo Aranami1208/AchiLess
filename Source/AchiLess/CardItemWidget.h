@@ -23,8 +23,8 @@ public:
 	
 protected:
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	class UButton* CardButton;
+	UPROPERTY(meta = (BindWidget))
+	class UButton* CardButton = nullptr;
 
 	FCardData CardData;
 };

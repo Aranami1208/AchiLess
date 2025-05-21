@@ -1,3 +1,18 @@
 ﻿RowName,CardID,Name,FravorText,CardImage,CardFunctionName,Tag,Rarity
 BoostLight,1,BoostLight,Boost Light,/Game/Assets/Card/BuffDebuff/BoostLight.BoostLight,BoostLight,Buff,2
 ReleaseDebuff,2,ReleaseDebuff,Released Your Debuff,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,2
+Test1,3,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,3
+Test2,4,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,1
+Test3,5,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,1
+Test4,6,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,2
+Test5,7,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,3
+Test6,8,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,4
+Test7,9,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,5
+Test8,10,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,6
+Test9,11,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,7
+Test10,12,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,8
+Test11,13,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,9
+Test12,14,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,10
+Test13,15,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,11
+Test14,16,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,12
+Test15,17,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,13
