@@ -1,6 +1,6 @@
 ﻿RowName,CardID,Name,FravorText,CardImage,CardFunctionName,Tag,Rarity
 BoostLight,1,BoostLight,Temporarily reduces your boost gauge consumption,/Game/Assets/Card/BuffDebuff/BoostLight.BoostLight,BoostLight,Buff,2
-ReleaseDebuff,2,ReleaseDebuff,Released Your Debuff,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,2
+ReleaseDebuff,2,ReleaseDebuff,"""テスト""",/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,2
 Test1,3,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,3
 Test2,4,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,1
 Test3,5,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,1
