@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "DataStruct.h"
+#include "CardData.h"
 #include "CharacterData.generated.h"
 
 /**
@@ -25,5 +26,8 @@ private:
 
 	//プレイヤーのパラメータ情報を保持
 	FDataStruct Parameter;
+
+	//プレイヤーのデッキに入っているカード
+	TArray<FCardData> Deck;
 	
 };
