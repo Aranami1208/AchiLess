@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* CardButton = nullptr;
 
+	UPROPERTY(meta = (BindWidget))
+	class UImage* ReloadImage = nullptr;
+
 	FCardData CardData;
 
 	UPROPERTY(EditAnyWhere,BlueprintReadWrite)
