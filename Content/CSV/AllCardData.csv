@@ -16,3 +16,4 @@ Test12,14,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,R
 Test13,15,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,11
 Test14,16,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,12
 Test15,17,Test1,Test1,/Game/Assets/Card/BuffDebuff/ReleaseDebuff.ReleaseDebuff,ReleaseDebuff,Debuff,13
+Test16,18,Test1,”テスト”,/Game/Assets/Card/BuffDebuff/StatusBuff.StatusBuff,ReleaseDebuff,Debuff,1
