@@ -16,10 +16,17 @@ class ACHILESS_API UCardItemWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UFUNCTION()
 	void InitCard(const FCardData& InCard);
 
 	UFUNCTION()
 	void OnCardClicked();
+
+	UFUNCTION(BlueprintCallable)
+	void SetIsWaitChange(const FCardData& InCard);
+
+	UFUNCTION()
+	void LoadCard();
 	
 protected:
 
@@ -31,7 +38,13 @@ protected:
 
 	FCardData CardData;
 
+	FCardData NextCard;
+
 	UPROPERTY(EditAnyWhere,BlueprintReadWrite)
 	class UCardDetail* CardDetail;
+
+
+	//ÉJÅ[ÉhâÊëúïœä∑íÜÇ©
+	bool bIsWaitChange;
 };
  

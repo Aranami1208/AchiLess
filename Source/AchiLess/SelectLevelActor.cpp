@@ -37,6 +37,7 @@ void ASelectLevelActor::BeginPlay()
 	UDataTable* CardDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/Assets/Card/CardDataTable.CardDataTable"));
 	TArray<FCardData*> AllCards;
 
+	if (!CardDataTable)return;
 	//データテーブルのすべての行を取得
 	CardDataTable->GetAllRows<FCardData>(ContextString, AllCards);
 

@@ -55,16 +55,7 @@ public:
 	class UUniformGridPanel* GridPanel = nullptr;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	UCardItemWidget* DeckCard1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UCardItemWidget* DeckCard2;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UCardItemWidget* DeckCard3;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UCardItemWidget* DeckCard4;
+	TArray<UCardItemWidget*> DeckCard;
 
 	UPROPERTY()
 	TArray<UCardItemWidget*> GenaratedWidgets;
