@@ -6,6 +6,10 @@
 
 void UCardDetail::ShowCardDetail(FCardData& InCard)
 {
+    if (!DetailImage)return;
+    if (!NameText)return;
+    if (!FravorText)return;
+    
     DetailImage->SetBrushFromSoftTexture(InCard.CardImage);
     NameText->SetText(InCard.Name);
     FravorText->SetText(InCard.FravorText);
@@ -16,6 +20,7 @@ void UCardDetail::ShowCardDetail(FCardData& InCard)
 void UCardDetail::Confirm()
 {
     SetVisibility(ESlateVisibility::Hidden);
+    
 }
 
 void UCardDetail::Close()
