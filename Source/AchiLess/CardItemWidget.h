@@ -23,7 +23,7 @@ public:
 	void OnCardClicked();
 
 	UFUNCTION(BlueprintCallable)
-	void SetIsWaitChange(const FCardData& InCard);
+	void SetIsWaitChange();
 
 	UFUNCTION()
 	void LoadCard();
@@ -42,7 +42,7 @@ protected:
 
 	UPROPERTY(EditAnyWhere,BlueprintReadWrite)
 	class UCardDetail* CardDetail;
-
+	
 
 	//ƒJ[ƒh‰æ‘œ•ÏŠ·’†‚©
 	bool bIsWaitChange;

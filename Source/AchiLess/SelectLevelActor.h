@@ -36,6 +36,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AchiLessSelectRight();
 
+	void SetReload();
+
 public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)

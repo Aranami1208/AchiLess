@@ -25,7 +25,7 @@ void UCardItemWidget::InitCard(const FCardData& InCard)
 	}
 
 	//最初はリロード画像は非表示
-	//ReloadImage->SetVisibility(ESlateVisibility::Hidden);
+	ReloadImage->SetVisibility(ESlateVisibility::Hidden);
 
 
 	
@@ -65,12 +65,11 @@ void UCardItemWidget::OnCardClicked()
 	CardDetail->ShowCardDetail(CardData);
 }
 
-void UCardItemWidget::SetIsWaitChange(const FCardData& InCard)
+void UCardItemWidget::SetIsWaitChange()
 {
 
 	if (!ReloadImage)return;
-	//変更先のカードを設定する
-	NextCard = InCard;
+	
 
 	//リロード画像を描画する
 	ReloadImage->SetVisibility(ESlateVisibility::Visible);

@@ -130,3 +130,7 @@ void ASelectLevelActor::AchiLessSelectRight()
 	UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
 }
 
+void ASelectLevelActor::SetReload()
+{
+}
+
