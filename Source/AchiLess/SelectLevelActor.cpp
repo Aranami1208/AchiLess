@@ -12,6 +12,7 @@
 #include "Components/UniformGridSlot.h"
 #include "Components/UniformGridPanel.h"
 
+
 // Sets default values
 ASelectLevelActor::ASelectLevelActor()
 {
@@ -68,6 +69,11 @@ void ASelectLevelActor::BeginPlay()
 		GenaratedWidgets.Add(CardWidget);
 		++Index;
 	}
+
+	DeckCard1->InitCard(*AllCards[0]);
+	DeckCard2->InitCard(*AllCards[1]);
+	DeckCard3->InitCard(*AllCards[2]);
+	DeckCard4->InitCard(*AllCards[3]);
 }
 
 void ASelectLevelActor::LoadAllJson()
@@ -132,5 +138,6 @@ void ASelectLevelActor::AchiLessSelectRight()
 
 void ASelectLevelActor::SetReload()
 {
+	
 }
 
