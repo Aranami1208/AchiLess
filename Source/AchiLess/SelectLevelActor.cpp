@@ -69,11 +69,14 @@ void ASelectLevelActor::BeginPlay()
 		GenaratedWidgets.Add(CardWidget);
 		++Index;
 	}
-
-	DeckCard1->InitCard(*AllCards[0]);
-	DeckCard2->InitCard(*AllCards[1]);
-	DeckCard3->InitCard(*AllCards[2]);
-	DeckCard4->InitCard(*AllCards[3]);
+	
+	//デッキのカードをすべて初期化
+	int32 index = 0;
+	for (UCardItemWidget* Deck : DeckCards)
+	{
+		Deck->InitCard(*AllCards[index]);
+		index++;
+	}
 }
 
 void ASelectLevelActor::LoadAllJson()
@@ -138,17 +141,17 @@ void ASelectLevelActor::AchiLessSelectRight()
 
 void ASelectLevelActor::SetReload()
 {
-	DeckCard1->SetIsWaitChange();
-	DeckCard2->SetIsWaitChange();
-	DeckCard3->SetIsWaitChange();
-	DeckCard4->SetIsWaitChange();
+	for (UCardItemWidget* Card : DeckCards)
+	{
+		Card->SetIsWaitChange();
+	}
 }
 
 void ASelectLevelActor::ReleaseReload()
 {
-	DeckCard1->ReleaseIsWaitChange();
-	DeckCard2->ReleaseIsWaitChange();
-	DeckCard3->ReleaseIsWaitChange();
-	DeckCard4->ReleaseIsWaitChange();
+	for (UCardItemWidget* Card : DeckCards)
+	{
+		Card->ReleaseIsWaitChange();
+	}
 }
 
