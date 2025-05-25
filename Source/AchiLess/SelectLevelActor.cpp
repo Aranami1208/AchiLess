@@ -12,6 +12,7 @@
 #include "Components/UniformGridSlot.h"
 #include "Components/UniformGridPanel.h"
 
+
 // Sets default values
 ASelectLevelActor::ASelectLevelActor()
 {
@@ -37,6 +38,7 @@ void ASelectLevelActor::BeginPlay()
 	UDataTable* CardDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/Assets/Card/CardDataTable.CardDataTable"));
 	TArray<FCardData*> AllCards;
 
+	if (!CardDataTable)return;
 	//データテーブルのすべての行を取得
 	CardDataTable->GetAllRows<FCardData>(ContextString, AllCards);
 
@@ -67,6 +69,11 @@ void ASelectLevelActor::BeginPlay()
 		GenaratedWidgets.Add(CardWidget);
 		++Index;
 	}
+
+	DeckCard1->InitCard(*AllCards[0]);
+	DeckCard2->InitCard(*AllCards[1]);
+	DeckCard3->InitCard(*AllCards[2]);
+	DeckCard4->InitCard(*AllCards[3]);
 }
 
 void ASelectLevelActor::LoadAllJson()
@@ -127,5 +134,10 @@ void ASelectLevelActor::AchiLessSelectRight()
 		SelectIndex = 0;
 	}
 	UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
+}
+
+void ASelectLevelActor::SetReload()
+{
+	
 }
 
