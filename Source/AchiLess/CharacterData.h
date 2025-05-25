@@ -18,12 +18,15 @@ class ACHILESS_API UCharacterData : public UGameInstance
 
 public:
 	//parameter‚ðƒZƒbƒg‚·‚é
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	void SetParameter(FDataStruct CharaParam);
+	
 	FDataStruct GetParameter();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	void SetDeckFromData(TArray<class UCardItemWidget*> InData);
+
+	
 
 private:
 
