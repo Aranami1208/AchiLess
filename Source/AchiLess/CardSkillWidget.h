@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "CardData.h"
+#include "CardItemWidget.h"
 #include "CardSkillWidget.generated.h"
 
 
