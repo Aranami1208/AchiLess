@@ -40,3 +40,8 @@ FCardData UCardDetail::GetNextCard()
 {
     return NextCardData;
 }
+
+void UCardDetail::SetNextCard(FCardData InCard)
+{
+    NextCardData = InCard;
+}

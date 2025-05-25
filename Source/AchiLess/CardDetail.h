@@ -33,6 +33,7 @@ public:
 	class ASelectLevelActor* SelectLevelActor;
 
 	FCardData GetNextCard();
+	void SetNextCard(FCardData InCard);
 
 private:
 	UPROPERTY(meta = (BindWidget))

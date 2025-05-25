@@ -22,13 +22,26 @@ public:
 	UFUNCTION()
 	void OnCardClicked();
 
+	/// <summary>
+	/// 変更待ち状態にする
+	/// </summary>
 	UFUNCTION(BlueprintCallable)
 	void SetIsWaitChange();
 
+
+	/// <summary>
+	/// 変更待ち状態を解除する
+	/// </summary>
 	void ReleaseIsWaitChange();
 
 	UFUNCTION()
 	void LoadCard();
+
+	/// <summary>
+	/// 現在設定されているカードを返す
+	/// </summary>
+	/// <returns>現在のカード</returns>
+	FCardData GetCardData();
 	
 protected:
 

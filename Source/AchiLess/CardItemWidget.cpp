@@ -66,12 +66,45 @@ void UCardItemWidget::OnCardClicked()
 	//カード変更待ち状態の時
 	if (bIsWaitChange)
 	{
+		//デッキに同じカードが設定されているときは入れ替える
+		TArray<UCardItemWidget*> Decks = CardDetail->SelectLevelActor->DeckCards;
+
+		int32 Index = 0;
+
+		//重複したカードのインデックスを保存する変数
+		int32 TempIndex = -1;
+
+		//重複時交換用カード
+		FCardData TempCard;
+
+		for (UCardItemWidget* Card : Decks)
+		{
+			FCardData Data = Card->GetCardData();
+
+			//カードIDが一致している場合インデックスを保存
+			if (Data.CardID == CardDetail->GetNextCard().CardID)
+			{
+				TempIndex = Index;
+				TempCard = CardData;
+			}
+
+			//インデックス加算
+			Index++;
+		}
 
 		//カードの情報を書き換える
 		CardData = CardDetail->GetNextCard();
 		LoadCard();
 
 		CardDetail->SelectLevelActor->ReleaseReload();
+
+		//カードに重複がある場合は入れ替え
+		if (TempIndex != -1)
+		{
+			CardDetail->SelectLevelActor->DeckCards[TempIndex]->CardData = TempCard;
+			CardDetail->SelectLevelActor->DeckCards[TempIndex]->LoadCard();
+		}
+
 		return;
 	}
 
@@ -123,3 +156,9 @@ void UCardItemWidget::LoadCard()
 	CardButton->SetStyle(NewStyle);
 
 }
+
+FCardData UCardItemWidget::GetCardData()
+{
+	return CardData;
+}
+
