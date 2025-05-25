@@ -22,6 +22,9 @@ public:
 	void SetParameter(FDataStruct CharaParam);
 	FDataStruct GetParameter();
 
+	UFUNCTION(BlueprintCallable)
+	void SetDeckFromData(TArray<class UCardItemWidget*> InData);
+
 private:
 
 	//プレイヤーのパラメータ情報を保持

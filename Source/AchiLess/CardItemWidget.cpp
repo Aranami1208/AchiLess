@@ -118,7 +118,7 @@ void UCardItemWidget::SetIsWaitChange()
 	
 
 	//ƒŠƒ[ƒh‰æ‘œ‚ð•`‰æ‚·‚é
-	ReloadImage->SetVisibility(ESlateVisibility::Visible);
+	ReloadImage->SetVisibility(ESlateVisibility::HitTestInvisible);
 	bIsWaitChange = true;
 }
 
@@ -160,5 +160,6 @@ void UCardItemWidget::LoadCard()
 FCardData UCardItemWidget::GetCardData()
 {
 	return CardData;
+
 }
 
