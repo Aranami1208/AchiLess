@@ -28,12 +28,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Close();
 
-	//セレクトレベルのアクター
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class ASelectLevelActor* SelectLevelActor;
-
-	FCardData GetNextCard();
-
 private:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* DetailImage;
@@ -43,11 +37,8 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* FravorText;
-
-	
 	
 	
 	FCardData CardData;
-	FCardData NextCardData;
 	
 };
