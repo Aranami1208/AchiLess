@@ -25,8 +25,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetIsWaitChange();
 
-	void ReleaseIsWaitChange();
-
 	UFUNCTION()
 	void LoadCard();
 	
@@ -40,6 +38,7 @@ protected:
 
 	FCardData CardData;
 
+	FCardData NextCard;
 
 	UPROPERTY(EditAnyWhere,BlueprintReadWrite)
 	class UCardDetail* CardDetail;
