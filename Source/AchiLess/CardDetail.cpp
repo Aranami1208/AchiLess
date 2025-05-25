@@ -2,7 +2,8 @@
 
 
 #include "CardDetail.h"
-
+#include "Kismet/KismetSystemLibrary.h"
+#include "SelectLevelActor.h"
 
 void UCardDetail::ShowCardDetail(FCardData& InCard)
 {
@@ -20,10 +21,22 @@ void UCardDetail::ShowCardDetail(FCardData& InCard)
 void UCardDetail::Confirm()
 {
     SetVisibility(ESlateVisibility::Hidden);
+    if (!SelectLevelActor)
+    {
+        UKismetSystemLibrary::PrintString(this, "NoSelectLevelActor");
+        return;
+    }
+    NextCardData = CardData;
+    SelectLevelActor->SetReload();
     
 }
 
 void UCardDetail::Close()
 {
     SetVisibility(ESlateVisibility::Hidden);
+}
+
+FCardData UCardDetail::GetNextCard()
+{
+    return NextCardData;
 }

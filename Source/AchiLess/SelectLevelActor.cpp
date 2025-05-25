@@ -138,6 +138,17 @@ void ASelectLevelActor::AchiLessSelectRight()
 
 void ASelectLevelActor::SetReload()
 {
-	
+	DeckCard1->SetIsWaitChange();
+	DeckCard2->SetIsWaitChange();
+	DeckCard3->SetIsWaitChange();
+	DeckCard4->SetIsWaitChange();
+}
+
+void ASelectLevelActor::ReleaseReload()
+{
+	DeckCard1->ReleaseIsWaitChange();
+	DeckCard2->ReleaseIsWaitChange();
+	DeckCard3->ReleaseIsWaitChange();
+	DeckCard4->ReleaseIsWaitChange();
 }
 

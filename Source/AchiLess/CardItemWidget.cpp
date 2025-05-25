@@ -5,7 +5,7 @@
 #include "Components/Button.h"
 #include "CardDetail.h"
 #include "Kismet/KismetSystemLibrary.h"
-
+#include "SelectLevelActor.h"
 
 void UCardItemWidget::InitCard(const FCardData& InCard)
 {
@@ -27,7 +27,7 @@ void UCardItemWidget::InitCard(const FCardData& InCard)
 	//最初はリロード画像は非表示
 	ReloadImage->SetVisibility(ESlateVisibility::Hidden);
 
-
+	bIsWaitChange = false;
 	
 	FButtonStyle NewStyle = CardButton->WidgetStyle;
 
@@ -56,9 +56,22 @@ void UCardItemWidget::OnCardClicked()
 {
 	UKismetSystemLibrary::PrintString(this, "OnCardClicked");
 
+	
 	if (!CardDetail)
 	{
 		UKismetSystemLibrary::PrintString(this, "CardDetailNotFound");
+		return;
+	}
+
+	//カード変更待ち状態の時
+	if (bIsWaitChange)
+	{
+
+		//カードの情報を書き換える
+		CardData = CardDetail->GetNextCard();
+		LoadCard();
+
+		CardDetail->SelectLevelActor->ReleaseReload();
 		return;
 	}
 
@@ -74,6 +87,14 @@ void UCardItemWidget::SetIsWaitChange()
 	//リロード画像を描画する
 	ReloadImage->SetVisibility(ESlateVisibility::Visible);
 	bIsWaitChange = true;
+}
+
+void UCardItemWidget::ReleaseIsWaitChange()
+{
+	if (!ReloadImage)return;
+	//リロード画像を非表示にする
+	ReloadImage->SetVisibility(ESlateVisibility::Hidden);
+	bIsWaitChange = false;
 }
 
 void UCardItemWidget::LoadCard()
