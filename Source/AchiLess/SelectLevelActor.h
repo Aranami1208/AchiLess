@@ -38,6 +38,8 @@ public:
 
 	void SetReload();
 
+	void ReleaseReload();
+
 public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
