@@ -238,7 +238,7 @@ void AClass_AchiLess::Beam()
 void AClass_AchiLess::TakeDamage(float InDamage)
 {
 	//HPå∏è≠èàóù
-	FMath::Clamp(CurrentHp -= InDamage, 0, MyParameter.MaxHp);
+	CurrentHp = FMath::Clamp(CurrentHp -= InDamage, 0, MyParameter.MaxHp);
 }
 
 void AClass_AchiLess::StartBeam()

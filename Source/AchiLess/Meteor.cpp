@@ -26,6 +26,8 @@ AMeteor::AMeteor()
 	MeshComponent->SetStaticMesh(MeshFinder.Object);
 }
 
+
+
 // Called when the game starts or when spawned
 void AMeteor::BeginPlay()
 {
@@ -34,6 +36,14 @@ void AMeteor::BeginPlay()
 	//スケールを一定範囲からランダムに決定
 	FVector Scale = FMath::RandPointInBox(FBox(MinScale, MaxScale));
 	SetActorScale3D(Scale);
+
+
+	//スケールをもとにHPを設定
+	float HpRate = (Scale.X + Scale.Y + Scale.Z) / 3;
+
+	CurrentHp = 5000;
+
+	CurrentHp = CurrentHp * HpRate;
 
 	//ローテーションを一定範囲からランダムに決定
 	FRotator Rotation = FRotator(FMath::RandRange(0.0f,360.0f), FMath::RandRange(0.0f, 360.0f), FMath::RandRange(0.0f, 360.0f));
@@ -85,6 +95,6 @@ void AMeteor::BeginPlay()
 	}
 	else
 	{
-		UKismetSystemLibrary::PrintString(this, "キャストに失敗しました");
+		UKismetSystemLibrary::PrintString(this, "FailedCast");
 	}
 }

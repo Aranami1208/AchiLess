@@ -3,17 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "DestructibleActor.h"
 #include "Meteor.generated.h"
 
 UCLASS()
-class ACHILESS_API AMeteor : public AActor
+class ACHILESS_API AMeteor : public ADestructibleActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
 	AMeteor();
+
+	
 
 protected:
 	// Called when the game starts or when spawned
