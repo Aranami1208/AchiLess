@@ -20,7 +20,10 @@ AClass_AchiLess::AClass_AchiLess() :
 	AchilessMesh(nullptr),
 	CameraSpringArm(nullptr),
 	Camera(nullptr),
-	bIsAcceleration(false)
+	bIsAcceleration(false),
+	CurrentSpeed(0.0f), // 初期化
+	CurrentBoost(0.0f), // 初期化
+	CurrentHp(0.0f) // 初期化
 {
 
 
@@ -144,7 +147,7 @@ void AClass_AchiLess::Tick(float DeltaTime)
 		CurrentBoost = FMath::Clamp(CurrentBoost + BoostCost, 0, MyParameter.MaxBoost);
 		
 		//速度を通常時の状態に戻す
-		BoostRate = 1.0;
+		BoostRate = FMath::Clamp( BoostRate - 0.01f,1.0f,10.f);
 
 		//ブーストゲージがマックス出ないときはスキップ
 		if (CurrentBoost != MyParameter.MaxBoost)return;
@@ -214,7 +217,12 @@ void AClass_AchiLess::Boost(float Seconds)
 		return;
 	}
 
-	BoostRate = 1.5f;
+	//押した秒数の割合
+	float SecondRate = 0.f;
+	float MaxSec = 0.5;
+
+	SecondRate = FMath::Clamp(Seconds / MaxSec, 0.f, 1.f);
+	BoostRate = 1.f + (0.5f * SecondRate);
 }
 
 void AClass_AchiLess::BoostReleased()
