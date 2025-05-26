@@ -6,10 +6,14 @@
 
 //カメラのコンポーネント
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
-#include "ADataManager.h"
+
+#include "ADataManager.h" 
+#include "CharacterData.h"
 
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
@@ -19,12 +23,14 @@ AClass_AchiLess::AClass_AchiLess() :
 	bIsAcceleration(false)
 {
 
+
 	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
 
+	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 
 	AchilessMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AchiLessMesh"));
-	RootComponent = AchilessMesh;//ルートコンポーネントに設定
+	RootComponent = DefaultSceneRoot;//ルートコンポーネントに設定
 
 
 	//SpringArmの設定
@@ -48,25 +54,66 @@ AClass_AchiLess::AClass_AchiLess() :
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
 	Camera->SetupAttachment(CameraSpringArm);//スプリングアームにカメラをアタッチ
+	
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
 
-	//初期速度
-	MaxSpeed = 6000.f;
-	MiniSpeed = 1000.f;
-
-	//最大旋回速度
-	MaxRotationSpeed = 1.0f;
-	CurrentSpeed = 0.f;
-	FString name;
-
-	UADataManager::ReadJsonData("TypeBalance.json", parameter);
+	AchilessMesh->SetupAttachment(DefaultSceneRoot);
 	
 }
 // Called when the game starts or when spawned
 void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+	//視野角を設定
+	Camera->FieldOfView = 90;
+
+	//AchilessName = "TypeSpeed";
+
+	//データマネージャー
+	//UADataManager* DataManager = NewObject<UADataManager>();
+
+	//DataManager->ReadJsonData(AchilessName+".json", MyParameter);
+
+	UCharacterData* CharacterData = Cast<UCharacterData>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	//パラメータを取得
+	MyParameter = CharacterData->GetParameter();
+
+	//ブーストを未使用状態にする
+	CurrentBoost = MyParameter.MaxBoost;
+
+	//指定されたファイル名と特定のフォルダパスを結合
+	FString ModelFilePath("/Game/Assets/Models/AhiLess");
+	FString FullPath = (ModelFilePath / MyParameter.MeshFileName / MyParameter.MeshFileName + "." + MyParameter.MeshFileName);
+
+	//できたパスからメッシュをロード
+	UStaticMesh* Mesh = LoadObject<UStaticMesh>(NULL, *FullPath, NULL, LOAD_None, NULL);
+
+	
+
+	if (!Mesh)
+	{
+		//メッシュがセットできなかったら
+		
+		UE_DEBUG_BREAK();
+		return;
+	}
+
+	if (!AchilessMesh->SetStaticMesh(Mesh))
+	{
+		UKismetSystemLibrary::PrintString(this, "Could not set mesh");
+		//メッシュがセットできなかったら
+		UE_DEBUG_BREAK();
+
+	}
+	
+
+	
+
+	//UE_DEBUG_BREAK();
 	
 }
 
@@ -76,17 +123,32 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FVector Forward = GetActorForwardVector();//進行方向ベクトルを取得する
-	Velocity = Forward * CurrentSpeed;//スピードを掛けた移動量
+	Velocity = Forward * CurrentSpeed * BoostRate;//スピードを掛けた移動量
 
 	//移動と衝突判定処理 
 	AddActorWorldOffset(Velocity * DeltaTime, true);
 
 	
-	if(bIsAcceleration)return;
+	if (!bIsAcceleration) {
 
-	//加速していないときの処理
-	CurrentSpeed = FMath::Clamp(CurrentSpeed - (parameter.AirFriction * GetWorld()->GetDeltaSeconds()), parameter.MinSpeed, parameter.MaxSpeed);
+		//加速していないときの処理
+		CurrentSpeed = FMath::Clamp(CurrentSpeed - (MyParameter.AirFriction * GetWorld()->GetDeltaSeconds()), MyParameter.MinSpeed, MyParameter.MaxSpeed);
+	}
 
+	//ブーストしていないときの処理
+	if (!bIsBoosting)
+	{
+		CurrentBoost = FMath::Clamp(CurrentBoost + BoostCost, 0, MyParameter.MaxBoost);
+		
+		//速度を通常時の状態に戻す
+		BoostRate = 1.0;
+
+		//ブーストゲージがマックス出ないときはスキップ
+		if (CurrentBoost != MyParameter.MaxBoost)return;
+
+		//ブーストロックを解除
+		if (BoostLock) BoostLock = false;
+	}
 
 }
 
@@ -103,9 +165,9 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AClass_AchiLess::Pitch(float Value)
 {
-	Value = FMath::Clamp(Value, -MaxRotationSpeed, MaxRotationSpeed);
+	Value = FMath::Clamp(Value,- MyParameter.MaxRotationSpeed, MyParameter.MaxRotationSpeed);
 	//ピッチ操作
-	AddActorLocalRotation(FRotator(Value * parameter.TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
+	AddActorLocalRotation(FRotator(Value * MyParameter.TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
 }
 
 void AClass_AchiLess::Yaw(float Value)
@@ -115,14 +177,14 @@ void AClass_AchiLess::Yaw(float Value)
 
 void AClass_AchiLess::Roll(float Value)
 {
-	AddActorLocalRotation(FRotator(0.f, 0.f, Value * parameter.TurnSpeed * GetWorld()->GetDeltaSeconds()));
+	AddActorLocalRotation(FRotator(0.f, 0.f, Value * MyParameter.TurnSpeed * GetWorld()->GetDeltaSeconds()));
 }
 
 void AClass_AchiLess::Accelerate(float Value)
 {
 	//Clampは範囲制限
 	bIsAcceleration = true;
-	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * parameter.Accelerate * GetWorld()->GetDeltaSeconds()), parameter.MinSpeed, parameter.MaxSpeed);
+	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * MyParameter.Accelerate * GetWorld()->GetDeltaSeconds()), MyParameter.MinSpeed, MyParameter.MaxSpeed);
 	
 }
 
@@ -131,4 +193,48 @@ void AClass_AchiLess::AcceleReleased()
 	bIsAcceleration = false;
 }
 
+void AClass_AchiLess::Boost(float Seconds)
+{
+	//ブーストロックがかかっているときは処理しない
+	if (BoostLock)return;
+
+	//ブースト状態
+	bIsBoosting = true;
+
+	CurrentBoost -= BoostCost;
+
+	//下限、使い切ったらブースト処理をしない
+	if (CurrentBoost <= 0)
+	{
+		CurrentBoost = 0;
+		BoostLock = true;
+		return;
+	}
+
+	BoostRate = 1.5f;
+}
+
+void AClass_AchiLess::BoostReleased()
+{
+	bIsBoosting = false;
+}
+
+void AClass_AchiLess::Beam()
+{
+	ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), GetActorRotation());
+}
+
+void AClass_AchiLess::StartBeam()
+{
+	//押した瞬間に一発撃つ
+	Beam();
+
+	float BeamInterval = 0.1f;
+	GetWorldTimerManager().SetTimer(BeamTimerHandle,this,&AClass_AchiLess::Beam,BeamInterval,true);
+}
+
+void AClass_AchiLess::StopBeam()
+{
+	GetWorldTimerManager().ClearTimer(BeamTimerHandle);
+}
 

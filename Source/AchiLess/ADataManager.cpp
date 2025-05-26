@@ -8,8 +8,6 @@
 
 static const FString RootName("InventoryObject");
 static const FString WritePath(FPaths::ProjectContentDir() / "Json");
-//static const FString FileName("JsonData.json");
-//static const FString FilePathFull(WritePath / FileName);
 
 bool UADataManager::WriteJsonData(FString Name, FDataStruct& DataS)
 {
@@ -46,9 +44,14 @@ bool UADataManager::ReadJsonData(FString Name, FDataStruct& DataS)
 	DataS.AirFriction = JsonRootObject->GetNumberField("AirFriction");
 	DataS.MaxRotationSpeed = JsonRootObject->GetNumberField("MaxRotationSpeed");
 	DataS.MaxSpeed = JsonRootObject->GetNumberField("MaxSpeed");
+	DataS.MaxSpeed = DataS.MaxSpeed / 0.036;//’PˆÊ‚ðkm/h‚©‚çcm/s‚Ö•ÏŠ·
 	DataS.MinSpeed = JsonRootObject->GetNumberField("MinSpeed");
+	DataS.MinSpeed = DataS.MinSpeed / 0.036;//’PˆÊ‚ðkm/h‚©‚çcm/s‚Ö•ÏŠ·
+	DataS.MaxBoost = JsonRootObject->GetNumberField("MaxBoost");
 	DataS.TurnSpeed = JsonRootObject->GetNumberField("TurnSpeed");
+	DataS.MeshFileName = JsonRootObject->GetStringField("Mesh");
 
+	UE_DEBUG_BREAK();
 	return true;
 	
 }

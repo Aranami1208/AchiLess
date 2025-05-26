@@ -7,6 +7,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Dom/JsonObject.h"
 #include "DataStruct.h"
+#include "GameFramework/HUD.h"
 #include "ADataManager.generated.h"
 
 /**
@@ -20,7 +21,7 @@ class ACHILESS_API UADataManager : public UObject
 	
 
 public:
-	static bool WriteJsonData(FString Name, FDataStruct& DataS);
+	bool WriteJsonData(FString Name, FDataStruct& DataS);
 
-	static bool ReadJsonData(FString Name, FDataStruct& DataS);
+	bool ReadJsonData(FString Name, FDataStruct& DataS);
 };

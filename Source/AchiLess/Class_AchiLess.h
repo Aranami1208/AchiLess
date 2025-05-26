@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "DataStruct.h"
+#include "Beam.h"
 #include "Class_AchiLess.generated.h"
 
 
@@ -23,8 +24,12 @@ protected:
 
 public:
 
-	UPROPERTY(BlueprintReadOnly)
-	FDataStruct parameter;
+	//ルートのためのコンポーネント
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USceneComponent> DefaultSceneRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UStaticMeshComponent> AchilessMesh;
 
 	// 毎フレーム呼ばれる（更新用）
 	virtual void Tick(float DeltaTime) override;
@@ -41,47 +46,77 @@ public:
 	void Yaw(float Value);
 	UFUNCTION(BlueprintCallable)
 	void Roll(float Value);
-	UFUNCTION(BlueprintCallable)
-	void Accelerate(float Value);//加速
 
+
+	//加速
+	UFUNCTION(BlueprintCallable)
+	void Accelerate(float Value);
+
+	//自動減速
 	UFUNCTION(BlueprintCallable)
 	void AcceleReleased();
 
+	//ブースト
+	UFUNCTION(BlueprintCallable)
+	void Boost(float Seconds);
+	UFUNCTION(BlueprintCallable)
+	void BoostReleased();
+
+	UFUNCTION(BlueprintCallable)
+	void Beam();
+
+
+	//ビーム連射開始処理
+	UFUNCTION(BlueprintCallable)
+	void StartBeam();
+	//ビーム連射終了処理
+	UFUNCTION(BlueprintCallable)
+	void StopBeam();
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<ABeam> BeamClass;
+	
 
 private:
 	
 	FVector Velocity;//移動方向のベクトル
 
-	
-	
 	float MaxRotationSpeed;
+
+	UPROPERTY(EditAnywhere)
+	FString AchilessName;
 
 	// privateでもブルプリから読み取りのみ可
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float CurrentSpeed;//現在のスピード
+	FDataStruct MyParameter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float MaxSpeed;//最大スピード
+	float CurrentSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float MiniSpeed;//最低スピード
-
+	float CurrentBoost;
 	
 	UPROPERTY(EditAnywhere)
 	bool bIsAcceleration;//アクセルが押されているかどうか
 
-	//調整用パラメータ
+	//ブーストの無敵時間
 	UPROPERTY(EditAnywhere)
+	float InvincibleSec;
 
-	float Acceleration = 1500.f;//加速の強さ
-	float AirFriction = 500;//空気摩擦の減速量
+	//加速率
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float BoostRate = 1;
 
 	UPROPERTY(EditAnywhere)
-	float TurnSpeed = 50.f;
+	float BoostCost = 2;
 
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* AchilessMesh;
+	//ブーストを使い切ったときにはロックを掛ける
+	UPROPERTY(EditAnywhere)
+	bool BoostLock = false;
 
+	UPROPERTY(EditAnywhere)
+	bool bIsBoosting = false;
+	
 	
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* CameraSpringArm;
@@ -89,6 +124,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* Camera;
 	
-
+	//ビーム連射用タイマーハンドル
+	FTimerHandle BeamTimerHandle;
 
 };
