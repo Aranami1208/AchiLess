@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	void SetDeckFromData(TArray<class UCardItemWidget*> InData);
 
+	UFUNCTION(BlueprintCallable, Category = "CharacterData")
+	FCardData GetDeck(int32 Index);
+
 	
 
 private:

@@ -21,3 +21,9 @@ void UCharacterData::SetDeckFromData(TArray<UCardItemWidget*> InData)
 		Deck.Add(Card->GetCardData());
 	}
 }
+
+FCardData UCharacterData::GetDeck(int32 Index)
+{
+	return Deck[Index];
+}
+UFUNCTION(BlueprintCallable, Category = "CharacterData")
