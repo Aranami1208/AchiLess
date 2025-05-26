@@ -227,7 +227,7 @@ void AClass_AchiLess::Beam()
 	ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), GetActorRotation());
 }
 
-void AClass_AchiLess::AddDamage(float InDamage)
+void AClass_AchiLess::TakeDamage(float InDamage)
 {
 	//HPå∏è≠èàóù
 	FMath::Clamp(CurrentHp -= InDamage, 0, MyParameter.MaxHp);

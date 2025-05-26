@@ -66,7 +66,7 @@ public:
 	void Beam();
 
 	UFUNCTION(BlueprintCallable, Category = "AchiLess")
-	void AddDamage(float InDamage);
+	void TakeDamage(float InDamage);
 
 
 	//ビーム連射開始処理
