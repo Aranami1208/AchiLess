@@ -1,11 +1,12 @@
 {
   "Name": "TypeBalance",
 "Mesh": "TypeBalance",
-"Accelerate":"1500",
+"Accelerate":"3000",
 "AirFriction":"500",
 "MaxRotationSpeed": "1.3",
 "MaxBoost": "1000",
 "MaxSpeed":"950",
 "MinSpeed":"40",
-"TurnSpeed":"50.0"
+"TurnSpeed": "50.0",
+"Hp": "10000"
 }

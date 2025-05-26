@@ -29,8 +29,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	FCardData GetDeck(int32 Index);
 
-	
-
 private:
 
 	//プレイヤーのパラメータ情報を保持

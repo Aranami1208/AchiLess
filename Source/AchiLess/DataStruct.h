@@ -41,6 +41,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float TurnSpeed;
 
+	UPROPERTY(BlueprintReadOnly)
+	float MaxHp;
+
 	//メッシュファイル名
 	UPROPERTY(BlueprintReadOnly)
 	FString MeshFileName;

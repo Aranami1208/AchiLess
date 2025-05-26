@@ -65,6 +65,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Beam();
 
+	UFUNCTION(BlueprintCallable, Category = "AchiLess")
+	void AddDamage(float InDamage);
+
 
 	//ビーム連射開始処理
 	UFUNCTION(BlueprintCallable)
@@ -126,5 +129,9 @@ private:
 	
 	//ビーム連射用タイマーハンドル
 	FTimerHandle BeamTimerHandle;
+
+	//現在のHP
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float CurrentHp;
 
 };

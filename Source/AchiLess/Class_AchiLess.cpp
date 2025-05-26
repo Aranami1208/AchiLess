@@ -82,8 +82,11 @@ void AClass_AchiLess::BeginPlay()
 	//パラメータを取得
 	MyParameter = CharacterData->GetParameter();
 
-	//ブーストを未使用状態にする
+	//ブーストを初期化
 	CurrentBoost = MyParameter.MaxBoost;
+
+	//HPを初期化
+	CurrentHp = MyParameter.MaxHp;
 
 	//指定されたファイル名と特定のフォルダパスを結合
 	FString ModelFilePath("/Game/Assets/Models/AhiLess");
@@ -222,6 +225,12 @@ void AClass_AchiLess::BoostReleased()
 void AClass_AchiLess::Beam()
 {
 	ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), GetActorRotation());
+}
+
+void AClass_AchiLess::AddDamage(float InDamage)
+{
+	//HP減少処理
+	FMath::Clamp(CurrentHp -= InDamage, 0, MyParameter.MaxHp);
 }
 
 void AClass_AchiLess::StartBeam()

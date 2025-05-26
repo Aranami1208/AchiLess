@@ -7,5 +7,6 @@
 "MaxBoost": "1500",
 "MaxSpeed":"1500",
 "MinSpeed":"300",
-"TurnSpeed":"70.0"
+"TurnSpeed": "70.0",
+"Hp": "9000"
 }
