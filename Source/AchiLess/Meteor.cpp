@@ -27,6 +27,8 @@ AMeteor::AMeteor()
 
 	//“–‚½‚è”»’è‚Ìİ’è‚ğ•ÏX
 	MeshComponent->SetCollisionProfileName(TEXT("OverlapAll"));
+
+	MeshComponent->SetGenerateOverlapEvents(true);
 }
 
 

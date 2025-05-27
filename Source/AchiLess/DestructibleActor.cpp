@@ -23,6 +23,10 @@ void ADestructibleActor::TakeDamage(float Damage)
 	//0を下回らないようにする
 	CurrentHp = FMath::Max(CurrentHp -= Damage,0);
 
+	//壊れていなければスキップ
+	if (CurrentHp > 0)return;
+
+
 	//アクターを非表示
 	SetActorHiddenInGame(true);
 }
