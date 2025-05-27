@@ -12,9 +12,13 @@ AMeteor::AMeteor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
+	
+	if (!MeshComponent)
+	{
+		UKismetSystemLibrary::PrintString(this, "NoMeshComponent");
+		return;
+	}
 	//メッシコンポーネントをルートコンポーネントにする
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	RootComponent = MeshComponent;
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshFinder(TEXT("/Game/Assets/Models/Meteor/OblectMeteor.OblectMeteor"));
@@ -26,9 +30,9 @@ AMeteor::AMeteor()
 	MeshComponent->SetStaticMesh(MeshFinder.Object);
 
 	//当たり判定の設定を変更
-	MeshComponent->SetCollisionProfileName(TEXT("OverlapAll"));
+	//MeshComponent->SetCollisionProfileName(TEXT("OverlapAll"));
 
-	MeshComponent->SetGenerateOverlapEvents(true);
+	//MeshComponent->SetGenerateOverlapEvents(true);
 }
 
 

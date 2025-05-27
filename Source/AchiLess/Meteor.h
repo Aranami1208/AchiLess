@@ -22,8 +22,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UStaticMeshComponent> MeshComponent;
+	
 
 	UPROPERTY(EditAnywhere)
 	UMaterialInterface* BaseMaterial = LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Assets/Models/Meteor/Texture/BaseMaterial.BaseMaterial"));

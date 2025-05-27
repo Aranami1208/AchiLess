@@ -128,6 +128,8 @@ void AClass_AchiLess::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
+
 	FVector Forward = GetActorForwardVector();//進行方向ベクトルを取得する
 	Velocity = Forward * CurrentSpeed * BoostRate;//スピードを掛けた移動量
 

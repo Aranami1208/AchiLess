@@ -28,6 +28,9 @@ protected:
 
 	float CurrentHp;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UStaticMeshComponent> MeshComponent;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
