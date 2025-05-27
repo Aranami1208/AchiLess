@@ -24,6 +24,9 @@ AMeteor::AMeteor()
 		return;
 	}
 	MeshComponent->SetStaticMesh(MeshFinder.Object);
+
+	//“–‚½‚è”»’è‚ÌÝ’è‚ð•ÏX
+	MeshComponent->SetCollisionProfileName(TEXT("OverlapAll"));
 }
 
 

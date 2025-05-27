@@ -22,6 +22,14 @@ void ADestructibleActor::TakeDamage(float Damage)
 {
 	//0を下回らないようにする
 	CurrentHp = FMath::Max(CurrentHp -= Damage,0);
+
+	//アクターを非表示
+	SetActorHiddenInGame(true);
+}
+
+int32 ADestructibleActor::GetCurrentHP()
+{
+	return CurrentHp;
 }
 
 // Called every frame
