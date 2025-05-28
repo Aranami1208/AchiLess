@@ -15,6 +15,8 @@
 #include "ADataManager.h" 
 #include "CharacterData.h"
 
+#include "DrawDebugHelpers.h"
+
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
 	AchilessMesh(nullptr),
@@ -25,7 +27,8 @@ AClass_AchiLess::AClass_AchiLess() :
 	CurrentBoost(0.0f), // 初期化
 	CurrentHp(0.0f), // 初期化
 	CurrentMouseXInput(0.0f),
-	CurrentMouseYInput(0.0f)
+	CurrentMouseYInput(0.0f),
+	bIsAIControll(false)
 {
 
 
@@ -144,20 +147,16 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	SpringArmRotation.Roll = 0;
 
 	DTime = DeltaTime;
+
+
 	CameraSpringArm->SetWorldRotation(SpringArmRotation);
 
-	
-	
-	//const FRotator Rot = Controller->GetControlRotation();
-
+	//AIの操作の時はアームスプリングベースの処理をスキップする
+	if(!bIsAIControll)
 	UpdateAchiLessRotation(SpringArmRotation);
 
 	FVector Forward = AchilessMesh->GetComponentRotation().Vector();//進行方向ベクトルを取得する
 	Velocity = Forward * CurrentSpeed * BoostRate;//スピードを掛けた移動量
-
-
-
-	
 
 	//移動と衝突判定処理 
 	AddActorWorldOffset(Velocity * DeltaTime, true);
@@ -222,7 +221,7 @@ void AClass_AchiLess::Roll(float Value)
 
 void AClass_AchiLess::UpdateAchiLessRotation(const FRotator TargetRotation)
 {
-	
+	if (!AchilessMesh)return;
 	
 	//現在のローテーション
 	FRotator CurrentAchiLessRotation = AchilessMesh->GetComponentRotation();
@@ -232,12 +231,28 @@ void AClass_AchiLess::UpdateAchiLessRotation(const FRotator TargetRotation)
 	TargetAchiLessRotation.Pitch = TargetRotation.Pitch;
 	TargetAchiLessRotation.Yaw = TargetRotation.Yaw;
 
+
 	//ターゲット方向のベクトルを取得
 	FVector TargetForwardHorizontal = TargetRotation.Vector();
+
 
 	//正規化
 	if (TargetForwardHorizontal.IsNearlyZero())return;
 	TargetForwardHorizontal.Normalize();
+
+	//デバッグ処理（ターゲット方向を描画）
+	FVector Start = AchilessMesh->GetComponentLocation();
+	FVector End = Start + TargetForwardHorizontal * 50000;
+	// 赤色の矢印を描画
+	UKismetSystemLibrary::DrawDebugArrow(
+		GetWorld(),          // ワールド
+		Start,       // 開始点
+		End,         // 終了点
+		100.0f,              // 矢じりのサイズ
+		FColor::Red,         // 色
+		-1.0f,               // 描画時間 (0か-1なら1フレーム)
+		10.0f                // 線の太さ
+	);
 
 	//自機の方向ベクトルを取得
 	FVector AchiLessForwardHorizontal = CurrentAchiLessRotation.Vector();

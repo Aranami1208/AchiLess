@@ -146,4 +146,8 @@ private:
 
 	float DTime;
 
+	//AI‚ªƒRƒ“ƒgƒ[ƒ‹‚µ‚Ä‚¢‚é
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bIsAIControll;
+
 };
