@@ -51,7 +51,7 @@ bool UADataManager::ReadJsonData(FString Name, FDataStruct& DataS)
 	DataS.TurnSpeed = JsonRootObject->GetNumberField("TurnSpeed");
 	DataS.MeshFileName = JsonRootObject->GetStringField("Mesh");
 	DataS.MaxHp = JsonRootObject->GetNumberField("Hp");
-	UE_DEBUG_BREAK();
+	//UE_DEBUG_BREAK();
 	return true;
 	
 }

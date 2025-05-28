@@ -20,6 +20,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurrentHP();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

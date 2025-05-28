@@ -20,7 +20,7 @@ ADestructibleActor::ADestructibleActor()
 
 	MeshComponent->MinLOD = 0;
 
-	UE_DEBUG_BREAK();
+	//UE_DEBUG_BREAK();
 }
 
 // Called when the game starts or when spawned

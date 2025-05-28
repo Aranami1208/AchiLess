@@ -46,11 +46,14 @@ AClass_AchiLess::AClass_AchiLess() :
 	CameraSpringArm->TargetArmLength = 2000.f;//対象のオブジェクトからの距離 
 	CameraSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 1000.f));//デフォルトのカメラの位置
 	CameraSpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));//デフォルトのカメラのローテーション
-	//スプリングアームの回転許可設定
-	CameraSpringArm->bInheritPitch = true;
-	CameraSpringArm->bInheritYaw = true;
-	CameraSpringArm->bInheritRoll = true;
-	//CameraSpringArm->bUsePawnControlRotation = true;
+	
+
+	CameraSpringArm->bUsePawnControlRotation = true;
+
+	//機体の回転とカメラの動きを独立させる設定
+	CameraSpringArm->bInheritPitch = false;
+	CameraSpringArm->bInheritRoll = false;
+	CameraSpringArm->bInheritYaw = false;
 
 
 	//カメラコンポーネントの生成
@@ -128,10 +131,29 @@ void AClass_AchiLess::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!CameraSpringArm)return;
+	//スプリングアームの処理
+	FRotator SpringArmRotation = CameraSpringArm->GetComponentRotation();
+
+	SpringArmRotation.Pitch += CurrentMouseYInput * CameraPitchSpeed + DeltaTime;
+	SpringArmRotation.Yaw += CurrentMouseXInput * CameraPitchSpeed + DeltaTime;
+
+	CameraSpringArm->SetWorldRotation(SpringArmRotation);
+
+	//全開との差分を取りたいため毎フレームリセット
+	CurrentMouseXInput = 0.0f;
+	CurrentMouseYInput = 0.0f;
 	
+	const FRotator Rot = Controller->GetControlRotation();
+
+	UpdateAchiLessRotation(DeltaTime,SpringArmRotation);
 
 	FVector Forward = GetActorForwardVector();//進行方向ベクトルを取得する
 	Velocity = Forward * CurrentSpeed * BoostRate;//スピードを掛けた移動量
+
+
+
+	
 
 	//移動と衝突判定処理 
 	AddActorWorldOffset(Velocity * DeltaTime, true);
@@ -173,19 +195,71 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AClass_AchiLess::Pitch(float Value)
 {
-	Value = FMath::Clamp(Value,- MyParameter.MaxRotationSpeed, MyParameter.MaxRotationSpeed);
-	//ピッチ操作
-	AddActorLocalRotation(FRotator(Value * MyParameter.TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f, 0.f));
+	//Value = FMath::Clamp(Value,- MyParameter.MaxRotationSpeed, MyParameter.MaxRotationSpeed);
+
+	CurrentMouseYInput = Value;
 }
 
 void AClass_AchiLess::Yaw(float Value)
 {
-	//AddActorLocalRotation(FRotator(0.f, Value * TurnSpeed * GetWorld()->GetDeltaSeconds(), 0.f));
+	
+	CurrentMouseXInput = Value;
+
 }
 
 void AClass_AchiLess::Roll(float Value)
 {
-	AddActorLocalRotation(FRotator(0.f, 0.f, Value * MyParameter.TurnSpeed * GetWorld()->GetDeltaSeconds()));
+	//AddActorLocalRotation(FRotator(0.f, 0.f, Value * MyParameter.TurnSpeed * GetWorld()->GetDeltaSeconds()));
+}
+
+void AClass_AchiLess::UpdateAchiLessRotation(float DeltaTime, const FRotator TargetRotation)
+{
+	if (!Controller)return;
+	
+	//現在のローテーション
+	FRotator CurrentAchiLessRotation = GetActorRotation();
+	//Yawは維持するためにいったんコピー
+	FRotator TargetAchiLessRotation = CurrentAchiLessRotation;
+
+	TargetAchiLessRotation.Pitch = TargetRotation.Pitch;
+
+	//ターゲット方向のベクトルを取得
+	FVector TargetForwardHorizontal = TargetRotation.Vector();
+
+	//正規化
+	if (TargetForwardHorizontal.IsNearlyZero())return;
+	TargetForwardHorizontal.Normalize();
+
+	//自機の方向ベクトルを取得
+	FVector AchiLessForwardHorizontal = CurrentAchiLessRotation.Vector();
+
+	//正規化
+	if (AchiLessForwardHorizontal.IsNearlyZero())return;
+	AchiLessForwardHorizontal.Normalize();
+
+	//内積を取る
+	float Dot = FVector::DotProduct(AchiLessForwardHorizontal, TargetForwardHorizontal);
+	Dot = FMath::Clamp(Dot, -1.0f, 1.0f);
+
+	//外積を取る
+	FVector Cross = FVector::CrossProduct(AchiLessForwardHorizontal, TargetForwardHorizontal);
+	
+	//???
+	float AngleDifferenceDegrees = FMath::RadiansToDegrees(acosf(Dot));
+
+	if (Cross.Z < 0.0f)//ターゲットが機体の右側にある場合
+	{
+		AngleDifferenceDegrees *= -1.0;
+	}
+
+	//回転速度制限系
+	float MaxRollFromYaw = MyParameter.MaxRotationSpeed > 0 ? MyParameter.MaxRotationSpeed * 20.0f : 45.0f;
+	float TargetRollForAiming = FMath::Clamp(AngleDifferenceDegrees * -1.0f, -MaxRollFromYaw, MaxRollFromYaw);
+
+	TargetAchiLessRotation.Roll = CurrentAchiLessRotation.Yaw;
+
+	FRotator NewRotation = FMath::RInterpTo(CurrentAchiLessRotation, TargetAchiLessRotation, DeltaTime, RotationInterpolationSpeed);
+	SetActorRotation(NewRotation);
 }
 
 void AClass_AchiLess::Accelerate(float Value)

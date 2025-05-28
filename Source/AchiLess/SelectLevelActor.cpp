@@ -63,7 +63,7 @@ void ASelectLevelActor::BeginPlay()
 		{
 			UKismetSystemLibrary::PrintString(this, "NoSlot");
 		}
-		UE_DEBUG_BREAK();
+		//UE_DEBUG_BREAK();
 		CardWidget->SetVisibility(ESlateVisibility::Visible);
 	
 		GenaratedWidgets.Add(CardWidget);
