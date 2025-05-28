@@ -23,7 +23,9 @@ AClass_AchiLess::AClass_AchiLess() :
 	bIsAcceleration(false),
 	CurrentSpeed(0.0f), // 初期化
 	CurrentBoost(0.0f), // 初期化
-	CurrentHp(0.0f) // 初期化
+	CurrentHp(0.0f), // 初期化
+	CurrentMouseXInput(0.0f),
+	CurrentMouseYInput(0.0f)
 {
 
 
@@ -40,20 +42,20 @@ AClass_AchiLess::AClass_AchiLess() :
 	//スプリングアームコンポーネントの生成
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
 
-	//bUseControllerRotationYaw = true;
 
 	CameraSpringArm->SetupAttachment(RootComponent);//ルートコンポーネントにアタッチ？
 	CameraSpringArm->TargetArmLength = 2000.f;//対象のオブジェクトからの距離 
 	CameraSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 1000.f));//デフォルトのカメラの位置
-	CameraSpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));//デフォルトのカメラのローテーション
+	CameraSpringArm->SetRelativeRotation(FRotator(-10.f, 180.f, 0.f));//デフォルトのカメラのローテーション
+	
+	CameraSpringArm->bUsePawnControlRotation = false;
 	
 
-	CameraSpringArm->bUsePawnControlRotation = true;
-
 	//機体の回転とカメラの動きを独立させる設定
-	CameraSpringArm->bInheritPitch = false;
-	CameraSpringArm->bInheritRoll = false;
-	CameraSpringArm->bInheritYaw = false;
+	//CameraSpringArm->bInheritPitch = false;
+	//CameraSpringArm->bInheritRoll = false;
+	//CameraSpringArm->bInheritYaw = true;
+	CameraSpringArm->SetUsingAbsoluteRotation(true);
 
 
 	//カメラコンポーネントの生成
@@ -118,9 +120,6 @@ void AClass_AchiLess::BeginPlay()
 		UE_DEBUG_BREAK();
 
 	}
-	
-
-	
 
 	//UE_DEBUG_BREAK();
 	
@@ -135,20 +134,19 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	//スプリングアームの処理
 	FRotator SpringArmRotation = CameraSpringArm->GetComponentRotation();
 
-	SpringArmRotation.Pitch += CurrentMouseYInput * CameraPitchSpeed + DeltaTime;
-	SpringArmRotation.Yaw += CurrentMouseXInput * CameraPitchSpeed + DeltaTime;
+	SpringArmRotation.Pitch += CurrentMouseYInput * CameraPitchSpeed * DeltaTime;
+	SpringArmRotation.Yaw += CurrentMouseXInput * CamerayawSpeed * DeltaTime;
+	SpringArmRotation.Roll = 0;
 
 	CameraSpringArm->SetWorldRotation(SpringArmRotation);
 
-	//全開との差分を取りたいため毎フレームリセット
-	CurrentMouseXInput = 0.0f;
-	CurrentMouseYInput = 0.0f;
 	
-	const FRotator Rot = Controller->GetControlRotation();
+	
+	//const FRotator Rot = Controller->GetControlRotation();
 
 	UpdateAchiLessRotation(DeltaTime,SpringArmRotation);
 
-	FVector Forward = GetActorForwardVector();//進行方向ベクトルを取得する
+	FVector Forward = AchilessMesh->GetComponentRotation().Vector();//進行方向ベクトルを取得する
 	Velocity = Forward * CurrentSpeed * BoostRate;//スピードを掛けた移動量
 
 
@@ -180,6 +178,10 @@ void AClass_AchiLess::Tick(float DeltaTime)
 		if (BoostLock) BoostLock = false;
 	}
 
+	//全開との差分を取りたいため毎フレームリセット
+	CurrentMouseXInput = 0.0f;
+	CurrentMouseYInput = 0.0f;
+
 }
 
 // Called to bind functionality to input
@@ -209,19 +211,20 @@ void AClass_AchiLess::Yaw(float Value)
 
 void AClass_AchiLess::Roll(float Value)
 {
-	//AddActorLocalRotation(FRotator(0.f, 0.f, Value * MyParameter.TurnSpeed * GetWorld()->GetDeltaSeconds()));
+	
 }
 
 void AClass_AchiLess::UpdateAchiLessRotation(float DeltaTime, const FRotator TargetRotation)
 {
-	if (!Controller)return;
+	
 	
 	//現在のローテーション
-	FRotator CurrentAchiLessRotation = GetActorRotation();
+	FRotator CurrentAchiLessRotation = AchilessMesh->GetComponentRotation();
 	//Yawは維持するためにいったんコピー
 	FRotator TargetAchiLessRotation = CurrentAchiLessRotation;
 
 	TargetAchiLessRotation.Pitch = TargetRotation.Pitch;
+	TargetAchiLessRotation.Yaw = TargetRotation.Yaw;
 
 	//ターゲット方向のベクトルを取得
 	FVector TargetForwardHorizontal = TargetRotation.Vector();
@@ -247,7 +250,7 @@ void AClass_AchiLess::UpdateAchiLessRotation(float DeltaTime, const FRotator Tar
 	//???
 	float AngleDifferenceDegrees = FMath::RadiansToDegrees(acosf(Dot));
 
-	if (Cross.Z < 0.0f)//ターゲットが機体の右側にある場合
+	if (Cross.Z > 0.0f)
 	{
 		AngleDifferenceDegrees *= -1.0;
 	}
@@ -255,11 +258,11 @@ void AClass_AchiLess::UpdateAchiLessRotation(float DeltaTime, const FRotator Tar
 	//回転速度制限系
 	float MaxRollFromYaw = MyParameter.MaxRotationSpeed > 0 ? MyParameter.MaxRotationSpeed * 20.0f : 45.0f;
 	float TargetRollForAiming = FMath::Clamp(AngleDifferenceDegrees * -1.0f, -MaxRollFromYaw, MaxRollFromYaw);
-
-	TargetAchiLessRotation.Roll = CurrentAchiLessRotation.Yaw;
+	
+	TargetAchiLessRotation.Roll = TargetRollForAiming;
 
 	FRotator NewRotation = FMath::RInterpTo(CurrentAchiLessRotation, TargetAchiLessRotation, DeltaTime, RotationInterpolationSpeed);
-	SetActorRotation(NewRotation);
+	AchilessMesh->SetWorldRotation(NewRotation);
 }
 
 void AClass_AchiLess::Accelerate(float Value)

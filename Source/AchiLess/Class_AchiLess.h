@@ -83,8 +83,10 @@ public:
 	TSubclassOf<ABeam> BeamClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float RotationInterpolationSpeed = 5.0f;
+	float RotationInterpolationSpeed = 3.0f;
 	
+	float CameraPitchSpeed = 45.0f;
+	float CamerayawSpeed = 90.0f;
 
 private:
 	
@@ -143,7 +145,6 @@ private:
 	float CurrentMouseYInput;
 	float CurrentMouseXInput;
 
-	float CameraPitchSpeed = 45.0f;
-	float CamerayawSpeed = 90.0f;
+	
 
 };
