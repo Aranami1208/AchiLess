@@ -48,7 +48,7 @@ public:
 	void Roll(float Value);
 
 	UFUNCTION(BlueprintCallable)
-	void UpdateAchiLessRotation(float DeltaTime, const FRotator TargetRotation);
+	void UpdateAchiLessRotation(const FRotator TargetRotation);
 
 
 	//‰Á‘¬
@@ -82,8 +82,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<ABeam> BeamClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float RotationInterpolationSpeed = 3.0f;
+	
 	
 	float CameraPitchSpeed = 45.0f;
 	float CamerayawSpeed = 90.0f;
@@ -145,6 +144,6 @@ private:
 	float CurrentMouseYInput;
 	float CurrentMouseXInput;
 
-	
+	float DTime;
 
 };

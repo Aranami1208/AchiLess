@@ -78,17 +78,22 @@ void AClass_AchiLess::BeginPlay()
 	//視野角を設定
 	Camera->FieldOfView = 90;
 
-	//AchilessName = "TypeSpeed";
 
-	//データマネージャー
-	//UADataManager* DataManager = NewObject<UADataManager>();
-
-	//DataManager->ReadJsonData(AchilessName+".json", MyParameter);
 
 	UCharacterData* CharacterData = Cast<UCharacterData>(UGameplayStatics::GetGameInstance(GetWorld()));
 
-	//パラメータを取得
-	MyParameter = CharacterData->GetParameter();
+	if (CharacterData)
+	{
+		//パラメータを取得
+		MyParameter = CharacterData->GetParameter();
+	}
+	else//データが読み込めなかった場合はスピードタイプ
+	{
+		UADataManager * DataManager = NewObject<UADataManager>();
+
+		DataManager->ReadJsonData("TypeSpeed.json", MyParameter);
+	}
+
 
 	//ブーストを初期化
 	CurrentBoost = MyParameter.MaxBoost;
@@ -138,13 +143,14 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	SpringArmRotation.Yaw += CurrentMouseXInput * CamerayawSpeed * DeltaTime;
 	SpringArmRotation.Roll = 0;
 
+	DTime = DeltaTime;
 	CameraSpringArm->SetWorldRotation(SpringArmRotation);
 
 	
 	
 	//const FRotator Rot = Controller->GetControlRotation();
 
-	UpdateAchiLessRotation(DeltaTime,SpringArmRotation);
+	UpdateAchiLessRotation(SpringArmRotation);
 
 	FVector Forward = AchilessMesh->GetComponentRotation().Vector();//進行方向ベクトルを取得する
 	Velocity = Forward * CurrentSpeed * BoostRate;//スピードを掛けた移動量
@@ -214,7 +220,7 @@ void AClass_AchiLess::Roll(float Value)
 	
 }
 
-void AClass_AchiLess::UpdateAchiLessRotation(float DeltaTime, const FRotator TargetRotation)
+void AClass_AchiLess::UpdateAchiLessRotation(const FRotator TargetRotation)
 {
 	
 	
@@ -261,7 +267,7 @@ void AClass_AchiLess::UpdateAchiLessRotation(float DeltaTime, const FRotator Tar
 	
 	TargetAchiLessRotation.Roll = TargetRollForAiming;
 
-	FRotator NewRotation = FMath::RInterpTo(CurrentAchiLessRotation, TargetAchiLessRotation, DeltaTime, RotationInterpolationSpeed);
+	FRotator NewRotation = FMath::RInterpTo(CurrentAchiLessRotation, TargetAchiLessRotation, DTime, MyParameter.MaxRotationSpeed);
 	AchilessMesh->SetWorldRotation(NewRotation);
 }
 
@@ -311,7 +317,7 @@ void AClass_AchiLess::BoostReleased()
 
 void AClass_AchiLess::Beam()
 {
-	ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), GetActorRotation());
+	ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(),AchilessMesh->GetComponentRotation());
 }
 
 void AClass_AchiLess::TakeDamage(float InDamage)
