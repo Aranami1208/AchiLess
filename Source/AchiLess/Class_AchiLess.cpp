@@ -361,43 +361,70 @@ void AClass_AchiLess::CheckOnTarget()
 	LockOnTargetFigter = nullptr;
 
 	//ヒットした場合の処理
-	if (bHit)
-	{
-		//中心に一番近い値を持っておく
-		float MinDotProduct = -1.0f;
-		//接触したオブジェクトをすべて判定
-		for (const FHitResult HitResult : HitResults)
-		{
-			ASpaceFighter* HitFighter = Cast<ASpaceFighter>(HitResult.GetActor());
-
-			if (HitFighter)
-			{
-				//UKismetSystemLibrary::PrintString(this, "HitFighter");
-				// ここから視野角チェック
-
-				//カメラの前方
-				FVector PlayerForwardVector = WorldDirection;
-				//敵機への方向ベクトル
-				FVector DirectionToEnemy = (HitFighter->GetActorLocation() - GetActorLocation()).GetSafeNormal(); 
-
-				float DotProduct = FVector::DotProduct(PlayerForwardVector, DirectionToEnemy);
-
-				if (DotProduct >= LockOnFOV)//ロックオン成功時の処理
-				{
-					
-
-					if (DotProduct > MinDotProduct)
-					{
-						UKismetSystemLibrary::PrintString(this, "LockSuccess");
-						MinDotProduct = DotProduct;
-						LockOnTargetFigter = HitFighter;
-					}
-				}
-			}
-			
-		}
-	}
+	if (!bHit)return;
 	
+	//中心に一番近い値を持っておく
+	float MinDotProduct = -1.0f;
+	//接触したオブジェクトをすべて判定
+	for (const FHitResult HitResult : HitResults)
+	{
+		ASpaceFighter* HitFighter = Cast<ASpaceFighter>(HitResult.GetActor());
+
+		//キャストに失敗したらスキップ
+		if (!HitFighter)continue;
+		
+		//UKismetSystemLibrary::PrintString(this, "HitFighter");
+		// ここから視野角チェック
+
+		//カメラの前方
+		FVector PlayerForwardVector = WorldDirection;
+		//敵機への方向ベクトル
+		FVector DirectionToEnemy = (HitFighter->GetActorLocation() - GetActorLocation()).GetSafeNormal(); 
+
+		float DotProduct = FVector::DotProduct(PlayerForwardVector, DirectionToEnemy);
+
+		//ロックオン範囲内でなければスキップ
+		if (DotProduct < LockOnFOV)continue;
+		//最も中心に近いものでなければスキップ
+		if (DotProduct <= MinDotProduct)continue;
+		
+		UKismetSystemLibrary::PrintString(this, "LockSuccess");
+		MinDotProduct = DotProduct;
+		LockOnTargetFigter = HitFighter;
+
+		//設定したターゲットと自機の間にオブジェクトがある場合、ターゲットを外す
+
+		FVector RayTraceStart = GetActorLocation();
+		FVector RayTraceEnd = HitFighter->GetActorLocation();
+
+		FHitResult RayResult;
+
+		FCollisionQueryParams RayTraceQueryParams;
+		RayTraceQueryParams.AddIgnoredActor(this);
+		RayTraceQueryParams.AddIgnoredActor(HitFighter);
+		//精度を高く
+		RayTraceQueryParams.bTraceComplex = true;
+
+		bool bHitRay = GetWorld()->LineTraceSingleByChannel(
+			RayResult,
+			RayTraceStart,
+			RayTraceEnd,
+			ECollisionChannel::ECC_Visibility,
+			RayTraceQueryParams
+		);
+
+		//障害物がなければスキップ
+		if (!bHitRay)continue;
+		
+		ABeam* HitBeam = Cast<ABeam>(RayResult.GetActor());
+		
+		//障害物がビームであった場合スキップ
+		if (HitBeam)continue;
+
+		//障害物があり、ビームではない場合さえぎられているのでターゲットを外す
+		LockOnTargetFigter = nullptr;
+			
+	}
 }
 	
 
