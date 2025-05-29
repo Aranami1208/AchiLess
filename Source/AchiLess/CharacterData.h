@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "DataStruct.h"
+#include "CardData.h"
 #include "CharacterData.generated.h"
 
 /**
@@ -17,13 +18,23 @@ class ACHILESS_API UCharacterData : public UGameInstance
 
 public:
 	//parameterをセットする
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	void SetParameter(FDataStruct CharaParam);
+	
 	FDataStruct GetParameter();
+
+	UFUNCTION(BlueprintCallable, Category = "CharacterData")
+	void SetDeckFromData(TArray<class UCardItemWidget*> InData);
+
+	UFUNCTION(BlueprintCallable, Category = "CharacterData")
+	FCardData GetDeck(int32 Index);
 
 private:
 
 	//プレイヤーのパラメータ情報を保持
 	FDataStruct Parameter;
+
+	//プレイヤーのデッキに入っているカード
+	TArray<FCardData> Deck;
 	
 };

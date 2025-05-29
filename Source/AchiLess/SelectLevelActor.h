@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "DataStruct.h"
+#include "CardItemWidget.h"
 #include "SelectLevelActor.generated.h"
 
 
@@ -35,6 +36,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AchiLessSelectRight();
 
+	void SetReload();
+
+	void ReleaseReload();
+
 public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -47,4 +52,15 @@ public:
 	//ÉtÉ@ÉCÉãÇÃå¬êî
 	int FileNum;
 
+	UPROPERTY(EditAnyWhere,BlueprintReadWrite)
+	TSubclassOf<UCardItemWidget> CardItemClass;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class UUniformGridPanel* GridPanel = nullptr;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TArray<UCardItemWidget*> DeckCards;
+
+	UPROPERTY()
+	TArray<UCardItemWidget*> GenaratedWidgets;
 };

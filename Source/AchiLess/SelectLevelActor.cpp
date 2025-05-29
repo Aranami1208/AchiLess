@@ -7,6 +7,10 @@
 #include "ADataManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "CardData.h"
+#include "CardItemWidget.h"
+#include "Components/UniformGridSlot.h"
+#include "Components/UniformGridPanel.h"
 
 
 // Sets default values
@@ -22,9 +26,57 @@ void ASelectLevelActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//Jsonファイルを一括読み込み
 	LoadAllJson();
 
+	//グリッドパネルがない場合は処理しない
+	if (!GridPanel)return;
 
+	UKismetSystemLibrary::PrintString(this, "GridPanelLoadOK");
+
+	FString ContextString =TEXT("Loading Card Data Table");
+	UDataTable* CardDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/Assets/Card/CardDataTable.CardDataTable"));
+	TArray<FCardData*> AllCards;
+
+	if (!CardDataTable)return;
+	//データテーブルのすべての行を取得
+	CardDataTable->GetAllRows<FCardData>(ContextString, AllCards);
+
+	//カードの列数
+	const int32 CardColums = 4;
+	int32 Index = 0;
+
+	for (FCardData* Card : AllCards)
+	{
+		UCardItemWidget* CardWidget = CreateWidget<UCardItemWidget>(GetWorld(), CardItemClass);
+
+		CardWidget->InitCard(*Card);
+
+		//表示する行
+		int32 Row = Index / CardColums;
+		//表示する列
+		int32 Col = Index % CardColums;
+		
+		
+		UUniformGridSlot* Slot = GridPanel->AddChildToUniformGrid(CardWidget, Row, Col);
+		if (!Slot)
+		{
+			UKismetSystemLibrary::PrintString(this, "NoSlot");
+		}
+		UE_DEBUG_BREAK();
+		CardWidget->SetVisibility(ESlateVisibility::Visible);
+	
+		GenaratedWidgets.Add(CardWidget);
+		++Index;
+	}
+	
+	//デッキのカードをすべて初期化
+	int32 index = 0;
+	for (UCardItemWidget* Deck : DeckCards)
+	{
+		Deck->InitCard(*AllCards[index]);
+		index++;
+	}
 }
 
 void ASelectLevelActor::LoadAllJson()
@@ -85,5 +137,21 @@ void ASelectLevelActor::AchiLessSelectRight()
 		SelectIndex = 0;
 	}
 	UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
+}
+
+void ASelectLevelActor::SetReload()
+{
+	for (UCardItemWidget* Card : DeckCards)
+	{
+		Card->SetIsWaitChange();
+	}
+}
+
+void ASelectLevelActor::ReleaseReload()
+{
+	for (UCardItemWidget* Card : DeckCards)
+	{
+		Card->ReleaseIsWaitChange();
+	}
 }
 
