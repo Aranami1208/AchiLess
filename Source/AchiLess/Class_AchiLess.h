@@ -98,12 +98,15 @@ private:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bIsAIControll;
 
-
+	//HUDの円のサイズ（px）
+	float HUDCircleRadiusPixel = 180.0f;
+	
 	//ロックオン対象
 	TObjectPtr<ASpaceFighter> LockOnTargetFigter;
 
 	float MaxLockOnDistance;
 
+	//視野角
 	float LockOnFOV;
 
 	//ロックオンチェックの間隔

@@ -27,7 +27,7 @@ CurrentHp(0.0f)// 初期化
 	PrimaryActorTick.bCanEverTick = true;
 
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
-
+	
 	FighterMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FighterMesh"));
 	RootComponent = DefaultSceneRoot;//ルートコンポーネントに設定
 
@@ -127,8 +127,11 @@ void ASpaceFighter::UpdateAchiLessRotation(const FRotator TargetRotation)
 	TargetForwardHorizontal.Normalize();
 
 	//デバッグ処理（ターゲット方向を描画）
+	/*
 	FVector Start = FighterMesh->GetComponentLocation();
 	FVector End = Start + TargetForwardHorizontal * 50000;
+	
+
 	// 赤色の矢印を描画
 	UKismetSystemLibrary::DrawDebugArrow(
 		GetWorld(),          // ワールド
@@ -139,6 +142,8 @@ void ASpaceFighter::UpdateAchiLessRotation(const FRotator TargetRotation)
 		-1.0f,               // 描画時間 (0か-1なら1フレーム)
 		10.0f                // 線の太さ
 	);
+
+	*/
 
 	//自機の方向ベクトルを取得
 	FVector AchiLessForwardHorizontal = CurrentAchiLessRotation.Vector();
@@ -154,7 +159,7 @@ void ASpaceFighter::UpdateAchiLessRotation(const FRotator TargetRotation)
 	//外積を取る
 	FVector Cross = FVector::CrossProduct(AchiLessForwardHorizontal, TargetForwardHorizontal);
 
-	//???
+	
 	float AngleDifferenceDegrees = FMath::RadiansToDegrees(acosf(Dot));
 
 	if (Cross.Z > 0.0f)

@@ -56,8 +56,9 @@ AClass_AchiLess::AClass_AchiLess() :
 
 	Camera->SetupAttachment(CameraSpringArm);//スプリングアームにカメラをアタッチ
 
-	MaxLockOnDistance = 20000.0f;
-	LockOnFOV = 0.9f;
+	MaxLockOnDistance = 500000.0f;
+	LockOnFOV =0.9f;
+	LockOnCheckInterval = 0.1;
 		
 }
 // Called when the game starts or when spawned
@@ -133,7 +134,7 @@ void AClass_AchiLess::Beam()
 	}
 	else//ロックオンしている時は偏差撃ちする
 	{
-		UKismetSystemLibrary::PrintString(this, "LockOnTarget");
+		UKismetSystemLibrary::PrintString(this, "<<<LockOnTarget>>>");
 
 		FVector MyLocation = GetActorLocation();
 		FVector EnemyLocation = LockOnTargetFigter->GetActorLocation();
@@ -321,54 +322,82 @@ void AClass_AchiLess::CheckOnTarget()
 	//RayTraceの始点終点
 	FVector TraceStart = WorldLocation;
 	FVector TraceEnd = WorldLocation + WorldDirection * MaxLockOnDistance;
-	
-	FHitResult HitResult;
+
+	//HUDの円のサイズに合わせたスフィアで判定を取る
+
+	//視野角の半分
+	float HalfFOV = Camera->FieldOfView / 2.0f ;
+	float HalfFOVRadian = FMath::DegreesToRadians(HalfFOV);
+	float HalfViewportHeight = Center.Y;
+	//判定用スフィアの半径
+	float LockOnSphereRadius = MaxLockOnDistance * FMath::Tan(HalfFOVRadian) * (HUDCircleRadiusPixel / HalfViewportHeight);
+	LockOnSphereRadius = FMath::Max(LockOnSphereRadius, 50.0f); // 最小半径を設定
+
+	TArray<FHitResult> HitResults;
 	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this); // 自分は判定しない
+	QueryParams.AddIgnoredActor(this);
+	QueryParams.bTraceComplex = false;
+	
+	
+	bool bHit = UKismetSystemLibrary :: SphereTraceMulti(
+		GetWorld(),                 // WorldContextObject
+		TraceStart,                 // Start
+		TraceEnd,                   // End
+		LockOnSphereRadius,  // Radius
+		ETraceTypeQuery::TraceTypeQuery1, // TraceChannel: ここを適切なコリジョンチャネルに設定する
+		// 例: ETraceTypeQuery::TraceTypeQuery2 (Visibility) など
+		// プロジェクトのコリジョン設定に合わせて変更してください。
+		false,                      // bTraceComplex
+		TArray<AActor*>(),          // ActorsToIgnore: QueryParamsで設定済みなので空でもOK
+		EDrawDebugTrace::None, // DrawDebugType: デバッグ表示の種類
+		HitResults,                 // OutHits
+		true,                       // bIgnoreSelf: QueryParamsで設定済み
+		FLinearColor::Red,          // TraceColor
+		FLinearColor::Green,        // TraceHitColor
+		LockOnCheckInterval - 0.01f // DrawTime
+	);
+	DrawDebugSphere(GetWorld(), TraceEnd, LockOnSphereRadius, 16, FColor::Blue, false, LockOnCheckInterval - 0.01f);
+
+	LockOnTargetFigter = nullptr;
 
 	//ヒットした場合の処理
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	if (bHit)
 	{
-		ASpaceFighter* HitFighter = Cast<ASpaceFighter>(HitResult.GetActor());
-
-		if (HitFighter)
+		//中心に一番近い値を持っておく
+		float MinDotProduct = -1.0f;
+		//接触したオブジェクトをすべて判定
+		for (const FHitResult HitResult : HitResults)
 		{
-			// ここから視野角チェック
-			FVector PlayerForwardVector = GetActorForwardVector(); // プレイヤーの前方ベクトル
-			// もし照準がカメラの方向と一致するなら、PlayerCamera->GetForwardVector() を使う
-			// FVector PlayerForwardVector = PlayerCamera->GetForwardVector();
+			ASpaceFighter* HitFighter = Cast<ASpaceFighter>(HitResult.GetActor());
 
-			FVector DirectionToEnemy = (HitFighter->GetActorLocation() - GetActorLocation()).GetSafeNormal(); // 敵への方向ベクトル
-
-			float DotProduct = FVector::DotProduct(PlayerForwardVector, DirectionToEnemy);
-
-			if (DotProduct >= LockOnFOV)//ロックオン成功時の処理
+			if (HitFighter)
 			{
-				LockOnTargetFigter = HitFighter;
-			}
-			else//視野角から外れた場合の処理
-			{
-				// 視野角外
-				if (LockOnTargetFigter == HitFighter) // 以前ロックオンしていた敵だが、視野角外になった場合
+				//UKismetSystemLibrary::PrintString(this, "HitFighter");
+				// ここから視野角チェック
+
+				//カメラの前方
+				FVector PlayerForwardVector = WorldDirection;
+				//敵機への方向ベクトル
+				FVector DirectionToEnemy = (HitFighter->GetActorLocation() - GetActorLocation()).GetSafeNormal(); 
+
+				float DotProduct = FVector::DotProduct(PlayerForwardVector, DirectionToEnemy);
+
+				if (DotProduct >= LockOnFOV)//ロックオン成功時の処理
 				{
-					LockOnTargetFigter = nullptr;
+					
+
+					if (DotProduct > MinDotProduct)
+					{
+						UKismetSystemLibrary::PrintString(this, "LockSuccess");
+						MinDotProduct = DotProduct;
+						LockOnTargetFigter = HitFighter;
+					}
 				}
 			}
+			
 		}
-		else
-		{
-			//間に障害物が挟まった場合にロックオンを外す
-			if (LockOnTargetFigter)
-			{
-				LockOnTargetFigter = nullptr;
-			}
-		}
-
-	}
-	else//ヒットしなかった場合の処理
-	{
-		LockOnTargetFigter = nullptr;
 	}
 	
 }
+	
 
