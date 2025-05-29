@@ -11,6 +11,7 @@ class UBoxComponent;
 
 UCLASS()
 class ACHILESS_API ARandomActorSpawner : public AActor
+
 {
 	GENERATED_BODY()
 	

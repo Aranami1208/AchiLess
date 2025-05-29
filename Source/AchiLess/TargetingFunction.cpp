@@ -39,7 +39,9 @@ ASpaceFighter* UTargetingFunction::CheckOnTarget(UWorld* WorldContext,ASpaceFigh
 		FLinearColor::Green,        // TraceHitColor
 		0.1 - 0.01f // DrawTime
 	);
-	DrawDebugSphere(WorldContext, TraceEnd, Radius, 16, FColor::Blue, false, 0.1f - 0.01f);
+
+	//デバッグ用スフィア表示
+	//DrawDebugSphere(WorldContext, TraceEnd, Radius, 16, FColor::Blue, false, 0.1f - 0.01f);
 
 	LockOnTargetFigter = nullptr;
 
