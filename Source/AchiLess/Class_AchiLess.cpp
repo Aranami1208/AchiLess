@@ -331,7 +331,7 @@ void AClass_AchiLess::CheckOnTarget()
 	float HalfViewportHeight = Center.Y;
 	//判定用スフィアの半径
 	float LockOnSphereRadius = MaxLockOnDistance * FMath::Tan(HalfFOVRadian) * (HUDCircleRadiusPixel / HalfViewportHeight);
-	LockOnSphereRadius = FMath::Max(LockOnSphereRadius, 50.0f); // 最小半径を設定
+	
 
 	TArray<FHitResult> HitResults;
 	FCollisionQueryParams QueryParams;
