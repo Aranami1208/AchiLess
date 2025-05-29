@@ -20,6 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void DestroyMe();
+	FVector GetVelocity() { return Velocity; }
 
 public:	
 	// Called every frame

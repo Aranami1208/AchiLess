@@ -41,8 +41,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AcceleReleased();
 
-	UFUNCTION(BlueprintCallable)
-	void Beam();
+	virtual void Beam();
 
 	UFUNCTION(BlueprintCallable, Category = "SpaceFighter")
 	void TakeDamage(float InDamage);
@@ -66,6 +65,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> FighterMesh;
+
+	FVector GetVelocity();
 
 protected:
 	FVector Velocity;//ˆÚ“®•ûŒü‚ÌƒxƒNƒgƒ‹

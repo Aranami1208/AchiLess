@@ -18,9 +18,13 @@ public:
 	//コンストラクタ
 	AClass_AchiLess();
 
+	void Beam()override;
+
 protected:
 	// ゲーム開始時のみ呼ばれるファイル
 	virtual void BeginPlay() override;
+
+	
 
 public:
 
@@ -93,5 +97,28 @@ private:
 	//AIがコントロールしている
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bIsAIControll;
+
+
+	//ロックオン対象
+	TObjectPtr<ASpaceFighter> LockOnTargetFigter;
+
+	float MaxLockOnDistance;
+
+	float LockOnFOV;
+
+	//ロックオンチェックの間隔
+	float LockOnCheckInterval;
+
+	//定期的に処理するためのタイマーハンドル
+	FTimerHandle LockOnCheckTimerHandle;
+
+	//HUDの円の中心の画面座標を求める
+	FVector2D GetHUDCircleCenterLocation();
+
+	//ターゲティングしているかチェックする関数
+	void CheckOnTarget();
+
+	//PlayerController
+	APlayerController* PC;
 
 };

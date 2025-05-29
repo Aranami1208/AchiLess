@@ -211,3 +211,8 @@ void ASpaceFighter::StopBeam()
 	GetWorldTimerManager().ClearTimer(BeamTimerHandle);
 }
 
+FVector ASpaceFighter::GetVelocity()
+{
+	return Velocity;
+}
+

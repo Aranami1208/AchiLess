@@ -11,6 +11,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "GameFramework/PlayerController.h"
 
 #include "ADataManager.h" 
 #include "CharacterData.h"
@@ -54,12 +55,17 @@ AClass_AchiLess::AClass_AchiLess() :
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
 	Camera->SetupAttachment(CameraSpringArm);//スプリングアームにカメラをアタッチ
+
+	MaxLockOnDistance = 20000.0f;
+	LockOnFOV = 0.9f;
 		
 }
 // Called when the game starts or when spawned
 void AClass_AchiLess::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 
 	//視野角を設定
@@ -112,8 +118,63 @@ void AClass_AchiLess::BeginPlay()
 
 	}
 
+	// 定期的にロックオンチェックを行うための設定
+	GetWorldTimerManager().SetTimer(LockOnCheckTimerHandle, this, &AClass_AchiLess::CheckOnTarget, LockOnCheckInterval, true);
+
 	//UE_DEBUG_BREAK();
 	
+}
+
+void AClass_AchiLess::Beam()
+{
+	if (!LockOnTargetFigter)
+	{
+		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), FighterMesh->GetComponentRotation());
+	}
+	else//ロックオンしている時は偏差撃ちする
+	{
+		UKismetSystemLibrary::PrintString(this, "LockOnTarget");
+
+		FVector MyLocation = GetActorLocation();
+		FVector EnemyLocation = LockOnTargetFigter->GetActorLocation();
+
+		FVector EnemyVelocity = LockOnTargetFigter->GetVelocity();
+
+		float BeamProjectileSpeed = 100000;
+
+		FVector PredictedEnemyLocation = EnemyLocation;
+		float TravelTime = 0.0f;
+		const int32 MaxIterations = 10; // 予測の反復回数
+		const float ToleranceSq = FMath::Square(50.0f); // 許容誤差 (単位: cm)
+
+		for (int32 i = 0; i < MaxIterations; ++i)
+		{
+			// 前回予測した到達時間で、敵がどこにいるかを予測
+			FVector NextPredictedEnemyLocation = EnemyLocation + (EnemyVelocity * TravelTime);
+			float DistanceToPredictedTarget = FVector::DistSquared(MyLocation, NextPredictedEnemyLocation); // 距離の2乗で計算（平方根計算を避けるため）
+
+			// 予測位置までの距離から、弾が到達するのにかかる新しい時間を計算
+			float NextTravelTime = FMath::Sqrt(DistanceToPredictedTarget) / BeamProjectileSpeed;
+
+			// 予測時間の変化が許容範囲内であれば、収束したとみなす
+			if (FMath::Abs(NextTravelTime - TravelTime) < ToleranceSq) // ここも距離の許容誤差と合わせる
+			{
+				PredictedEnemyLocation = NextPredictedEnemyLocation;
+				break;
+			}
+
+			TravelTime = NextTravelTime;
+			PredictedEnemyLocation = NextPredictedEnemyLocation; // 予測位置を更新
+
+			// デバッグ表示 (予測位置)
+			// DrawDebugSphere(GetWorld(), PredictedEnemyLocation, 100.0f, 12, FColor::Yellow, false, 0.1f);
+		}
+
+		FVector BeamVec = (PredictedEnemyLocation - MyLocation).GetSafeNormal();
+
+		//計算した方向に発射
+		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), BeamVec.Rotation());
+	}
 }
 
 // Called every frame
@@ -232,5 +293,82 @@ void AClass_AchiLess::Boost(float Seconds)
 void AClass_AchiLess::BoostReleased()
 {
 	bIsBoosting = false;
+}
+
+FVector2D AClass_AchiLess::GetHUDCircleCenterLocation()
+{
+
+	if (!PC)return FVector2D::ZeroVector;
+
+	int32 ViewportSizeX;
+	int32 ViewportSizeY;
+	PC->GetViewportSize(ViewportSizeX, ViewportSizeY); // APlayerControllerのメソッド
+	return FVector2D(ViewportSizeX * 0.5f, ViewportSizeY * 0.5f);
+	
+}
+
+void AClass_AchiLess::CheckOnTarget()
+{
+	if (!PC)return;
+
+	FVector2D Center = GetHUDCircleCenterLocation();
+
+	FVector WorldLocation;
+	FVector WorldDirection;
+
+	if (!PC->DeprojectScreenPositionToWorld(Center.X, Center.Y, WorldLocation, WorldDirection))return;
+
+	//RayTraceの始点終点
+	FVector TraceStart = WorldLocation;
+	FVector TraceEnd = WorldLocation + WorldDirection * MaxLockOnDistance;
+	
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this); // 自分は判定しない
+
+	//ヒットした場合の処理
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		ASpaceFighter* HitFighter = Cast<ASpaceFighter>(HitResult.GetActor());
+
+		if (HitFighter)
+		{
+			// ここから視野角チェック
+			FVector PlayerForwardVector = GetActorForwardVector(); // プレイヤーの前方ベクトル
+			// もし照準がカメラの方向と一致するなら、PlayerCamera->GetForwardVector() を使う
+			// FVector PlayerForwardVector = PlayerCamera->GetForwardVector();
+
+			FVector DirectionToEnemy = (HitFighter->GetActorLocation() - GetActorLocation()).GetSafeNormal(); // 敵への方向ベクトル
+
+			float DotProduct = FVector::DotProduct(PlayerForwardVector, DirectionToEnemy);
+
+			if (DotProduct >= LockOnFOV)//ロックオン成功時の処理
+			{
+				LockOnTargetFigter = HitFighter;
+			}
+			else//視野角から外れた場合の処理
+			{
+				// 視野角外
+				if (LockOnTargetFigter == HitFighter) // 以前ロックオンしていた敵だが、視野角外になった場合
+				{
+					LockOnTargetFigter = nullptr;
+				}
+			}
+		}
+		else
+		{
+			//間に障害物が挟まった場合にロックオンを外す
+			if (LockOnTargetFigter)
+			{
+				LockOnTargetFigter = nullptr;
+			}
+		}
+
+	}
+	else//ヒットしなかった場合の処理
+	{
+		LockOnTargetFigter = nullptr;
+	}
+	
 }
 
