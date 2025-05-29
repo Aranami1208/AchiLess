@@ -3,9 +3,9 @@
 
 //スプリングアーム（カメラ用のコンポーネント）
 #include "GameFramework/SpringArmComponent.h"
-
 //カメラのコンポーネント
 #include "Camera/CameraComponent.h"
+
 #include "TimerManager.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -15,18 +15,13 @@
 #include "ADataManager.h" 
 #include "CharacterData.h"
 
-#include "DrawDebugHelpers.h"
 
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
-	AchilessMesh(nullptr),
 	CameraSpringArm(nullptr),
 	Camera(nullptr),
-	bIsAcceleration(false),
-	CurrentSpeed(0.0f), // 初期化
 	CurrentBoost(0.0f), // 初期化
-	CurrentHp(0.0f), // 初期化
-	CurrentMouseXInput(0.0f),
+		CurrentMouseXInput(0.0f),
 	CurrentMouseYInput(0.0f),
 	bIsAIControll(false)
 {
@@ -34,12 +29,6 @@ AClass_AchiLess::AClass_AchiLess() :
 
 	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
-
-	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
-
-	AchilessMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AchiLessMesh"));
-	RootComponent = DefaultSceneRoot;//ルートコンポーネントに設定
-
 
 	//SpringArmの設定
 	//スプリングアームコンポーネントの生成
@@ -65,12 +54,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
 	Camera->SetupAttachment(CameraSpringArm);//スプリングアームにカメラをアタッチ
-	
-
-	AutoPossessPlayer = EAutoReceiveInput::Player0;  // Player0に自動で操作を渡す
-
-	AchilessMesh->SetupAttachment(DefaultSceneRoot);
-	
+		
 }
 // Called when the game starts or when spawned
 void AClass_AchiLess::BeginPlay()
@@ -80,7 +64,6 @@ void AClass_AchiLess::BeginPlay()
 
 	//視野角を設定
 	Camera->FieldOfView = 90;
-
 
 
 	UCharacterData* CharacterData = Cast<UCharacterData>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -121,7 +104,7 @@ void AClass_AchiLess::BeginPlay()
 		return;
 	}
 
-	if (!AchilessMesh->SetStaticMesh(Mesh))
+	if (!FighterMesh->SetStaticMesh(Mesh))
 	{
 		UKismetSystemLibrary::PrintString(this, "Could not set mesh");
 		//メッシュがセットできなかったら
@@ -155,7 +138,7 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	if(!bIsAIControll)
 	UpdateAchiLessRotation(SpringArmRotation);
 
-	FVector Forward = AchilessMesh->GetComponentRotation().Vector();//進行方向ベクトルを取得する
+	FVector Forward = FighterMesh->GetComponentRotation().Vector();//進行方向ベクトルを取得する
 	Velocity = Forward * CurrentSpeed * BoostRate;//スピードを掛けた移動量
 
 	//移動と衝突判定処理 
@@ -219,85 +202,6 @@ void AClass_AchiLess::Roll(float Value)
 	
 }
 
-void AClass_AchiLess::UpdateAchiLessRotation(const FRotator TargetRotation)
-{
-	if (!AchilessMesh)return;
-	
-	//現在のローテーション
-	FRotator CurrentAchiLessRotation = AchilessMesh->GetComponentRotation();
-	//Yawは維持するためにいったんコピー
-	FRotator TargetAchiLessRotation = CurrentAchiLessRotation;
-
-	TargetAchiLessRotation.Pitch = TargetRotation.Pitch;
-	TargetAchiLessRotation.Yaw = TargetRotation.Yaw;
-
-
-	//ターゲット方向のベクトルを取得
-	FVector TargetForwardHorizontal = TargetRotation.Vector();
-
-
-	//正規化
-	if (TargetForwardHorizontal.IsNearlyZero())return;
-	TargetForwardHorizontal.Normalize();
-
-	//デバッグ処理（ターゲット方向を描画）
-	FVector Start = AchilessMesh->GetComponentLocation();
-	FVector End = Start + TargetForwardHorizontal * 50000;
-	// 赤色の矢印を描画
-	UKismetSystemLibrary::DrawDebugArrow(
-		GetWorld(),          // ワールド
-		Start,       // 開始点
-		End,         // 終了点
-		100.0f,              // 矢じりのサイズ
-		FColor::Red,         // 色
-		-1.0f,               // 描画時間 (0か-1なら1フレーム)
-		10.0f                // 線の太さ
-	);
-
-	//自機の方向ベクトルを取得
-	FVector AchiLessForwardHorizontal = CurrentAchiLessRotation.Vector();
-
-	//正規化
-	if (AchiLessForwardHorizontal.IsNearlyZero())return;
-	AchiLessForwardHorizontal.Normalize();
-
-	//内積を取る
-	float Dot = FVector::DotProduct(AchiLessForwardHorizontal, TargetForwardHorizontal);
-	Dot = FMath::Clamp(Dot, -1.0f, 1.0f);
-
-	//外積を取る
-	FVector Cross = FVector::CrossProduct(AchiLessForwardHorizontal, TargetForwardHorizontal);
-	
-	//???
-	float AngleDifferenceDegrees = FMath::RadiansToDegrees(acosf(Dot));
-
-	if (Cross.Z > 0.0f)
-	{
-		AngleDifferenceDegrees *= -1.0;
-	}
-
-	//回転速度制限系
-	float MaxRollFromYaw = MyParameter.MaxRotationSpeed > 0 ? MyParameter.MaxRotationSpeed * 20.0f : 45.0f;
-	float TargetRollForAiming = FMath::Clamp(AngleDifferenceDegrees * -1.0f, -MaxRollFromYaw, MaxRollFromYaw);
-	
-	TargetAchiLessRotation.Roll = TargetRollForAiming;
-
-	FRotator NewRotation = FMath::RInterpTo(CurrentAchiLessRotation, TargetAchiLessRotation, DTime, MyParameter.MaxRotationSpeed);
-	AchilessMesh->SetWorldRotation(NewRotation);
-}
-
-void AClass_AchiLess::Accelerate(float Value)
-{
-	//Clampは範囲制限
-	bIsAcceleration = true;
-	CurrentSpeed = FMath::Clamp(CurrentSpeed + (Value * MyParameter.Accelerate * GetWorld()->GetDeltaSeconds()), MyParameter.MinSpeed, MyParameter.MaxSpeed);
-	
-}
-
-void AClass_AchiLess::AcceleReleased()
-{
-	bIsAcceleration = false;
-}
 
 void AClass_AchiLess::Boost(float Seconds)
 {
@@ -328,30 +232,5 @@ void AClass_AchiLess::Boost(float Seconds)
 void AClass_AchiLess::BoostReleased()
 {
 	bIsBoosting = false;
-}
-
-void AClass_AchiLess::Beam()
-{
-	ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(),AchilessMesh->GetComponentRotation());
-}
-
-void AClass_AchiLess::TakeDamage(float InDamage)
-{
-	//HP減少処理
-	CurrentHp = FMath::Clamp(CurrentHp -= InDamage, 0, MyParameter.MaxHp);
-}
-
-void AClass_AchiLess::StartBeam()
-{
-	//押した瞬間に一発撃つ
-	Beam();
-
-	float BeamInterval = 0.1f;
-	GetWorldTimerManager().SetTimer(BeamTimerHandle,this,&AClass_AchiLess::Beam,BeamInterval,true);
-}
-
-void AClass_AchiLess::StopBeam()
-{
-	GetWorldTimerManager().ClearTimer(BeamTimerHandle);
 }
 

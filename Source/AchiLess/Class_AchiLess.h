@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "SpaceFighter.h"
 #include "DataStruct.h"
-#include "Beam.h"
 #include "Class_AchiLess.generated.h"
 
 
 UCLASS()
-class ACHILESS_API AClass_AchiLess : public APawn
+class ACHILESS_API AClass_AchiLess : public ASpaceFighter
 {
 	GENERATED_BODY()
 
@@ -24,12 +24,6 @@ protected:
 
 public:
 
-	//ルートのためのコンポーネント
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USceneComponent> DefaultSceneRoot;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UStaticMeshComponent> AchilessMesh;
 
 	// 毎フレーム呼ばれる（更新用）
 	virtual void Tick(float DeltaTime) override;
@@ -47,17 +41,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Roll(float Value);
 
-	UFUNCTION(BlueprintCallable)
-	void UpdateAchiLessRotation(const FRotator TargetRotation);
-
-
-	//加速
-	UFUNCTION(BlueprintCallable)
-	void Accelerate(float Value);
-
-	//自動減速
-	UFUNCTION(BlueprintCallable)
-	void AcceleReleased();
 
 	//ブースト
 	UFUNCTION(BlueprintCallable)
@@ -65,49 +48,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BoostReleased();
 
-	UFUNCTION(BlueprintCallable)
-	void Beam();
-
-	UFUNCTION(BlueprintCallable, Category = "AchiLess")
-	void TakeDamage(float InDamage);
-
-
-	//ビーム連射開始処理
-	UFUNCTION(BlueprintCallable)
-	void StartBeam();
-	//ビーム連射終了処理
-	UFUNCTION(BlueprintCallable)
-	void StopBeam();
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TSubclassOf<ABeam> BeamClass;
-
-	
-	
 	float CameraPitchSpeed = 45.0f;
 	float CamerayawSpeed = 90.0f;
 
 private:
 	
-	FVector Velocity;//移動方向のベクトル
-
-	float MaxRotationSpeed;
 
 	UPROPERTY(EditAnywhere)
 	FString AchilessName;
 
-	// privateでもブルプリから読み取りのみ可
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FDataStruct MyParameter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float CurrentSpeed;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float CurrentBoost;
 	
-	UPROPERTY(EditAnywhere)
-	bool bIsAcceleration;//アクセルが押されているかどうか
+	
 
 	//ブーストの無敵時間
 	UPROPERTY(EditAnywhere)
@@ -134,17 +87,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* Camera;
 	
-	//ビーム連射用タイマーハンドル
-	FTimerHandle BeamTimerHandle;
-
-	//現在のHP
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float CurrentHp;
-
 	float CurrentMouseYInput;
 	float CurrentMouseXInput;
-
-	float DTime;
 
 	//AIがコントロールしている
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
