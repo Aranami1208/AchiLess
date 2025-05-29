@@ -34,4 +34,10 @@ struct FCardData : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Rarity;
+
+    UPROPERTY(EditAnywhere,BlueprintReadWrite)
+    float CoolTime;
+
+    UPROPERTY(EditAnywhere,BlueprintReadWrite)
+    bool IsValid;
 };
