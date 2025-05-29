@@ -127,7 +127,7 @@ void ASpaceFighter::UpdateAchiLessRotation(const FRotator TargetRotation)
 	TargetForwardHorizontal.Normalize();
 
 	//デバッグ処理（ターゲット方向を描画）
-	/*
+	
 	FVector Start = FighterMesh->GetComponentLocation();
 	FVector End = Start + TargetForwardHorizontal * 50000;
 	
@@ -143,7 +143,7 @@ void ASpaceFighter::UpdateAchiLessRotation(const FRotator TargetRotation)
 		10.0f                // 線の太さ
 	);
 
-	*/
+	
 
 	//自機の方向ベクトルを取得
 	FVector AchiLessForwardHorizontal = CurrentAchiLessRotation.Vector();
