@@ -16,6 +16,8 @@
 #include "ADataManager.h" 
 #include "CharacterData.h"
 
+#include "TargetingFunction.h"
+
 
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
@@ -332,99 +334,9 @@ void AClass_AchiLess::CheckOnTarget()
 	//判定用スフィアの半径
 	float LockOnSphereRadius = MaxLockOnDistance * FMath::Tan(HalfFOVRadian) * (HUDCircleRadiusPixel / HalfViewportHeight);
 	
+	//ロックオンチェック関数
+	LockOnTargetFigter =  UTargetingFunction::CheckOnTarget(GetWorld(), this, WorldLocation, WorldDirection, LockOnSphereRadius, MaxLockOnDistance, LockOnFOV);
 
-	TArray<FHitResult> HitResults;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-	QueryParams.bTraceComplex = false;
-	
-	
-	bool bHit = UKismetSystemLibrary :: SphereTraceMulti(
-		GetWorld(),                 // WorldContextObject
-		TraceStart,                 // Start
-		TraceEnd,                   // End
-		LockOnSphereRadius,  // Radius
-		ETraceTypeQuery::TraceTypeQuery1, // TraceChannel: ここを適切なコリジョンチャネルに設定する
-		// 例: ETraceTypeQuery::TraceTypeQuery2 (Visibility) など
-		// プロジェクトのコリジョン設定に合わせて変更してください。
-		false,                      // bTraceComplex
-		TArray<AActor*>(),          // ActorsToIgnore: QueryParamsで設定済みなので空でもOK
-		EDrawDebugTrace::None, // DrawDebugType: デバッグ表示の種類
-		HitResults,                 // OutHits
-		true,                       // bIgnoreSelf: QueryParamsで設定済み
-		FLinearColor::Red,          // TraceColor
-		FLinearColor::Green,        // TraceHitColor
-		LockOnCheckInterval - 0.01f // DrawTime
-	);
-	DrawDebugSphere(GetWorld(), TraceEnd, LockOnSphereRadius, 16, FColor::Blue, false, LockOnCheckInterval - 0.01f);
-
-	LockOnTargetFigter = nullptr;
-
-	//ヒットした場合の処理
-	if (!bHit)return;
-	
-	//中心に一番近い値を持っておく
-	float MinDotProduct = -1.0f;
-	//接触したオブジェクトをすべて判定
-	for (const FHitResult HitResult : HitResults)
-	{
-		ASpaceFighter* HitFighter = Cast<ASpaceFighter>(HitResult.GetActor());
-
-		//キャストに失敗したらスキップ
-		if (!HitFighter)continue;
-		
-		//UKismetSystemLibrary::PrintString(this, "HitFighter");
-		// ここから視野角チェック
-
-		//カメラの前方
-		FVector PlayerForwardVector = WorldDirection;
-		//敵機への方向ベクトル
-		FVector DirectionToEnemy = (HitFighter->GetActorLocation() - GetActorLocation()).GetSafeNormal(); 
-
-		float DotProduct = FVector::DotProduct(PlayerForwardVector, DirectionToEnemy);
-
-		//ロックオン範囲内でなければスキップ
-		if (DotProduct < LockOnFOV)continue;
-		//最も中心に近いものでなければスキップ
-		if (DotProduct <= MinDotProduct)continue;
-		
-		UKismetSystemLibrary::PrintString(this, "LockSuccess");
-		MinDotProduct = DotProduct;
-		LockOnTargetFigter = HitFighter;
-
-		//設定したターゲットと自機の間にオブジェクトがある場合、ターゲットを外す
-
-		FVector RayTraceStart = GetActorLocation();
-		FVector RayTraceEnd = HitFighter->GetActorLocation();
-
-		FHitResult RayResult;
-
-		FCollisionQueryParams RayTraceQueryParams;
-		RayTraceQueryParams.AddIgnoredActor(this);
-		RayTraceQueryParams.AddIgnoredActor(HitFighter);
-		//精度を高く
-		RayTraceQueryParams.bTraceComplex = true;
-
-		bool bHitRay = GetWorld()->LineTraceSingleByChannel(
-			RayResult,
-			RayTraceStart,
-			RayTraceEnd,
-			ECollisionChannel::ECC_Visibility,
-			RayTraceQueryParams
-		);
-
-		//障害物がなければスキップ
-		if (!bHitRay)continue;
-		
-		ABeam* HitBeam = Cast<ABeam>(RayResult.GetActor());
-		
-		//障害物がビームであった場合スキップ
-		if (HitBeam)continue;
-
-		//障害物があり、ビームではない場合さえぎられているのでターゲットを外す
-		LockOnTargetFigter = nullptr;
-			
-	}
 }
 	
 
