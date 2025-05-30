@@ -33,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateAchiLessRotation(const FRotator TargetRotation);
 
+	UFUNCTION(BlueprintCallable)
+	UWorld* GetWorldContext() { return GetWorld(); }
+
 	//‰Á‘¬
 	UFUNCTION(BlueprintCallable)
 	void Accelerate(float Value);
@@ -65,6 +68,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> FighterMesh;
+
+	
 
 	FVector GetVelocity();
 

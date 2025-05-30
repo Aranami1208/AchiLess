@@ -102,6 +102,7 @@ private:
 	float HUDCircleRadiusPixel = 180.0f;
 	
 	//ƒƒbƒNƒIƒ“‘ÎÛ
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ASpaceFighter> LockOnTargetFigter;
 
 	float MaxLockOnDistance;
