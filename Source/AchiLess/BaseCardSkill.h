@@ -25,6 +25,7 @@ public:
 	//ブループリントでオーバーライドできるように
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void ExecuteSkill(class ASpaceFighter* Target);
+	virtual void ExecuteSkill_Implementation(class ASpaceFighter* Target);//C++オーバーライドする用
 
 	UFUNCTION(BlueprintCallable)
 	void StartCoolDown();
