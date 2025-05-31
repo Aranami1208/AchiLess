@@ -3,7 +3,7 @@
 
 #include "BaseCardSkill.h"
 #include "CardSkillWidget.h"
-
+#include "Kismet/KismetSystemLibrary.h"
 
 
 void UBaseCardSkill::ExecuteSkill_Implementation(ASpaceFighter* Target)
@@ -30,6 +30,7 @@ bool UBaseCardSkill::IsOnCoolDown()
 
 void UBaseCardSkill::UpdateCooDown(float DeltaTime)
 {
+	UKismetSystemLibrary::PrintString(this, "CoolTime");
 	//クールタイム出ないときはスキップ
 	if (CurrentCooldownTime <= 0.0f)return;
 	CurrentCooldownTime -= DeltaTime;
