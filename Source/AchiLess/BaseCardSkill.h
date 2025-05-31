@@ -22,6 +22,9 @@ public:
 
 	TWeakObjectPtr<class AClass_AchiLess> Owner;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class UCardSkillWidget* Widget;
+
 	//ブループリントでオーバーライドできるように
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void ExecuteSkill(class ASpaceFighter* Target);

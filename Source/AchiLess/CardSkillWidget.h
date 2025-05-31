@@ -17,7 +17,15 @@ class ACHILESS_API UCardSkillWidget : public UUserWidget
 public:
 	UFUNCTION(BlueprintCallable)
 	void InitCard(FCardData InCard);
-		
+
+	UFUNCTION(BlueprintCallable)
+	void StartCoolDown();
+
+	UFUNCTION(BlueprintCallable)
+	void EndCoolDown();
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	float percent;
 		
 protected:
 	//カードデータ
@@ -25,4 +33,8 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Image;
+	
+	UPROPERTY(meta = (BindWidget))
+	class UImage* CoolTimeGauge;
+
 };

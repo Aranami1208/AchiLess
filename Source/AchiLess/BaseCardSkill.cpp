@@ -2,17 +2,20 @@
 
 
 #include "BaseCardSkill.h"
+#include "CardSkillWidget.h"
 
 
 
 void UBaseCardSkill::ExecuteSkill_Implementation(ASpaceFighter* Target)
 {
-
+	StartCoolDown();
 }
 
 void UBaseCardSkill::StartCoolDown()
 {
 	CurrentCooldownTime = CardData.CoolTime;
+	if (!Widget)return;
+	Widget->StartCoolDown();
 }
 
 float UBaseCardSkill::GetCurrentCooldown()
@@ -31,7 +34,9 @@ void UBaseCardSkill::UpdateCooDown(float DeltaTime)
 	if (CurrentCooldownTime <= 0.0f)return;
 	CurrentCooldownTime -= DeltaTime;
 	//クールタイムが終わらなければスキップ
-	if (CurrentCooldownTime >= 0.0f)return;
-	//クールタイムが負の値の場合は0.0f
+	if (CurrentCooldownTime >0.0f)return;
+	//クールタイムが0以下の場合は0.0f
 	CurrentCooldownTime = 0.0f;
+	if (!Widget)return;
+	Widget->EndCoolDown();
 }

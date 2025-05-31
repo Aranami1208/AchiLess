@@ -18,6 +18,9 @@
 
 #include "TargetingFunction.h"
 
+#include "BaseCardSkill.h"
+#include "CardSkillWidget.h"
+
 
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
@@ -123,6 +126,25 @@ void AClass_AchiLess::BeginPlay()
 
 	// 定期的にロックオンチェックを行うための設定
 	GetWorldTimerManager().SetTimer(LockOnCheckTimerHandle, this, &AClass_AchiLess::CheckOnTarget, LockOnCheckInterval, true);
+
+	int32 Index = 0;
+	if (DeckData.Num() <= 0)return;
+	for (FCardData Card : DeckData)
+	{
+		if (!Card.CardSkillClass)continue;
+		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, Card.CardSkillClass);
+		//Cardのスキルクラスからインスタンスを生成
+		CardSkills.Add(CardSkill);
+
+		//カードデータをセット
+		CardSkill->CardData = Card;
+		CardSkill->Owner = this;
+		
+		//スキルにウィジェットをセット
+		CardSkill->Widget = SkillWidgets[Index % 4];
+
+		Index++;
+	}
 
 	//UE_DEBUG_BREAK();
 	
@@ -230,6 +252,14 @@ void AClass_AchiLess::Tick(float DeltaTime)
 		if (BoostLock) BoostLock = false;
 	}
 
+
+	//すべてのカードのクールタイム処理
+	for (UBaseCardSkill* Skill : CardSkills)
+	{
+		if (!Skill)continue;
+		Skill->UpdateCooDown(DeltaTime);
+	}
+
 	//全開との差分を取りたいため毎フレームリセット
 	CurrentMouseXInput = 0.0f;
 	CurrentMouseYInput = 0.0f;
@@ -264,6 +294,39 @@ void AClass_AchiLess::Yaw(float Value)
 void AClass_AchiLess::Roll(float Value)
 {
 	
+}
+
+
+void AClass_AchiLess::ExcuteSkill1()
+{
+	//インデックスが有効であるかチェック
+	if (!CardSkills.IsValidIndex(0))return;
+	//スキルを使う
+	CardSkills[0]->ExecuteSkill_Implementation(this);
+}
+
+void AClass_AchiLess::ExcuteSkill2()
+{
+	//インデックスが有効であるかチェック
+	if (!CardSkills.IsValidIndex(1))return;
+	//スキルを使う
+	CardSkills[1]->ExecuteSkill_Implementation(this);
+}
+
+void AClass_AchiLess::ExcuteSkill3()
+{
+	//インデックスが有効であるかチェック
+	if (!CardSkills.IsValidIndex(2))return;
+	//スキルを使う
+	CardSkills[2]->ExecuteSkill_Implementation(this);
+}
+
+void AClass_AchiLess::ExcuteSkill4()
+{
+	//インデックスが有効であるかチェック
+	if (!CardSkills.IsValidIndex(3))return;
+	//スキルを使う
+	CardSkills[3]->ExecuteSkill_Implementation(this);
 }
 
 

@@ -28,6 +28,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	FCardData GetDeck(int32 Index);
+	UFUNCTION(BlueprintCallable, Category = "CharacterData")
+	TArray<FCardData> GetDeckAll();
 
 private:
 

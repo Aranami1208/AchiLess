@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "SpaceFighter.h"
 #include "DataStruct.h"
+#include "CardSkillWidget.h"
 #include "Class_AchiLess.generated.h"
 
 
@@ -45,6 +46,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Roll(float Value);
 
+	
+	UFUNCTION(BlueprintCallable)
+	void ExcuteSkill1();
+	UFUNCTION(BlueprintCallable)
+	void ExcuteSkill2();
+	UFUNCTION(BlueprintCallable)
+	void ExcuteSkill3();
+	UFUNCTION(BlueprintCallable)
+	void ExcuteSkill4();
+
+
 
 	//ブースト
 	UFUNCTION(BlueprintCallable)
@@ -54,6 +66,14 @@ public:
 
 	float CameraPitchSpeed = 45.0f;
 	float CamerayawSpeed = 90.0f;
+
+	//デッキの情報
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TArray<FCardData> DeckData;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<class UBaseCardSkill*> CardSkills;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UCardSkillWidget*> SkillWidgets;
 
 private:
 	
@@ -124,5 +144,9 @@ private:
 
 	//PlayerController
 	APlayerController* PC;
+
+
+	
+	
 
 };
