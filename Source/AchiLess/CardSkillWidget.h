@@ -26,6 +26,9 @@ public:
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	float percent;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* CoolTimeGauge;
 		
 protected:
 	//カードデータ
@@ -34,7 +37,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Image;
 	
-	UPROPERTY(meta = (BindWidget))
-	class UImage* CoolTimeGauge;
+	
 
 };

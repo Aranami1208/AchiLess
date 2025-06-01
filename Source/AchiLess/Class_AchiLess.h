@@ -48,13 +48,22 @@ public:
 
 	
 	UFUNCTION(BlueprintCallable)
-	void ExcuteSkill1();
+	void SelectSkill1();
 	UFUNCTION(BlueprintCallable)
-	void ExcuteSkill2();
+	void SelectSkill2();
 	UFUNCTION(BlueprintCallable)
-	void ExcuteSkill3();
+	void SelectSkill3();
 	UFUNCTION(BlueprintCallable)
-	void ExcuteSkill4();
+	void SelectSkill4();
+
+	//使用するスキルのインデックス
+	int32 SkillIndex = -1;
+
+	UFUNCTION(BlueprintCallable)
+	void ExecuteSkill();
+
+	UFUNCTION(BlueprintCallable)
+	void ChangeDeck();
 
 
 
@@ -68,11 +77,11 @@ public:
 	float CamerayawSpeed = 90.0f;
 
 	//デッキの情報
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, EditFixedSize, BlueprintReadWrite)
 	TArray<FCardData> DeckData;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, EditFixedSize, BlueprintReadWrite)
 	TArray<class UBaseCardSkill*> CardSkills;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,EditFixedSize,BlueprintReadWrite)
 	TArray<UCardSkillWidget*> SkillWidgets;
 
 private:

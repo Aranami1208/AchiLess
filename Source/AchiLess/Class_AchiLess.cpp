@@ -31,7 +31,12 @@ AClass_AchiLess::AClass_AchiLess() :
 	CurrentMouseYInput(0.0f),
 	bIsAIControll(false)
 {
-
+	//最大カード数
+	int32 DeckSize = 8;
+	//デッキの配列の要素数を固定
+	DeckData.SetNum(DeckSize);
+	CardSkills.SetNum(DeckSize);
+	SkillWidgets.SetNum(DeckSize);
 
 	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
@@ -134,14 +139,15 @@ void AClass_AchiLess::BeginPlay()
 		if (!Card.CardSkillClass)continue;
 		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, Card.CardSkillClass);
 		//Cardのスキルクラスからインスタンスを生成
-		CardSkills.Add(CardSkill);
+		CardSkills[Index] =CardSkill;
 
 		//カードデータをセット
 		CardSkill->CardData = Card;
 		CardSkill->Owner = this;
 		
 		//スキルにウィジェットをセット
-		CardSkill->Widget = SkillWidgets[Index % 4];
+		CardSkill->Widget = SkillWidgets[Index];
+		UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
 
 		Index++;
 	}
@@ -259,7 +265,7 @@ void AClass_AchiLess::Tick(float DeltaTime)
 		if (!Skill)continue;
 		Skill->UpdateCooDown(DeltaTime);
 	}
-
+	
 	//全開との差分を取りたいため毎フレームリセット
 	CurrentMouseXInput = 0.0f;
 	CurrentMouseYInput = 0.0f;
@@ -297,36 +303,46 @@ void AClass_AchiLess::Roll(float Value)
 }
 
 
-void AClass_AchiLess::ExcuteSkill1()
+void AClass_AchiLess::SelectSkill1()
 {
-	//インデックスが有効であるかチェック
-	if (!CardSkills.IsValidIndex(0))return;
-	//スキルを使う
-	CardSkills[0]->ExecuteSkill_Implementation(this);
+	SkillIndex = 0;
 }
 
-void AClass_AchiLess::ExcuteSkill2()
+void AClass_AchiLess::SelectSkill2()
 {
-	//インデックスが有効であるかチェック
-	if (!CardSkills.IsValidIndex(1))return;
-	//スキルを使う
-	CardSkills[1]->ExecuteSkill_Implementation(this);
+	SkillIndex = 1;
 }
 
-void AClass_AchiLess::ExcuteSkill3()
+void AClass_AchiLess::SelectSkill3()
 {
-	//インデックスが有効であるかチェック
-	if (!CardSkills.IsValidIndex(2))return;
-	//スキルを使う
-	CardSkills[2]->ExecuteSkill_Implementation(this);
+	SkillIndex = 2;
 }
 
-void AClass_AchiLess::ExcuteSkill4()
+void AClass_AchiLess::SelectSkill4()
 {
-	//インデックスが有効であるかチェック
-	if (!CardSkills.IsValidIndex(3))return;
+	SkillIndex = 3;
+}
+
+void AClass_AchiLess::ExecuteSkill()
+{
+	UE_DEBUG_BREAK();
+	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
+	//スキルが設定されていないときはスキップ
+	if (SkillIndex == -1)return;
+	if (!CardSkills[SkillIndex])return;
+	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
 	//スキルを使う
-	CardSkills[3]->ExecuteSkill_Implementation(this);
+	CardSkills[SkillIndex]->ExecuteSkill_Implementation(this);
+}
+
+void AClass_AchiLess::ChangeDeck()
+{
+	TArray<UCardSkillWidget*> TempWidget = SkillWidgets;
+	for (int32 i = 0; i < 4; i++)
+	{
+		SkillWidgets[i] = TempWidget[i + 4];
+		SkillWidgets[i + 4] = TempWidget[i];
+	}
 }
 
 
