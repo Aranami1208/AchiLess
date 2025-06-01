@@ -21,6 +21,9 @@
 #include "BaseCardSkill.h"
 #include "CardSkillWidget.h"
 
+#include "Engine/GameInstance.h"
+#include "CharacterData.h"
+
 
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
@@ -153,6 +156,8 @@ void AClass_AchiLess::BeginPlay()
 
 		Index++;
 	}
+
+	
 	
 	for (Index; Index < 8; Index++)
 	{
