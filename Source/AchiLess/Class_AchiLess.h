@@ -65,7 +65,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeDeck();
 
-
+	UFUNCTION(BlueprintCallable)
+	void ReChangeDeck();
+	
+	//使用するスキルのインデックスに加算する値
+	int32 UseDeck = 0;
 
 	//ブースト
 	UFUNCTION(BlueprintCallable)
@@ -83,6 +87,9 @@ public:
 	TArray<class UBaseCardSkill*> CardSkills;
 	UPROPERTY(EditAnywhere,EditFixedSize,BlueprintReadWrite)
 	TArray<UCardSkillWidget*> SkillWidgets;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FCardData EmptyData;
 
 private:
 	
@@ -154,7 +161,7 @@ private:
 	//PlayerController
 	APlayerController* PC;
 
-
+	
 	
 	
 

@@ -16,10 +16,29 @@ void UBaseCardSkill::ExecuteSkill_Implementation(ASpaceFighter* Target)
 
 void UBaseCardSkill::StartCoolDown()
 {
-	
+	if (CardData.CoolTime == 0.0f)return;
 	CurrentCooldownTime = CardData.CoolTime;
 	if (!Widget)return;
 	Widget->StartCoolDown();
+
+}
+
+void UBaseCardSkill::ChangeWidget(UCardSkillWidget* InWIdget)
+{
+	
+	
+	Widget = InWIdget;
+
+	Widget->InitCard(CardData);
+
+	if (IsOnCoolDown())
+	{
+		Widget->StartCoolDown();
+	}
+	else
+	{
+		Widget->EndCoolDown();
+	}
 }
 
 float UBaseCardSkill::GetCurrentCooldown()
@@ -51,13 +70,6 @@ void UBaseCardSkill::UpdateCooDown(float DeltaTime)
 	//クールタイムが0以下の場合は0.0f
 	CurrentCooldownTime = 0.0f;
 	
-	
 	Widget->EndCoolDown();
 
-
-	
-
-	
-
-	
 }

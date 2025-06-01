@@ -31,6 +31,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	TArray<FCardData> GetDeckAll();
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FCardData EmptyData;
+
 private:
 
 	//プレイヤーのパラメータ情報を保持

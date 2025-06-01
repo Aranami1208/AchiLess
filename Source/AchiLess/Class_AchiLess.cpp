@@ -69,6 +69,8 @@ AClass_AchiLess::AClass_AchiLess() :
 	MaxLockOnDistance = 500000.0f;
 	LockOnFOV =0.9f;
 	LockOnCheckInterval = 0.1;
+
+	
 		
 }
 // Called when the game starts or when spawned
@@ -151,7 +153,23 @@ void AClass_AchiLess::BeginPlay()
 
 		Index++;
 	}
+	
+	for (Index; Index < 8; Index++)
+	{
+		if (!EmptyData.CardSkillClass)break;
+		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, EmptyData.CardSkillClass);
+		//Cardのスキルクラスからインスタンスを生成
+		CardSkills[Index] = CardSkill;
 
+		//カードデータをセット
+		CardSkill->CardData = EmptyData;
+		CardSkill->Owner = this;
+
+		//スキルにウィジェットをセット
+		CardSkill->Widget = SkillWidgets[Index];
+		UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
+	}
+	
 	//UE_DEBUG_BREAK();
 	
 }
@@ -329,20 +347,39 @@ void AClass_AchiLess::ExecuteSkill()
 	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
 	//スキルが設定されていないときはスキップ
 	if (SkillIndex == -1)return;
-	if (!CardSkills[SkillIndex])return;
+	if (!CardSkills[SkillIndex + UseDeck])return;
 	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
 	//スキルを使う
-	CardSkills[SkillIndex]->ExecuteSkill_Implementation(this);
+	CardSkills[SkillIndex+UseDeck]->ExecuteSkill_Implementation(this);
 }
 
 void AClass_AchiLess::ChangeDeck()
 {
-	TArray<UCardSkillWidget*> TempWidget = SkillWidgets;
+	UKismetSystemLibrary::PrintString(this,"DeckChange");
+	
 	for (int32 i = 0; i < 4; i++)
 	{
-		SkillWidgets[i] = TempWidget[i + 4];
-		SkillWidgets[i + 4] = TempWidget[i];
+		if(CardSkills[i])
+		CardSkills[i]->ChangeWidget( SkillWidgets[i + 4]);
+		if(CardSkills[i+4])
+		CardSkills[i + 4]->ChangeWidget( SkillWidgets[i]);
 	}
+	UseDeck = 4;
+}
+
+void AClass_AchiLess::ReChangeDeck()
+{
+	UKismetSystemLibrary::PrintString(this, "DeckChange");
+
+	for (int32 i = 0; i < 4; i++)
+	{
+		if (CardSkills[i])
+			CardSkills[i]->ChangeWidget(SkillWidgets[i]);
+		if (CardSkills[i + 4])
+			CardSkills[i + 4]->ChangeWidget(SkillWidgets[i+4]);
+	}
+
+	UseDeck = 0;
 }
 
 
