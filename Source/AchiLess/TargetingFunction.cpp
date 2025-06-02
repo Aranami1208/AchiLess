@@ -118,7 +118,6 @@ FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpac
 {
 	FVector MyLocation = Owner->GetActorLocation();
 
-	float BeamProjectileSpeed = 100000;
 
 	FVector PredictedTargetLocation = TargetLocation;
 	float TravelTime = 0.0f;
@@ -132,7 +131,7 @@ FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpac
 		float DistanceToPredictedTarget = FVector::DistSquared(MyLocation, NextPredictedTargetLocation); // 距離の2乗で計算（平方根計算を避けるため）
 
 		// 予測位置までの距離から、弾が到達するのにかかる新しい時間を計算
-		float NextTravelTime = FMath::Sqrt(DistanceToPredictedTarget) / BeamProjectileSpeed;
+		float NextTravelTime = FMath::Sqrt(DistanceToPredictedTarget) / TargetSpeed;
 
 		// 予測時間の変化が許容範囲内であれば、収束したとみなす
 		if (FMath::Abs(NextTravelTime - TravelTime) < ToleranceSq) // ここも距離の許容誤差と合わせる
@@ -144,9 +143,11 @@ FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpac
 		TravelTime = NextTravelTime;
 		PredictedTargetLocation = NextPredictedTargetLocation; // 予測位置を更新
 
-		// デバッグ表示 (予測位置)
-		 DrawDebugSphere(WorldContext, PredictedTargetLocation, 2000.0f, 12, FColor::Yellow, false, 0.1f);
+		
 	}
+
+	// デバッグ表示 (予測位置)
+	DrawDebugSphere(WorldContext, PredictedTargetLocation, 2000.0f, 12, FColor::Yellow, false, 10.0f);
 
 	FVector BeamVec = (PredictedTargetLocation - MyLocation).GetSafeNormal();
 
