@@ -17,12 +17,12 @@ class ACHILESS_API UOctree : public UObject
 	
 public:
     TUniquePtr<OctreeNode> RootNode;
-    float HitObjectPerNode; // ノードが分割される閾値
+    float MaxHitObjectPerNode; // ノードが分割される閾値
     int32 MaxOctreeDepth;      // 8分木の最大深さ
     float PawnSize;         // AIのサイズ (経路の幅を考慮するため)
 
     UOctree();
-    //~UOctree();
+    virtual ~UOctree() noexcept;
 
     // 8分木を構築する
     void BuildOctree(const FBox& WorldBounds, const TArray<AActor*>& AllObstacles);

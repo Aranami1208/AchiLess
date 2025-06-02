@@ -36,7 +36,5 @@ public:
 
 	void UpdateNodeStatus(float PawnSize);
 
-private:
-
 	bool ShouldSubdivide(float MaxHitObjectPerNode, int32 MaxDepth);
 };
