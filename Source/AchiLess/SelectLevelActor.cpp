@@ -7,10 +7,10 @@
 #include "ADataManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "CardData.h"
-#include "CardItemWidget.h"
-#include "Components/UniformGridSlot.h"
-#include "Components/UniformGridPanel.h"
+#include "CardData.h"//
+#include "CardItemWidget.h"//
+#include "Components/UniformGridSlot.h"//
+#include "Components/UniformGridPanel.h"//
 
 
 // Sets default values
@@ -40,7 +40,7 @@ void ASelectLevelActor::BeginPlay()
 
 	if (!CardDataTable)return;
 	//データテーブルのすべての行を取得
-	CardDataTable->GetAllRows<FCardData>(ContextString, AllCards);
+	CardDataTable->GetAllRows<FCardData>(ContextString, AllCards);//
 
 	//カードの列数
 	const int32 CardColums = 4;
