@@ -196,38 +196,11 @@ void AClass_AchiLess::Beam()
 
 		float BeamProjectileSpeed = 100000;
 
-		FVector PredictedEnemyLocation = EnemyLocation;
-		float TravelTime = 0.0f;
-		const int32 MaxIterations = 10; // 予測の反復回数
-		const float ToleranceSq = FMath::Square(50.0f); // 許容誤差 (単位: cm)
-
-		for (int32 i = 0; i < MaxIterations; ++i)
-		{
-			// 前回予測した到達時間で、敵がどこにいるかを予測
-			FVector NextPredictedEnemyLocation = EnemyLocation + (EnemyVelocity * TravelTime);
-			float DistanceToPredictedTarget = FVector::DistSquared(MyLocation, NextPredictedEnemyLocation); // 距離の2乗で計算（平方根計算を避けるため）
-
-			// 予測位置までの距離から、弾が到達するのにかかる新しい時間を計算
-			float NextTravelTime = FMath::Sqrt(DistanceToPredictedTarget) / BeamProjectileSpeed;
-
-			// 予測時間の変化が許容範囲内であれば、収束したとみなす
-			if (FMath::Abs(NextTravelTime - TravelTime) < ToleranceSq) // ここも距離の許容誤差と合わせる
-			{
-				PredictedEnemyLocation = NextPredictedEnemyLocation;
-				break;
-			}
-
-			TravelTime = NextTravelTime;
-			PredictedEnemyLocation = NextPredictedEnemyLocation; // 予測位置を更新
-
-			// デバッグ表示 (予測位置)
-			// DrawDebugSphere(GetWorld(), PredictedEnemyLocation, 100.0f, 12, FColor::Yellow, false, 0.1f);
-		}
-
-		FVector BeamVec = (PredictedEnemyLocation - MyLocation).GetSafeNormal();
-
+		//角度を予測する
+		FRotator ToTarget = UTargetingFunction::CalcToPreTargetRotation(GetWorld(), this, BeamProjectileSpeed, EnemyLocation, EnemyVelocity);
+		
 		//計算した方向に発射
-		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), BeamVec.Rotation());
+		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), ToTarget);
 	}
 }
 
