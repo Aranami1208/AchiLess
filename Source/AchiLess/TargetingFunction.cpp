@@ -145,7 +145,7 @@ FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpac
 		PredictedTargetLocation = NextPredictedTargetLocation; // 予測位置を更新
 
 		// デバッグ表示 (予測位置)
-		// DrawDebugSphere(GetWorld(), PredictedTargetLocation, 100.0f, 12, FColor::Yellow, false, 0.1f);
+		 DrawDebugSphere(WorldContext, PredictedTargetLocation, 2000.0f, 12, FColor::Yellow, false, 0.1f);
 	}
 
 	FVector BeamVec = (PredictedTargetLocation - MyLocation).GetSafeNormal();
