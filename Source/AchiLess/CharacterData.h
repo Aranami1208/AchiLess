@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "DataStruct.h"
 #include "CardData.h"
+#include "PathFindingSubsystem.h"
 #include "CharacterData.generated.h"
 
 /**
