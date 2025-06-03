@@ -30,4 +30,3 @@ TArray<FCardData> UCharacterData::GetDeckAll()
 {
 	return Deck;
 }
-UFUNCTION(BlueprintCallable, Category = "CharacterData")

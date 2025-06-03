@@ -1,40 +1,41 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Containers/Array.h"
 #include "Math/Box.h"
+#include "UObject/NoExportTypes.h" // UObjectを継承するために必要
+#include "OctreeNode.generated.h" // ヘッダーのファイル名に合わせて変更
 
-/**
- * 
- */
-class ACHILESS_API OctreeNode
+// Octreeの各ノードが持つ情報
+UCLASS(BlueprintType) // UObjectを継承したのでUCLASSに変更
+class ACHILESS_API UOctreeNode : public UObject // UObjectを継承
 {
+    GENERATED_BODY()
+
 public:
-	FBox Bounds;//このノードの領域
-	int32 Depth;//ツリーのノードの深さ
+    // このノードが表す空間の境界ボックス
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Octree")
+    FBox Bounds;
 
-	TArray<TUniquePtr<OctreeNode>> Children;
+    // このノードが障害物を含んでいるかどうか
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Octree")
+    bool bContainsObstacle;
 
-	//ノード内のオブジェクト
-	TArray<TWeakObjectPtr<AActor>> HitObject;
+    // 子ノードへのポインタ (8つ)
+    // UObjectを継承したクラスのポインタなのでUPROPERTYが使用可
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Octree")
+    TArray<UOctreeNode*> Children;
 
-	//ノード内を通行可能かどうか
-	bool bIsBlocked;
+    // コンストラクタ (UObjectはデフォルトコンストラクタを持たないため、引数なしコンストラクタを追加)
+    UOctreeNode() : bContainsObstacle(false) {}
 
-	OctreeNode(const FBox& InBounds, int32 InDepth);
-	~OctreeNode();
+    // Boundsを設定する初期化関数
+    UFUNCTION(BlueprintCallable, Category = "Octree")
+    void Initialize(const FBox& InBounds);
 
-	//このノードを分割する
-	void Subdivide();
+    // 子ノードを持つかどうか
+    bool HasChildren() const;
 
-	//ノード内のオブジェクトを追加する
-	void AddHitObject(AActor* Object);
+    // ノードをクリア (子ノードも再帰的にクリア)
+    void ClearChildren();
 
-	bool IsHitObjectInNode(const FBox& QueryBox);
-
-	void UpdateNodeStatus(float PawnSize);
-
-	bool ShouldSubdivide(float MaxHitObjectPerNode, int32 MaxDepth);
 };
