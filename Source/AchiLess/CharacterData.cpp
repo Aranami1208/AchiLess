@@ -26,4 +26,8 @@ FCardData UCharacterData::GetDeck(int32 Index)
 {
 	return Deck[Index];
 }
+TArray<FCardData> UCharacterData::GetDeckAll()
+{
+	return Deck;
+}
 UFUNCTION(BlueprintCallable, Category = "CharacterData")

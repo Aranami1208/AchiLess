@@ -24,9 +24,9 @@ struct FCardData : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TSoftObjectPtr<UTexture2D> CardImage;
 
-    // 関数名として呼び出す
+    // 使用するスキルのクラス
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FName CardFunctionName;
+    TSubclassOf<class UBaseCardSkill> CardSkillClass;
 
     // タグ
     UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -45,7 +45,11 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* FravorText;
 
-	
+	UPROPERTY(meta = (BindWidget))
+	class UButton* ConfirmButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* ConfirmText;
 	
 	
 	FCardData CardData;

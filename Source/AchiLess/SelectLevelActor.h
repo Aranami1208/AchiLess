@@ -63,4 +63,7 @@ public:
 
 	UPROPERTY()
 	TArray<UCardItemWidget*> GenaratedWidgets;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FCardData EmptyData;
 };

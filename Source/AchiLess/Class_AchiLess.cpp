@@ -18,6 +18,12 @@
 
 #include "TargetingFunction.h"
 
+#include "BaseCardSkill.h"
+#include "CardSkillWidget.h"
+
+#include "Engine/GameInstance.h"
+#include "CharacterData.h"
+
 
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
@@ -28,7 +34,12 @@ AClass_AchiLess::AClass_AchiLess() :
 	CurrentMouseYInput(0.0f),
 	bIsAIControll(false)
 {
-
+	//最大カード数
+	int32 DeckSize = 8;
+	//デッキの配列の要素数を固定
+	DeckData.SetNum(DeckSize);
+	CardSkills.SetNum(DeckSize);
+	SkillWidgets.SetNum(DeckSize);
 
 	//毎フレームTick()を呼ぶ処理
 	PrimaryActorTick.bCanEverTick = true;
@@ -61,6 +72,8 @@ AClass_AchiLess::AClass_AchiLess() :
 	MaxLockOnDistance = 500000.0f;
 	LockOnFOV =0.9f;
 	LockOnCheckInterval = 0.1;
+
+	
 		
 }
 // Called when the game starts or when spawned
@@ -124,6 +137,44 @@ void AClass_AchiLess::BeginPlay()
 	// 定期的にロックオンチェックを行うための設定
 	GetWorldTimerManager().SetTimer(LockOnCheckTimerHandle, this, &AClass_AchiLess::CheckOnTarget, LockOnCheckInterval, true);
 
+	int32 Index = 0;
+	if (DeckData.Num() <= 0)return;
+	for (FCardData Card : DeckData)
+	{
+		if (!Card.CardSkillClass)continue;
+		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, Card.CardSkillClass);
+		//Cardのスキルクラスからインスタンスを生成
+		CardSkills[Index] =CardSkill;
+
+		//カードデータをセット
+		CardSkill->CardData = Card;
+		CardSkill->Owner = this;
+		
+		//スキルにウィジェットをセット
+		CardSkill->Widget = SkillWidgets[Index];
+		UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
+
+		Index++;
+	}
+
+	
+	
+	for (Index; Index < 8; Index++)
+	{
+		if (!EmptyData.CardSkillClass)break;
+		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, EmptyData.CardSkillClass);
+		//Cardのスキルクラスからインスタンスを生成
+		CardSkills[Index] = CardSkill;
+
+		//カードデータをセット
+		CardSkill->CardData = EmptyData;
+		CardSkill->Owner = this;
+
+		//スキルにウィジェットをセット
+		CardSkill->Widget = SkillWidgets[Index];
+		UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
+	}
+	
 	//UE_DEBUG_BREAK();
 	
 }
@@ -230,6 +281,14 @@ void AClass_AchiLess::Tick(float DeltaTime)
 		if (BoostLock) BoostLock = false;
 	}
 
+
+	//すべてのカードのクールタイム処理
+	for (UBaseCardSkill* Skill : CardSkills)
+	{
+		if (!Skill)continue;
+		Skill->UpdateCooDown(DeltaTime);
+	}
+	
 	//全開との差分を取りたいため毎フレームリセット
 	CurrentMouseXInput = 0.0f;
 	CurrentMouseYInput = 0.0f;
@@ -264,6 +323,68 @@ void AClass_AchiLess::Yaw(float Value)
 void AClass_AchiLess::Roll(float Value)
 {
 	
+}
+
+
+void AClass_AchiLess::SelectSkill1()
+{
+	SkillIndex = 0;
+}
+
+void AClass_AchiLess::SelectSkill2()
+{
+	SkillIndex = 1;
+}
+
+void AClass_AchiLess::SelectSkill3()
+{
+	SkillIndex = 2;
+}
+
+void AClass_AchiLess::SelectSkill4()
+{
+	SkillIndex = 3;
+}
+
+void AClass_AchiLess::ExecuteSkill()
+{
+	UE_DEBUG_BREAK();
+	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
+	//スキルが設定されていないときはスキップ
+	if (SkillIndex == -1)return;
+	if (!CardSkills[SkillIndex + UseDeck])return;
+	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
+	//スキルを使う
+	CardSkills[SkillIndex+UseDeck]->ExecuteSkill_Implementation(this);
+}
+
+void AClass_AchiLess::ChangeDeck()
+{
+	UKismetSystemLibrary::PrintString(this,"DeckChange");
+	
+	for (int32 i = 0; i < 4; i++)
+	{
+		if(CardSkills[i])
+		CardSkills[i]->ChangeWidget( SkillWidgets[i + 4]);
+		if(CardSkills[i+4])
+		CardSkills[i + 4]->ChangeWidget( SkillWidgets[i]);
+	}
+	UseDeck = 4;
+}
+
+void AClass_AchiLess::ReChangeDeck()
+{
+	UKismetSystemLibrary::PrintString(this, "DeckChange");
+
+	for (int32 i = 0; i < 4; i++)
+	{
+		if (CardSkills[i])
+			CardSkills[i]->ChangeWidget(SkillWidgets[i]);
+		if (CardSkills[i + 4])
+			CardSkills[i + 4]->ChangeWidget(SkillWidgets[i+4]);
+	}
+
+	UseDeck = 0;
 }
 
 

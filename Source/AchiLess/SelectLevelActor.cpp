@@ -48,6 +48,13 @@ void ASelectLevelActor::BeginPlay()
 
 	for (FCardData* Card : AllCards)
 	{
+		//EmptyのDataはリストに表示しない
+		if (Card->Tag == FName("Empty"))
+		{
+			EmptyData = *Card;
+			continue;
+		}
+
 		UCardItemWidget* CardWidget = CreateWidget<UCardItemWidget>(GetWorld(), CardItemClass);
 
 		CardWidget->InitCard(*Card);
@@ -67,8 +74,12 @@ void ASelectLevelActor::BeginPlay()
 		CardWidget->SetVisibility(ESlateVisibility::Visible);
 	
 		GenaratedWidgets.Add(CardWidget);
+
+		
 		++Index;
 	}
+
+	
 	
 	//デッキのカードをすべて初期化
 	int32 index = 0;

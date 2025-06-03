@@ -73,7 +73,7 @@ ASpaceFighter* UTargetingFunction::CheckOnTarget(UWorld* WorldContext,ASpaceFigh
 		//最も中心に近いものでなければスキップ
 		if (DotProduct <= MinDotProduct)continue;
 
-		UKismetSystemLibrary::PrintString(OwnerActor, "LockSuccess");
+		//UKismetSystemLibrary::PrintString(OwnerActor, "LockSuccess");
 		MinDotProduct = DotProduct;
 		LockOnTargetFigter = HitFighter;
 

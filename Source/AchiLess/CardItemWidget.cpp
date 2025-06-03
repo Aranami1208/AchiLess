@@ -32,20 +32,36 @@ void UCardItemWidget::InitCard(const FCardData& InCard)
 	FButtonStyle NewStyle = CardButton->WidgetStyle;
 
 	float ViewCardScale = 0.6;
-	//通常状態の画像設定 
-	NewStyle.Normal.SetResourceObject(CardData.CardImage.LoadSynchronous());
-	NewStyle.Normal.ImageSize = FVector2D(CardData.CardImage->GetSizeX() * ViewCardScale, CardData.CardImage->GetSizeY() * ViewCardScale);
-	NewStyle.Normal.TintColor = FLinearColor(1.0, 1.0f, 1.0f, 1.0f);
-	//カーソルを合わせたときの画像設定
-	NewStyle.Hovered.SetResourceObject(CardData.CardImage.LoadSynchronous());
-	NewStyle.Hovered.ImageSize = FVector2D(CardData.CardImage->GetSizeX() * ViewCardScale, CardData.CardImage->GetSizeY() * ViewCardScale);
-	NewStyle.Hovered.TintColor = FLinearColor(0.7f, 0.7f, 0.7f, 1.0f);
-	//ボタンを押したときの設定
-	NewStyle.Pressed.SetResourceObject(CardData.CardImage.LoadSynchronous());
-	NewStyle.Pressed.ImageSize = FVector2D(CardData.CardImage->GetSizeX() * ViewCardScale, CardData.CardImage->GetSizeY() * ViewCardScale);
-	NewStyle.Pressed.TintColor = FLinearColor(0.5f, 0.5f, 0.5f, 1.0f);
-	CardButton->SetStyle(NewStyle);
 
+	if (CardData.IsValid == true)
+	{
+
+		//通常状態の画像設定 
+		NewStyle.Normal.SetResourceObject(CardData.CardImage.LoadSynchronous());
+		NewStyle.Normal.ImageSize = FVector2D(CardData.CardImage->GetSizeX() * ViewCardScale, CardData.CardImage->GetSizeY() * ViewCardScale);
+		NewStyle.Normal.TintColor = FLinearColor(1.0, 1.0f, 1.0f, 1.0f);
+		//カーソルを合わせたときの画像設定
+		NewStyle.Hovered.SetResourceObject(CardData.CardImage.LoadSynchronous());
+		NewStyle.Hovered.ImageSize = FVector2D(CardData.CardImage->GetSizeX() * ViewCardScale, CardData.CardImage->GetSizeY() * ViewCardScale);
+		NewStyle.Hovered.TintColor = FLinearColor(0.7f, 0.7f, 0.7f, 1.0f);
+		//ボタンを押したときの設定
+		NewStyle.Pressed.SetResourceObject(CardData.CardImage.LoadSynchronous());
+		NewStyle.Pressed.ImageSize = FVector2D(CardData.CardImage->GetSizeX() * ViewCardScale, CardData.CardImage->GetSizeY() * ViewCardScale);
+		NewStyle.Pressed.TintColor = FLinearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		
+	}
+	else//カードが有効ではない処理
+	{
+		NewStyle.Normal.SetResourceObject(CardData.CardImage.LoadSynchronous());
+		NewStyle.Normal.ImageSize = FVector2D(CardData.CardImage->GetSizeX() * ViewCardScale, CardData.CardImage->GetSizeY() * ViewCardScale);
+		NewStyle.Normal.TintColor = FLinearColor(0.3f, 0.3f, 0.3f, 1.0f);
+
+		NewStyle.Hovered = NewStyle.Normal;
+		NewStyle.Pressed = NewStyle.Normal;
+
+	}
+
+	CardButton->SetStyle(NewStyle);
 
 	//AddDynamicだとBlueprintと連携が可能(Add出は不可)
 	CardButton->OnClicked.AddDynamic(this, &UCardItemWidget::OnCardClicked);
