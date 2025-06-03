@@ -3,7 +3,7 @@
 "Mesh": "TypeBalance",
 "Accelerate":"3000",
 "AirFriction":"500",
-"MaxRotationSpeed": "1.3",
+"MaxRotationSpeed": "2",
 "MaxBoost": "1000",
 "MaxSpeed":"950",
 "MinSpeed":"40",
