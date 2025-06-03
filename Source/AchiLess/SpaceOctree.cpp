@@ -39,17 +39,18 @@ void ASpaceOctree::BeginPlay()
         }
     }
 
-    // デバッグ表示 (オプション)
-    // if (RootNode)
-    // {
-    //     DrawDebugOctreeNode(RootNode, FColor::Blue);
-    // }
+   
 }
 
 // Called every frame
 void ASpaceOctree::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+    // デバッグ表示 (オプション)
+    if (RootNode)
+    {
+        DrawDebugOctreeNode(RootNode, FColor::Blue);
+    }
 }
 
 void ASpaceOctree::InitializeOctree(const FVector& CenterLocation, const FVector& InExtent)
