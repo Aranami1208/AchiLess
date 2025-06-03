@@ -1,6 +1,7 @@
 #include "SpaceOctree.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Engine/StaticMeshActor.h"
 #include "DestructibleActor.h"
 
@@ -31,6 +32,8 @@ void ASpaceOctree::BeginPlay()
     {
         //アクターのBoundingBoxを取得
         FBox ObstacleBounds = Actor->GetComponentsBoundingBox();
+
+        UKismetSystemLibrary::PrintString(this, Actor->GetName());
         
         //バウンディングボックスが有効であるとき、判定するオブジェクトとして追加
         if (ObstacleBounds.IsValid)
@@ -39,17 +42,21 @@ void ASpaceOctree::BeginPlay()
         }
     }
 
-    // デバッグ表示 (オプション)
-    // if (RootNode)
-    // {
-    //     DrawDebugOctreeNode(RootNode, FColor::Blue);
-    // }
+     //デバッグ表示 (オプション)
+     if (RootNode)
+     {
+         DrawDebugOctreeNode(RootNode, FColor::Blue);
+     }
 }
 
 // Called every frame
 void ASpaceOctree::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+    if (RootNode)
+    {
+        UKismetSystemLibrary::PrintString(this, "OctreeIsValid");
+    }
 }
 
 void ASpaceOctree::InitializeOctree(const FVector& CenterLocation, const FVector& InExtent)
@@ -66,15 +73,18 @@ void ASpaceOctree::InitializeOctree(const FVector& CenterLocation, const FVector
     FBox RootBounds(CenterLocation - InExtent, CenterLocation + InExtent);
     RootNode = NewObject<UOctreeNode>(this);
 
+    UKismetSystemLibrary::PrintString(this, "BuildTree...");
     // Octreeの構築を開始
     BuildOctreeNode(RootNode);
 }
 
 void ASpaceOctree::BuildOctreeNode(UOctreeNode* Node)
 {
+    UKismetSystemLibrary::PrintString(this, "AddNode");
     // ノードのサイズが最小サイズ以下であれば、それ以上分割しない
     if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSize)
     {
+        UKismetSystemLibrary::PrintString(this, "MinNodeSize : Return");
         return;
     }
 
@@ -216,6 +226,7 @@ bool ASpaceOctree::IsBoxBlockedInNode(UOctreeNode* Node, const FBox& Box) const
 
 void ASpaceOctree::DrawDebugOctreeNode(const UOctreeNode* Node, const FColor& Color) const
 {
+    UKismetSystemLibrary::PrintString(this, "DrawNode");
     // デバッグ用のボックスを描画
     DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), Color, false, -1.0f, 0, 10.0f);
 
