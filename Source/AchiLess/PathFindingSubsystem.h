@@ -18,6 +18,8 @@ public:
     // Deinitialize this subsystem.
     virtual void Deinitialize() override;
 
+    void SetOctreeReference(ASpaceOctree* Ref);
+
     // Octreeへの参照
     UPROPERTY()
     ASpaceOctree* SpaceOctree;
@@ -38,4 +40,6 @@ protected:
 
     // 特定のOctreeノードを位置から見つけるヘルパー関数
     UOctreeNode* GetOctreeNodeAtLocation(const FVector& Location) const;
+
+    
 };
