@@ -27,13 +27,16 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Octree")
     UOctreeNode* RootNode;
 
+    int32 MaxDepth = 20;
+    
+
     // Octreeの初期サイズ
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree")
-    FVector Extent = FVector(50000.0f); // 広大な宇宙空間をカバーできるよう大きな値に設定
+    FVector Extent = FVector(500.0f); // 広大な宇宙空間をカバーできるよう大きな値に設定
 
     // Octreeの最小ノードサイズ (分割を止める閾値)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree")
-    float MinNodeSize = 1000.0f; // 隕石のサイズや戦闘機のサイズに合わせて調整
+    float MinNodeSize = 8000.0f; // 隕石のサイズや戦闘機のサイズに合わせて調整
 
     // Octreeを初期化する関数
     UFUNCTION(BlueprintCallable, Category = "Octree")
@@ -56,7 +59,7 @@ protected:
     void BuildOctreeNode(UOctreeNode* Node);
 
     // 再帰的に障害物をOctreeに登録するヘルパー関数
-    void AddObstacleToNode(UOctreeNode* Node, const FBox& ObstacleBounds);
+    void AddObstacleToNode(UOctreeNode* Node, const FBox& ObstacleBounds, int32 Depth);
 
     // 再帰的に指定された位置がブロックされているか判定するヘルパー関数
     bool IsLocationBlockedInNode(UOctreeNode* Node, const FVector& Location) const;
