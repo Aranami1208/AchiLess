@@ -1,20 +1,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "OctreeNode.h"
+
 #include "AStarNode.generated.h"
 
-UCLASS()
-class ACHILESS_API UAStarNode : public UObject
+USTRUCT(BlueprintType) 
+struct ACHILESS_API FAStarNode // U AStarNodeから F AStarNode に変更
 {
     GENERATED_BODY()
 
 public:
     UPROPERTY()
-    UOctreeNode* OctreeNode; // このA*ノードが参照するOctreeノード
+    int32 OctreeNodeIndex; // このA*ノードが参照するOctreeノード
 
     UPROPERTY()
-    UAStarNode* Parent; // このノードに到達するための親ノード
+    int32 ParentIndex; // このノードに到達するための親ノード
 
     UPROPERTY()
     float GCost; // スタート地点からの実際の移動コスト
@@ -26,10 +26,23 @@ public:
     float FCost; // GCost + HCost
 
     // コンストラクタ
-    UAStarNode() : OctreeNode(nullptr), Parent(nullptr), GCost(FLT_MAX), HCost(FLT_MAX), FCost(FLT_MAX) {}
+    FAStarNode()
+        : OctreeNodeIndex(INDEX_NONE)
+        , ParentIndex(INDEX_NONE) // 親ノードのインデックスを無効値で初期化
+        , GCost(FLT_MAX)
+        , HCost(FLT_MAX)
+        , FCost(FLT_MAX)
+    {
+    }
 
-    void Initialize(UOctreeNode* InOctreeNode, UAStarNode* InParent, float InGCost, float InHCost);
+    void Initialize(int32 InOctreeNodeIndex, int32 InParentIndex, float InGCost, float InHCost)
+    {
+        OctreeNodeIndex = InOctreeNodeIndex;
+        ParentIndex = InParentIndex;
+        GCost = InGCost;
+        HCost = InHCost;
+        FCost = GCost + HCost;
+    }
 
-    // OctreeNodeの境界の中心を返すヘルパー関数
-    FVector GetCenter() const;
+    
 };

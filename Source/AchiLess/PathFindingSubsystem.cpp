@@ -1,14 +1,21 @@
-
 #include "PathfindingSubsystem.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Algo/Sort.h"
 
 void UPathfindingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
-    
+    TArray<AActor*> FoundActors;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpaceOctree::StaticClass(), FoundActors);
+    if (FoundActors.Num() > 0)
+    {
+        SpaceOctree = Cast<ASpaceOctree>(FoundActors[0]);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ASpaceOctree Actor not found in the world. Pathfinding will not work."));
+    }
 }
 
 void UPathfindingSubsystem::Deinitialize()
@@ -17,23 +24,42 @@ void UPathfindingSubsystem::Deinitialize()
     Super::Deinitialize();
 }
 
+void UPathfindingSubsystem::SetOctreeReference(ASpaceOctree* Ref)
+{
+    SpaceOctree = Ref;
+}
+
+
 TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, const FVector& EndLocation)
 {
     TArray<FVector> Path;
 
-    if (!SpaceOctree || !SpaceOctree->RootNode)
+    if (!SpaceOctree || SpaceOctree->RootNodeIndex == INDEX_NONE)
     {
         UE_LOG(LogTemp, Warning, TEXT("Octree is not initialized or not found. Cannot find path."));
         return Path;
     }
 
-    // スタートノードとエンドノードを取得
-    UOctreeNode* StartOctreeNode = GetOctreeNodeAtLocation(StartLocation);
-    UOctreeNode* EndOctreeNode = GetOctreeNodeAtLocation(EndLocation);
+    // A*探索用の全ノードをクリア
+    AllAStarNodes.Empty();
 
-    if (!StartOctreeNode || !EndOctreeNode)
+    // スタートノードとエンドノードのOctreeNodeデータを取得
+    FOctreeNode StartOctreeNodeData = SpaceOctree->GetOctreeNodeAtLocation(StartLocation);
+    FOctreeNode EndOctreeNodeData = SpaceOctree->GetOctreeNodeAtLocation(EndLocation);
+
+    if (!StartOctreeNodeData.Bounds.IsValid || !EndOctreeNodeData.Bounds.IsValid)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Start or End Octree Node not found. Cannot find path."));
+        UE_LOG(LogTemp, Warning, TEXT("Start or End Octree Node data is invalid. Cannot find path."));
+        return Path;
+    }
+
+    // スタートノードのOctreeNodeIndexとエンドノードのOctreeNodeIndexを取得
+    int32 StartOctreeNodeIndex = SpaceOctree->AllNodes.Find(StartOctreeNodeData);
+    int32 EndOctreeNodeIndex = SpaceOctree->AllNodes.Find(EndOctreeNodeData);
+
+    if (StartOctreeNodeIndex == INDEX_NONE || EndOctreeNodeIndex == INDEX_NONE)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Could not find index for Start or End Octree Node data."));
         return Path;
     }
 
@@ -51,70 +77,88 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
     }
 
     // A*アルゴリズムの実装
-    TArray<UAStarNode*> OpenList;
-    TMap<UOctreeNode*, UAStarNode*> ClosedList; // 既に評価済みのOctreeNodeとそれに対応するAStarNode
+    TArray<int32> OpenListIndices; // OpenListもインデックスで管理
+    TMap<int32, int32> ClosedList; // OctreeNodeIndex -> FAStarNodeIndex
 
-    // スタートノードを作成し、オープンリストに追加
-    UAStarNode* StartAStarNode = NewObject<UAStarNode>();
-    StartAStarNode->Initialize(StartOctreeNode, nullptr, 0.0f, CalculateHCost(StartLocation, EndLocation));
-    OpenList.Add(StartAStarNode);
+    // スタートFAStarNodeを作成し、AllAStarNodesに追加
+    FAStarNode StartAStarNode;
+    StartAStarNode.Initialize(StartOctreeNodeIndex, INDEX_NONE, 0.0f, CalculateHCost(GetAStarNodeCenter(AllAStarNodes.Num()), EndLocation));
+    int32 StartAStarNodeIndex = AllAStarNodes.Add(StartAStarNode);
+    OpenListIndices.Add(StartAStarNodeIndex);
 
-    // 各OctreeNodeに対応するAStarNodeを保持するマップ
-    TMap<UOctreeNode*, UAStarNode*> AllAStarNodes;
-    AllAStarNodes.Add(StartOctreeNode, StartAStarNode);
+    // OctreeNodeIndex -> FAStarNodeIndex のマップ (既に見つけたノードへのポインタの代わりにインデックスを格納)
+    TMap<int32, int32> OctreeNodeIndexToAStarNodeIndexMap;
+    OctreeNodeIndexToAStarNodeIndexMap.Add(StartOctreeNodeIndex, StartAStarNodeIndex);
 
-    while (OpenList.Num() > 0)
+
+    while (OpenListIndices.Num() > 0)
     {
-        // OpenListからFコストが最小のノードを取得
-        // Fコストが同じ場合はHコストが最小のノードを選択
-        UAStarNode* CurrentAStarNode = OpenList[0];
-        for (int32 i = 1; i < OpenList.Num(); ++i)
+        // OpenListからFコストが最小のノードのインデックスを取得
+        int32 CurrentAStarNodeIndex = OpenListIndices[0];
+        for (int32 i = 1; i < OpenListIndices.Num(); ++i)
         {
-            if (OpenList[i]->FCost < CurrentAStarNode->FCost ||
-                (OpenList[i]->FCost == CurrentAStarNode->FCost && OpenList[i]->HCost < CurrentAStarNode->HCost))
+            if (AllAStarNodes[OpenListIndices[i]].FCost < AllAStarNodes[CurrentAStarNodeIndex].FCost ||
+                (AllAStarNodes[OpenListIndices[i]].FCost == AllAStarNodes[CurrentAStarNodeIndex].FCost && AllAStarNodes[OpenListIndices[i]].HCost < AllAStarNodes[CurrentAStarNodeIndex].HCost))
             {
-                CurrentAStarNode = OpenList[i];
+                CurrentAStarNodeIndex = OpenListIndices[i];
             }
         }
 
-        // OpenListから現在のノードを削除し、ClosedListに追加
-        OpenList.Remove(CurrentAStarNode);
-        ClosedList.Add(CurrentAStarNode->OctreeNode, CurrentAStarNode);
+        // OpenListから現在のノードのインデックスを削除し、ClosedListに追加
+        OpenListIndices.Remove(CurrentAStarNodeIndex);
+        ClosedList.Add(AllAStarNodes[CurrentAStarNodeIndex].OctreeNodeIndex, CurrentAStarNodeIndex);
 
         // 目標ノードに到達した場合
-        if (CurrentAStarNode->OctreeNode == EndOctreeNode)
+        if (AllAStarNodes[CurrentAStarNodeIndex].OctreeNodeIndex == EndOctreeNodeIndex)
         {
-            return ReconstructPath(CurrentAStarNode);
+            return ReconstructPath(CurrentAStarNodeIndex);
         }
 
+        // 現在のOctreeNodeを取得
+        const FOctreeNode* CurrentOctreeNode = SpaceOctree->GetNode(AllAStarNodes[CurrentAStarNodeIndex].OctreeNodeIndex);
+        if (!CurrentOctreeNode) continue;
+
         // 隣接ノードを探索
-        TArray<UOctreeNode*> Neighbors = GetNeighboringOctreeNodes(CurrentAStarNode->OctreeNode);
-        for (UOctreeNode* NeighborOctreeNode : Neighbors)
+        TArray<int32> NeighborsOctreeIndices = GetNeighboringOctreeNodes(AllAStarNodes[CurrentAStarNodeIndex].OctreeNodeIndex);
+        for (int32 NeighborOctreeNodeIndex : NeighborsOctreeIndices)
         {
-            // 隣接ノードが既にClosedListにあるか、障害物であればスキップ
-            if (ClosedList.Contains(NeighborOctreeNode) || SpaceOctree->IsBoxBlocked(NeighborOctreeNode->Bounds))
+            if (NeighborOctreeNodeIndex == INDEX_NONE || ClosedList.Contains(NeighborOctreeNodeIndex))
+            {
+                continue;
+            }
+
+            const FOctreeNode* NeighborOctreeNode = SpaceOctree->GetNode(NeighborOctreeNodeIndex);
+            if (!NeighborOctreeNode) continue;
+
+            if (SpaceOctree->IsBoxBlocked(NeighborOctreeNode->Bounds))
             {
                 continue;
             }
 
             // 隣接ノードまでのGコストを計算
-            float NewGCost = CurrentAStarNode->GCost + FVector::Distance(CurrentAStarNode->GetCenter(), NeighborOctreeNode->Bounds.GetCenter());
+            float NewGCost = AllAStarNodes[CurrentAStarNodeIndex].GCost + FVector::Distance(CurrentOctreeNode->Bounds.GetCenter(), NeighborOctreeNode->Bounds.GetCenter());
 
-            UAStarNode* NeighborAStarNode = AllAStarNodes.FindRef(NeighborOctreeNode);
+            int32 NeighborAStarNodeIndex = OctreeNodeIndexToAStarNodeIndexMap.FindRef(NeighborOctreeNodeIndex);
 
             // 隣接ノードがOpenListにない、または新しい経路の方がコストが低い場合
-            if (!NeighborAStarNode || NewGCost < NeighborAStarNode->GCost)
+            if (NeighborAStarNodeIndex == 0 || NewGCost < AllAStarNodes[NeighborAStarNodeIndex].GCost) // 0はFindRefがデフォルト値を返す場合
             {
-                if (!NeighborAStarNode)
+                if (NeighborAStarNodeIndex == 0) // まだFAStarNodeが作成されていない場合
                 {
-                    NeighborAStarNode = NewObject<UAStarNode>();
-                    AllAStarNodes.Add(NeighborOctreeNode, NeighborAStarNode);
+                    FAStarNode NewNeighborAStarNode;
+                    NewNeighborAStarNode.Initialize(NeighborOctreeNodeIndex, CurrentAStarNodeIndex, NewGCost, CalculateHCost(NeighborOctreeNode->Bounds.GetCenter(), EndLocation));
+                    NeighborAStarNodeIndex = AllAStarNodes.Add(NewNeighborAStarNode);
+                    OctreeNodeIndexToAStarNodeIndexMap.Add(NeighborOctreeNodeIndex, NeighborAStarNodeIndex);
                 }
-                NeighborAStarNode->Initialize(NeighborOctreeNode, CurrentAStarNode, NewGCost, CalculateHCost(NeighborOctreeNode->Bounds.GetCenter(), EndLocation));
-
-                if (!OpenList.Contains(NeighborAStarNode))
+                else
                 {
-                    OpenList.Add(NeighborAStarNode);
+                    // 既存のFAStarNodeを更新
+                    AllAStarNodes[NeighborAStarNodeIndex].Initialize(NeighborOctreeNodeIndex, CurrentAStarNodeIndex, NewGCost, CalculateHCost(NeighborOctreeNode->Bounds.GetCenter(), EndLocation));
+                }
+
+                if (!OpenListIndices.Contains(NeighborAStarNodeIndex))
+                {
+                    OpenListIndices.Add(NeighborAStarNodeIndex);
                 }
             }
         }
@@ -126,118 +170,68 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
 
 float UPathfindingSubsystem::CalculateHCost(const FVector& FromLocation, const FVector& ToLocation) const
 {
-    // マンハッタン距離またはユークリッド距離を使用
-    return FVector::Distance(FromLocation, ToLocation); // ユークリッド距離
-    // return FVector::DistManhattan(FromLocation, ToLocation); // マンハッタン距離
+    return FVector::Distance(FromLocation, ToLocation);
 }
 
-TArray<UOctreeNode*> UPathfindingSubsystem::GetNeighboringOctreeNodes(UOctreeNode* CurrentOctreeNode) const
+TArray<int32> UPathfindingSubsystem::GetNeighboringOctreeNodes(int32 CurrentOctreeNodeIndex) const
 {
-    TArray<UOctreeNode*> Neighbors;
-    if (!SpaceOctree || !SpaceOctree->RootNode) return Neighbors;
+    TArray<int32> Neighbors;
+    if (!SpaceOctree || CurrentOctreeNodeIndex == INDEX_NONE) return Neighbors;
 
-    // 現在のノードと隣接するOctreeノードを探すロジックを実装
-    // これはOctreeの構造上、少し複雑になる可能性があります。
-    // Simplest approach: Check immediate neighbors (parent and siblings, or children of parent)
-    // より正確な方法: 現在のノードの周囲の空間をカバーするノードを探索する
-    // ここでは簡易的に、現在のノードと同じ階層、または親ノードの他の子ノードを隣接ノードとして考慮します。
-    // 厳密な3Dグリッドベースの隣接ノード取得とは異なります。
+    const FOctreeNode* CurrentOctreeNode = SpaceOctree->GetNode(CurrentOctreeNodeIndex);
+    if (!CurrentOctreeNode) return Neighbors;
 
-    // 例えば、現在のノードの親ノードの全ての子ノード（現在のノード自身を除く）を隣接ノードとみなす
-    // または、現在のノードの周囲の8方向にあるであろうノードを探索する
-    // Octreeの性質上、隣接ノードのサイズが異なる可能性もあります。
-
-    // 現実的な実装としては、特定の半径内のOctreeノードを検索する、
-    // または、現在のノードの隣接する空間をカバーするノードを見つけるための関数をOctreeクラスに追加する、
-    // というアプローチが考えられます。
-
-    // ここでは、現在のノードの中心から隣接する空間にA*探索のステップサイズ（例えばMinNodeSize）を足し引きして、
-    // その位置にあるOctreeノードを取得する方法を実装します。
-
-    float Step = SpaceOctree->MinNodeSize; // ノード間のステップサイズとして最小ノードサイズを使用
+    float Step = SpaceOctree->MinNodeSize;
     FVector CurrentCenter = CurrentOctreeNode->Bounds.GetCenter();
 
-    // 26方向（自分自身を除く）の隣接位置
     for (int x = -1; x <= 1; ++x)
     {
         for (int y = -1; y <= 1; ++y)
         {
             for (int z = -1; z <= 1; ++z)
             {
-                if (x == 0 && y == 0 && z == 0) continue; // 自分自身はスキップ
+                if (x == 0 && y == 0 && z == 0) continue;
 
                 FVector NeighborLocation = CurrentCenter + FVector(x * Step, y * Step, z * Step);
-                UOctreeNode* NeighborNode = GetOctreeNodeAtLocation(NeighborLocation);
-                if (NeighborNode && NeighborNode != CurrentOctreeNode && !Neighbors.Contains(NeighborNode))
+                FOctreeNode NeighborNode = SpaceOctree->GetOctreeNodeAtLocation(NeighborLocation); // FOctreeNodeを値で取得
+                if (NeighborNode.Bounds.IsValid) // 有効なノードが取得できたかチェック
                 {
-                    Neighbors.Add(NeighborNode);
+                    int32 NeighborNodeIndex = SpaceOctree->AllNodes.Find(NeighborNode);
+                    if (NeighborNodeIndex != INDEX_NONE && NeighborNodeIndex != CurrentOctreeNodeIndex && !Neighbors.Contains(NeighborNodeIndex))
+                    {
+                        Neighbors.Add(NeighborNodeIndex);
+                    }
                 }
             }
         }
     }
 
     return Neighbors;
+
 }
 
-TArray<FVector> UPathfindingSubsystem::ReconstructPath(UAStarNode* EndAStarNode) const
+TArray<FVector> UPathfindingSubsystem::ReconstructPath(int32 EndAStarNodeIndex) const
 {
     TArray<FVector> Path;
-    UAStarNode* Current = EndAStarNode;
-    while (Current)
+    int32 CurrentAStarNodeIndex = EndAStarNodeIndex;
+    while (CurrentAStarNodeIndex != INDEX_NONE)
     {
-        Path.Add(Current->GetCenter());
-        Current = Current->Parent;
+        const FAStarNode& CurrentNode = AllAStarNodes[CurrentAStarNodeIndex];
+        Path.Add(GetAStarNodeCenter(CurrentAStarNodeIndex)); // ヘルパー関数を使用
+        CurrentAStarNodeIndex = CurrentNode.ParentIndex;
     }
-    Algo::Reverse(Path); // 経路を逆転させてスタートからエンドの順にする
+    Algo::Reverse(Path);
 
     return Path;
 }
 
-UOctreeNode* UPathfindingSubsystem::GetOctreeNodeAtLocation(const FVector& Location) const
-{
-    if (!SpaceOctree || !SpaceOctree->RootNode) return nullptr;
 
-    UOctreeNode* CurrentNode = SpaceOctree->RootNode;
-    while (CurrentNode)
+
+FVector UPathfindingSubsystem::GetAStarNodeCenter(int32 AStarNodeIndex) const
+{
+    if (AllAStarNodes.IsValidIndex(AStarNodeIndex) && SpaceOctree && SpaceOctree->AllNodes.IsValidIndex(AllAStarNodes[AStarNodeIndex].OctreeNodeIndex))
     {
-        if (CurrentNode->bContainsObstacle) return nullptr; // 障害物ノードであれば経路として利用できない
-
-        if (!CurrentNode->HasChildren())
-        {
-            // 葉ノードに到達し、ブロックされていなければそのノードを返す
-            if (CurrentNode->Bounds.IsInside(Location))
-            {
-                return CurrentNode;
-            }
-            return nullptr; // 葉ノードだが、位置が含まれていない
-        }
-
-        // 子ノードをチェックし、位置が含まれる子ノードへ移動
-        UOctreeNode* NextNode = nullptr;
-        for (UOctreeNode* Child : CurrentNode->Children)
-        {
-            if (Child && Child->Bounds.IsInside(Location))
-            {
-                NextNode = Child;
-                break;
-            }
-        }
-
-        if (NextNode)
-        {
-            CurrentNode = NextNode;
-        }
-        else
-        {
-            return nullptr; // どのノードにも含まれない (RootNodeの範囲外など)
-        }
+        return SpaceOctree->AllNodes[AllAStarNodes[AStarNodeIndex].OctreeNodeIndex].Bounds.GetCenter();
     }
-    return nullptr;
+    return FVector::ZeroVector;
 }
-
-void UPathfindingSubsystem::SetOctreeReference(ASpaceOctree* Ref)
-{
-    UKismetSystemLibrary::PrintString(this, "SetSubsystem");
-    SpaceOctree = Ref;
-}
-

@@ -2,8 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "OctreeNode.h"
-#include "UObject/NoExportTypes.h" 
+#include "OctreeNode.h" 
 #include "SpaceOctree.generated.h"
 
 UCLASS()
@@ -12,31 +11,31 @@ class ACHILESS_API ASpaceOctree : public AActor
     GENERATED_BODY()
 
 public:
-    // Sets default values for this actor's properties
     ASpaceOctree();
 
 protected:
-    // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
 public:
-    // 毎フレーム呼ばれる（更新用）
+    int32 MaxDepth = 12;
+
     virtual void Tick(float DeltaTime) override;
 
-    // Octreeのルートノード
+    // 全てのオクツリーノードを格納する配列
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Octree")
-    UOctreeNode* RootNode;
+    TArray<FOctreeNode> AllNodes; // 全てのノードをこの配列で管理
 
-    int32 MaxDepth = 20;
-    
+    // Octreeのルートノードのインデックス
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Octree")
+    int32 RootNodeIndex; // UOctreeNode*からint32に変更
 
     // Octreeの初期サイズ
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree")
-    FVector Extent = FVector(500.0f); // 広大な宇宙空間をカバーできるよう大きな値に設定
+    FVector Extent = FVector(50000.0f);
 
     // Octreeの最小ノードサイズ (分割を止める閾値)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree")
-    float MinNodeSize = 8000.0f; // 隕石のサイズや戦闘機のサイズに合わせて調整
+    float MinNodeSize = 1000.0f;
 
     // Octreeを初期化する関数
     UFUNCTION(BlueprintCallable, Category = "Octree")
@@ -54,19 +53,27 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Octree")
     bool IsBoxBlocked(const FBox& Box) const;
 
-protected:
-    // 再帰的にOctreeノードを初期化するヘルパー関数
-    void BuildOctreeNode(UOctreeNode* Node);
+    // 特定のインデックスのノードを取得するヘルパー関数
+    FOctreeNode* GetNode(int32 NodeIndex);
+    const FOctreeNode* GetNode(int32 NodeIndex) const;
+
+
+    
+    FOctreeNode GetOctreeNodeAtLocation(const FVector& Location);
+
+//protected:
+    // ノードを8つの子ノードに分割するヘルパー関数
+    void SubdivideNode(int32 NodeIndex); // UOctreeNode*からint32に変更
 
     // 再帰的に障害物をOctreeに登録するヘルパー関数
-    void AddObstacleToNode(UOctreeNode* Node, const FBox& ObstacleBounds, int32 Depth);
+    void AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds,int32 Depth); // UOctreeNode*からint32に変更
 
     // 再帰的に指定された位置がブロックされているか判定するヘルパー関数
-    bool IsLocationBlockedInNode(UOctreeNode* Node, const FVector& Location) const;
+    bool IsLocationBlockedInNode(int32 NodeIndex, const FVector& Location) const; // UOctreeNode*からint32に変更
 
     // 再帰的に指定された境界ボックスがブロックされているか判定するヘルパー関数
-    bool IsBoxBlockedInNode(UOctreeNode* Node, const FBox& Box) const;
+    bool IsBoxBlockedInNode(int32 NodeIndex, const FBox& Box) const; // UOctreeNode*からint32に変更
 
     // デバッグ表示用の描画関数 (オプション)
-    void DrawDebugOctreeNode(const UOctreeNode* Node, const FColor& Color) const;
+    void DrawDebugOctreeNode(int32 NodeIndex, const FColor& Color) const; // UOctreeNode*からint32に変更
 };

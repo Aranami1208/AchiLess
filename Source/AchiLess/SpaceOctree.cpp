@@ -11,7 +11,7 @@
 ASpaceOctree::ASpaceOctree()
 {
     PrimaryActorTick.bCanEverTick = false; // Octreeは通常Tick不要なのでfalseに設定
-    RootNode = nullptr;
+    RootNodeIndex = INDEX_NONE;
 }
 
 // Called when the game starts or when spawned
@@ -45,36 +45,32 @@ void ASpaceOctree::BeginPlay()
         
     }
     
-    if (RootNode) // RootNode の構築が成功していたら
+    
+    if (UWorld* World = GetWorld())
     {
-        if (UWorld* World = GetWorld())
+        if (UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>())
         {
-            if (UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>())
-            {
-                // PathSubsystem に Octree の参照を渡すか、準備完了を通知する関数を呼び出す
-                PathSubsystem->SetOctreeReference(this);
-                // (この SetOctreeReference は PathfindingSubsystem に自作する必要があります)
-                UE_LOG(LogTemp, Log, TEXT("ASpaceOctree notified PathfindingSubsystem about its initialization."));
-            }
-            else
-            {
-                UKismetSystemLibrary::PrintString (this, "NoSubsystem");
-            }
+            // PathSubsystem に Octree の参照を渡すか、準備完了を通知する関数を呼び出す
+            PathSubsystem->SetOctreeReference(this);
+            // (この SetOctreeReference は PathfindingSubsystem に自作する必要があります)
+            UE_LOG(LogTemp, Log, TEXT("ASpaceOctree notified PathfindingSubsystem about its initialization."));
         }
         else
         {
-            UKismetSystemLibrary::PrintString(this, "NoWorld");
+            UKismetSystemLibrary::PrintString (this, "NoSubsystem");
         }
     }
     else
     {
-        UKismetSystemLibrary::PrintString(this, "NoRootNode");
+        UKismetSystemLibrary::PrintString(this, "NoWorld");
     }
+
+    
    
      //デバッグ表示 (オプション)
-     if (RootNode)
+     if (RootNodeIndex != INDEX_NONE)
      {
-         DrawDebugOctreeNode(RootNode, FColor::Blue);
+         DrawDebugOctreeNode(RootNodeIndex, FColor::Blue);
      }
 }
 
@@ -82,35 +78,82 @@ void ASpaceOctree::BeginPlay()
 void ASpaceOctree::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    if (RootNode)
-    {
-        UKismetSystemLibrary::PrintString(this, "OctreeIsValid");
-    }
+    
 }
 
 void ASpaceOctree::InitializeOctree(const FVector& CenterLocation, const FVector& InExtent)
 {
-    // 既存のOctreeをクリア
-    if (RootNode)
-    {
-        RootNode->ClearChildren();
-        RootNode->ConditionalBeginDestroy(); // GCにマークする
-        RootNode = nullptr;
-    }
+    // 既存のノードを全てクリア
+    AllNodes.Empty();
+    RootNodeIndex = INDEX_NONE;
 
   
     // ルートノードの境界ボックスを設定
     FBox RootBounds(CenterLocation - InExtent, CenterLocation + InExtent);
-    RootNode = NewObject<UOctreeNode>(this);
+   
 
-    RootNode->Initialize(RootBounds);
+    // AllNodesに新しいノードを追加し、そのインデックスをルートノードインデックスとする
+    RootNodeIndex = AllNodes.Add(FOctreeNode(RootBounds));
 
 }
 
-void ASpaceOctree::BuildOctreeNode(UOctreeNode* Node)
+FOctreeNode ASpaceOctree::GetOctreeNodeAtLocation(const FVector& Location)
+{
+    if (RootNodeIndex == INDEX_NONE) return FOctreeNode(); // 無効なOctreeNodeを返す
+
+    int32 CurrentNodeIdx = RootNodeIndex;
+    while (CurrentNodeIdx != INDEX_NONE)
+    {
+        FOctreeNode* CurrentNode = GetNode(CurrentNodeIdx);
+        if (!CurrentNode) return FOctreeNode(); // 無効なOctreeNodeを返す
+
+        // 現在のノードが障害物を含んでいる場合、この位置はブロックされている
+        if (CurrentNode->bContainsObstacle)
+        {
+            return FOctreeNode(); // 障害物ノードであればパスとして利用できない -> 無効なノードを返す
+        }
+
+        // ノードが子ノードを持たない場合（まだ分割されていない、または最小サイズに達した葉ノード）
+        // そのノードの範囲内に位置が含まれていれば、そのノードを返す
+        if (!CurrentNode->HasChildren())
+        {
+            if (CurrentNode->Bounds.IsInside(Location))
+            {
+                return *CurrentNode; // <-- ここでポインタをデリファレンスして値を返す
+            }
+            return FOctreeNode(); // 葉ノードだが、位置が含まれていない -> 無効なノードを返す
+        }
+
+        // 子ノードをチェックし、位置が含まれる子ノードへ移動
+        int32 NextNodeIdx = INDEX_NONE;
+        for (int32 ChildIdx : CurrentNode->ChildrenIndices)
+        {
+            const FOctreeNode* ChildNode = GetNode(ChildIdx);
+            if (ChildNode && ChildNode->Bounds.IsInside(Location))
+            {
+                NextNodeIdx = ChildIdx;
+                break;
+            }
+        }
+
+        if (NextNodeIdx != INDEX_NONE)
+        {
+            CurrentNodeIdx = NextNodeIdx;
+        }
+        else
+        {
+            // どのノードにも位置が含まれない（RootNodeの範囲外など）
+            return FOctreeNode(); // 無効なOctreeNodeを返す
+        }
+    }
+    return FOctreeNode(); // ここには到達しないはずだが、念のため -> 無効なOctreeNodeを返す
+}
+
+void ASpaceOctree::SubdivideNode(int32 NodeIndex)
 {
 
-   
+    FOctreeNode* Node = GetNode(NodeIndex);
+
     UKismetSystemLibrary::PrintString(this, "AddNode");
     /*
     UKismetSystemLibrary::PrintString(this, "BuildExtent"
@@ -130,8 +173,6 @@ void ASpaceOctree::BuildOctreeNode(UOctreeNode* Node)
     // 各子ノードのExtentを計算
     FVector HalfExtent = Node->Bounds.GetExtent() / 2.0f;
 
-    // 8つの子ノードを生成
-    Node->Children.SetNum(8);
     for (int32 i = 0; i < 8; ++i)
     {
         FVector ChildCenter = Center;
@@ -140,26 +181,29 @@ void ASpaceOctree::BuildOctreeNode(UOctreeNode* Node)
         ChildCenter.Z += ((i & 4) ? HalfExtent.Z : -HalfExtent.Z); // Z座標
 
         FBox ChildBounds(ChildCenter - HalfExtent, ChildCenter + HalfExtent);
-        Node->Children[i] = NewObject<UOctreeNode>(Node);
-        Node->Children[i]->Initialize(ChildBounds);
+       
+        Node->ChildrenIndices[i] = AllNodes.Add(FOctreeNode(ChildBounds));
      
     }
 }
 
 void ASpaceOctree::AddObstacle(const FBox& ObstacleBounds)
 {
-    if (!RootNode)
+    if (RootNodeIndex == INDEX_NONE)
     {
         UE_LOG(LogTemp, Warning, TEXT("Octree not initialized. Call InitializeOctree first."));
         return;
     }
-    AddObstacleToNode(RootNode, ObstacleBounds,0);
+    AddObstacleToNode(RootNodeIndex, ObstacleBounds,0);
 
     DrawDebugBox(GetWorld(), ObstacleBounds.GetCenter(), ObstacleBounds.GetExtent(), FColor::Yellow, true, -1.0f, 0, 200.0f);
 }
 
-void ASpaceOctree::AddObstacleToNode(UOctreeNode* Node, const FBox& ObstacleBounds,int32 Depth)
+void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds,int32 Depth)
 {
+    FOctreeNode* Node = GetNode(NodeIndex);
+    if (!Node)return;
+
     if (Depth >= MaxDepth)return;
     //サイズが小さくなったらスキップ
     if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSize)return;
@@ -182,40 +226,34 @@ void ASpaceOctree::AddObstacleToNode(UOctreeNode* Node, const FBox& ObstacleBoun
     // ノードがまだ子を持っていない（リーフノードである）場合、分割を試みる
     if (!Node->HasChildren())
     {
-        // MinNodeSize のチェックは BuildOctreeNode (SubdivideNodeOnce) 側でも行われるが、
-        // ここでも呼び出す前にチェックしておくと、不要な呼び出しを避けられる。
         // ただし、上の条件で既に MinNodeSize チェックは行われているため、
         // ここに到達した時点で Node->Bounds.GetExtent().GetMax() * 2.0f > MinNodeSize は保証されているはず。
-        BuildOctreeNode(Node); // 1段階分割を実行
+        SubdivideNode(NodeIndex); // 1段階分割を実行
     }
 
-    // ノードが子を持つようになった (または元々持っていた) 場合、
     // 各子ノードに障害物を再帰的に追加
-    // (BuildOctreeNodeを呼んだ結果、MinNodeSizeなどの理由で実際には子が作られないケースも考慮すると、
-    //  再度 HasChildren() をチェックするのがより安全)
-    if (Node->HasChildren())
+    for (int32 ChildIndex : Node->ChildrenIndices) // ChildrenIndicesを使用
     {
-        for (UOctreeNode* Child : Node->Children)
+        if (ChildIndex != INDEX_NONE)
         {
-            if (Child) // Childがnullptrでないことを確認 (通常は大丈夫なはず)
-            {
-                AddObstacleToNode(Child, ObstacleBounds,Depth + 1);
-            }
+            AddObstacleToNode(ChildIndex, ObstacleBounds,Depth +1);
         }
     }
 }
 
 bool ASpaceOctree::IsLocationBlocked(const FVector& Location) const
 {
-    if (!RootNode)
+    if (RootNodeIndex == INDEX_NONE)
     {
         return false; // Octreeが初期化されていなければブロックされていないとみなす
     }
-    return IsLocationBlockedInNode(RootNode, Location);
+    return IsLocationBlockedInNode(RootNodeIndex, Location);
 }
 
-bool ASpaceOctree::IsLocationBlockedInNode(UOctreeNode* Node, const FVector& Location) const
+bool ASpaceOctree::IsLocationBlockedInNode(int32 NodeIndex, const FVector& Location) const
 {
+    const FOctreeNode* Node = GetNode(NodeIndex);
+
     // ノードが障害物を含んでいる場合、その場所はブロックされている
     if (Node->bContainsObstacle)
     {
@@ -229,11 +267,12 @@ bool ASpaceOctree::IsLocationBlockedInNode(UOctreeNode* Node, const FVector& Loc
     }
 
     // どのFVectorがLocationを含んでいるか検索
-    for (UOctreeNode* Child : Node->Children)
+    for (int32 ChildIdx : Node->ChildrenIndices)
     {
+        const FOctreeNode* Child = GetNode(ChildIdx);
         if (Child && Child->Bounds.IsInside(Location))
         {
-            return IsLocationBlockedInNode(Child, Location);
+            return IsLocationBlockedInNode(ChildIdx, Location);
         }
     }
 
@@ -242,15 +281,35 @@ bool ASpaceOctree::IsLocationBlockedInNode(UOctreeNode* Node, const FVector& Loc
 
 bool ASpaceOctree::IsBoxBlocked(const FBox& Box) const
 {
-    if (!RootNode)
+    if (RootNodeIndex == INDEX_NONE)
     {
         return false; // Octreeが初期化されていなければブロックされていないとみなす
     }
-    return IsBoxBlockedInNode(RootNode, Box);
+    return IsBoxBlockedInNode(RootNodeIndex, Box);
 }
 
-bool ASpaceOctree::IsBoxBlockedInNode(UOctreeNode* Node, const FBox& Box) const
+FOctreeNode* ASpaceOctree::GetNode(int32 NodeIndex)
 {
+    if (NodeIndex != INDEX_NONE && AllNodes.IsValidIndex(NodeIndex))
+    {
+        return &AllNodes[NodeIndex]; // AllNodes は非 const なので、非 const ポインタを返せる
+    }
+    return nullptr;
+}
+
+const FOctreeNode* ASpaceOctree::GetNode(int32 NodeIndex) const
+{
+    if (NodeIndex != INDEX_NONE && AllNodes.IsValidIndex(NodeIndex))
+    {
+        return &AllNodes[NodeIndex]; // AllNodes は const と見なされるので、const ポインタを返す
+    }
+    return nullptr;
+}
+
+bool ASpaceOctree::IsBoxBlockedInNode(int32 NodeIndex, const FBox& Box) const
+{
+    const FOctreeNode* Node = GetNode(NodeIndex);
+
     // ノードが障害物を含んでいる場合、そのノードとBoxが交差していればブロックされている
     if (Node->bContainsObstacle && Node->Bounds.Intersect(Box))
     {
@@ -264,11 +323,13 @@ bool ASpaceOctree::IsBoxBlockedInNode(UOctreeNode* Node, const FBox& Box) const
     }
 
     // 子ノードを再帰的にチェック
-    for (UOctreeNode* Child : Node->Children)
+    for (int32 ChildIdx : Node->ChildrenIndices)
     {
+        const FOctreeNode* Child = GetNode(ChildIdx);
+
         if (Child && Child->Bounds.Intersect(Box)) // 子ノードがBoxと交差している場合のみ再帰呼び出し
         {
-            if (IsBoxBlockedInNode(Child, Box))
+            if (IsBoxBlockedInNode(ChildIdx, Box))
             {
                 return true; // いずれかの子ノードがブロックされていれば全体がブロックされている
             }
@@ -278,9 +339,17 @@ bool ASpaceOctree::IsBoxBlockedInNode(UOctreeNode* Node, const FBox& Box) const
     return false; // どのノードもブロックされていない
 }
 
-void ASpaceOctree::DrawDebugOctreeNode(const UOctreeNode* Node, const FColor& Color) const
+void ASpaceOctree::DrawDebugOctreeNode(int32 NodeIndex, const FColor& Color) const
 {
-   
+
+    if (NodeIndex == INDEX_NONE)
+    {
+        return;
+    }
+    const FOctreeNode* Node = GetNode(NodeIndex);
+
+    if (!Node)return;
+
     // デバッグ用のボックスを描画
     if (Node->bContainsObstacle)
     {
@@ -293,7 +362,7 @@ void ASpaceOctree::DrawDebugOctreeNode(const UOctreeNode* Node, const FColor& Co
     }
 
     // 子ノードがあれば再帰的に描画
-    for (UOctreeNode* Child : Node->Children)
+    for (int32 Child : Node->ChildrenIndices)
     {
         if (Child)
         {

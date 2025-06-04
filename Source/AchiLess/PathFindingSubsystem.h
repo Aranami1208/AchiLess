@@ -29,17 +29,23 @@ public:
     TArray<FVector> FindPath(const FVector& StartLocation, const FVector& EndLocation);
 
 protected:
+    // A*アルゴリズムの全ノードを格納する配列
+   // FAStarNodeはUSTRUCTなので、直接配列に格納できる
+    TArray<FAStarNode> AllAStarNodes;
+
     // A*アルゴリズムのヒューリスティック関数 (推定コスト)
     float CalculateHCost(const FVector& FromLocation, const FVector& ToLocation) const;
 
     // Octreeノードの隣接ノードを取得する関数
-    TArray<UOctreeNode*> GetNeighboringOctreeNodes(UOctreeNode* CurrentOctreeNode) const;
+    TArray<int32> GetNeighboringOctreeNodes(int32 CurrentOctreeNodeIndex) const;
 
     // 経路を再構築する関数
-    TArray<FVector> ReconstructPath(UAStarNode* EndAStarNode) const;
+    TArray<FVector> ReconstructPath(int32 EndAStarNodeIndex) const;
 
-    // 特定のOctreeノードを位置から見つけるヘルパー関数
-    UOctreeNode* GetOctreeNodeAtLocation(const FVector& Location) const;
+   
+
+    // FAStarNodeのインデックスからOctreeNodeのFVector Centerを取得するヘルパー関数
+    FVector GetAStarNodeCenter(int32 AStarNodeIndex) const;
 
     
 };
