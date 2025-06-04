@@ -1,18 +1,45 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+#pragma once
 
+#include "CoreMinimal.h"
+#include "OctreeNode.h"
+#include "AStarNode.generated.h"
 
-#include "AStarNode.h"
-
-void UAStarNode::Initialize(UOctreeNode* InOctreeNode, UAStarNode* InParent, float InGCost, float InHCost)
+UCLASS()
+class ACHILESS_API UAStarNode : public UObject
 {
-    OctreeNode = InOctreeNode;
-    Parent = InParent;
-    GCost = InGCost;
-    HCost = InHCost;
-    FCost = GCost + HCost;
-}
+    GENERATED_BODY()
 
-FVector UAStarNode::GetCenter() const
-{
-	return OctreeNode ? OctreeNode->Bounds.GetCenter() : FVector::ZeroVector;
-}
+public:
+    UPROPERTY()
+    UOctreeNode* OctreeNode; // このA*ノードが参照するOctreeノード
+
+    UPROPERTY()
+    UAStarNode* Parent; // このノードに到達するための親ノード
+
+    UPROPERTY()
+    float GCost; // スタート地点からの実際の移動コスト
+
+    UPROPERTY()
+    float HCost; // 目標地点までの推定移動コスト (ヒューリスティック)
+
+    UPROPERTY()
+    float FCost; // GCost + HCost
+
+    // コンストラクタ
+    UAStarNode() : OctreeNode(nullptr), Parent(nullptr), GCost(FLT_MAX), HCost(FLT_MAX), FCost(FLT_MAX) {}
+
+    void Initialize(UOctreeNode* InOctreeNode, UAStarNode* InParent, float InGCost, float InHCost)
+    {
+        OctreeNode = InOctreeNode;
+        Parent = InParent;
+        GCost = InGCost;
+        HCost = InHCost;
+        FCost = GCost + HCost;
+    }
+
+    // OctreeNodeの境界の中心を返すヘルパー関数
+    FVector GetCenter() const
+    {
+        return OctreeNode ? OctreeNode->Bounds.GetCenter() : FVector::ZeroVector;
+    }
+};

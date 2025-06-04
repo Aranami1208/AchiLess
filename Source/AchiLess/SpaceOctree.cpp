@@ -88,12 +88,12 @@ void ASpaceOctree::BuildOctreeNode(UOctreeNode* Node)
 
    
     UKismetSystemLibrary::PrintString(this, "AddNode");
-
+    /*
     UKismetSystemLibrary::PrintString(this, "BuildExtent"
         + FString::SanitizeFloat(Node->Bounds.GetExtent().X) + ","
         + FString::SanitizeFloat(Node->Bounds.GetExtent().Y) + ","
         + FString::SanitizeFloat(Node->Bounds.GetExtent().Z));
-
+    */
     // ノードのサイズが最小サイズ以下であれば、それ以上分割しない
     if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSize)
     {
@@ -259,27 +259,16 @@ bool ASpaceOctree::IsBoxBlockedInNode(UOctreeNode* Node, const FBox& Box) const
 
 void ASpaceOctree::DrawDebugOctreeNode(const UOctreeNode* Node, const FColor& Color) const
 {
-    UKismetSystemLibrary::PrintString(this, "DrawNode");
-    UKismetSystemLibrary::PrintString(this, "Center" 
-        + FString::SanitizeFloat( Node->Bounds.GetCenter().X) + ","
-        + FString::SanitizeFloat(Node->Bounds.GetCenter().Y) + ","
-        + FString::SanitizeFloat(Node->Bounds.GetCenter().Z));
-
-    UKismetSystemLibrary::PrintString(this, "Extent"
-        + FString::SanitizeFloat(Node->Bounds.GetExtent().X) + ","
-        + FString::SanitizeFloat(Node->Bounds.GetExtent().Y) + ","
-        + FString::SanitizeFloat(Node->Bounds.GetExtent().Z));
-    
    
     // デバッグ用のボックスを描画
     if (Node->bContainsObstacle)
     {
-        DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Red, true, -1.0f, 0, 150.0f);
+        DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Red, true, -1.0f, 0, 700.0f);
     }
     else
     {
         
-        DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), Color, true, -1.0f, 0, 100.0f);
+        DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Blue, true, -1.0f, 0, 500.0f);
     }
 
     // 子ノードがあれば再帰的に描画
