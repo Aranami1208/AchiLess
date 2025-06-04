@@ -128,6 +128,7 @@ void ASpaceFighter::UpdateAchiLessRotation(const FRotator TargetRotation)
 
 	//デバッグ処理（ターゲット方向を描画）
 	
+	
 	FVector Start = FighterMesh->GetComponentLocation();
 	FVector End = Start + TargetForwardHorizontal * 50000;
 	
@@ -216,7 +217,7 @@ void ASpaceFighter::StopBeam()
 	GetWorldTimerManager().ClearTimer(BeamTimerHandle);
 }
 
-FVector ASpaceFighter::GetVelocity()
+FVector ASpaceFighter::GetCurrentVelocity()
 {
 	return Velocity;
 }

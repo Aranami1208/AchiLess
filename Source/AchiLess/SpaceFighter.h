@@ -70,8 +70,8 @@ public:
 	TObjectPtr<UStaticMeshComponent> FighterMesh;
 
 	
-
-	FVector GetVelocity();
+	UFUNCTION(BlueprintCallable)
+	FVector GetCurrentVelocity();
 
 protected:
 	FVector Velocity;//ˆÚ“®•ûŒü‚ÌƒxƒNƒgƒ‹
