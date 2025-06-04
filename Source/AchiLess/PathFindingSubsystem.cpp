@@ -1,24 +1,14 @@
 
 #include "PathfindingSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Algo/Sort.h"
 
 void UPathfindingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
-    // シーン内に存在するASpaceOctreeActorを検索して参照を取得
-    TArray<AActor*> FoundActors;
-    // GetWorld() は UWorldSubsystem のメンバー関数なので直接呼び出し可
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpaceOctree::StaticClass(), FoundActors);
-    if (FoundActors.Num() > 0)
-    {
-        SpaceOctree = Cast<ASpaceOctree>(FoundActors[0]);
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("ASpaceOctree Actor not found in the world. Pathfinding will not work."));
-    }
+    
 }
 
 void UPathfindingSubsystem::Deinitialize()
@@ -243,5 +233,11 @@ UOctreeNode* UPathfindingSubsystem::GetOctreeNodeAtLocation(const FVector& Locat
         }
     }
     return nullptr;
+}
+
+void UPathfindingSubsystem::SetOctreeReference(ASpaceOctree* Ref)
+{
+    UKismetSystemLibrary::PrintString(this, "SetSubsystem");
+    SpaceOctree = Ref;
 }
 

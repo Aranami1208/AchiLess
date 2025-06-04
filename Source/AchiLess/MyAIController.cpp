@@ -30,11 +30,17 @@ bool AMyAIController::RequestPathToLocation(const FVector& TargetLocation)
     if (PathfindingSubsystem && GetPawn())
     {
         CurrentPath = PathfindingSubsystem->FindPath(GetPawn()->GetActorLocation(), TargetLocation);
+        DrawDebugSphere(GetWorld(), TargetLocation, 2000.0f, 12, FColor::Green, false, 10.0f);
         if (CurrentPath.Num() > 0)
         {
+            for (FVector Path : CurrentPath)
+            {
+                DrawDebugBox(GetWorld(), Path, FVector(5000.f), FColor::Green, true, 0.1f, 0, 700.0f);
+            }
             UE_LOG(LogTemp, Log, TEXT("Path found with %d points."), CurrentPath.Num());
             return true;
         }
+       
     }
     UE_LOG(LogTemp, Warning, TEXT("Failed to find path."));
     return false;
@@ -49,6 +55,7 @@ FRotator AMyAIController::GetNextPathPointRotation(float DeltaTime, float Accept
 
     FVector CurrentLocation = GetPawn()->GetActorLocation();
     FVector TargetPoint = CurrentPath[CurrentPathIndex];
+    
 
     // ターゲットポイントに十分に近づいたら次のポイントへ
     if (FVector::Distance(CurrentLocation, TargetPoint) < AcceptanceRadius)

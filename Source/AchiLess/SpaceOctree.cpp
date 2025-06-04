@@ -3,6 +3,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Engine/StaticMeshActor.h"
+#include "Subsystems/WorldSubsystem.h"
+#include "PathFindingSubsystem.h"
 #include "DestructibleActor.h"
 
 // Sets default values
@@ -27,7 +29,7 @@ void ASpaceOctree::BeginPlay()
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADestructibleActor::StaticClass(), FoundObstacleActors);
     //レベルに直接配置したStaticMesh
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), FoundObstacleActors);
-
+    
     for (AActor* Actor : FoundObstacleActors)
     {
         //アクターのBoundingBoxを取得
@@ -42,7 +44,32 @@ void ASpaceOctree::BeginPlay()
         }
         
     }
-
+    
+    if (RootNode) // RootNode の構築が成功していたら
+    {
+        if (UWorld* World = GetWorld())
+        {
+            if (UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>())
+            {
+                // PathSubsystem に Octree の参照を渡すか、準備完了を通知する関数を呼び出す
+                PathSubsystem->SetOctreeReference(this);
+                // (この SetOctreeReference は PathfindingSubsystem に自作する必要があります)
+                UE_LOG(LogTemp, Log, TEXT("ASpaceOctree notified PathfindingSubsystem about its initialization."));
+            }
+            else
+            {
+                UKismetSystemLibrary::PrintString (this, "NoSubsystem");
+            }
+        }
+        else
+        {
+            UKismetSystemLibrary::PrintString(this, "NoWorld");
+        }
+    }
+    else
+    {
+        UKismetSystemLibrary::PrintString(this, "NoRootNode");
+    }
    
      //デバッグ表示 (オプション)
      if (RootNode)
@@ -78,9 +105,6 @@ void ASpaceOctree::InitializeOctree(const FVector& CenterLocation, const FVector
 
     RootNode->Initialize(RootBounds);
 
-   
-    // Octreeの構築を開始
-    //BuildOctreeNode(RootNode);
 }
 
 void ASpaceOctree::BuildOctreeNode(UOctreeNode* Node)
@@ -149,11 +173,8 @@ void ASpaceOctree::AddObstacleToNode(UOctreeNode* Node, const FBox& ObstacleBoun
     // この条件は、分割を停止し、このノードを障害物としてマークする条件
     if (ObstacleBounds.IsInside(Node->Bounds) )
     {
-        Node->bContainsObstacle = true;
-        // このノードが既に子を持っていた場合、その子ノードの障害物状態も更新する必要があるか検討。
-        // 今回のロジックでは、障害物を含むノードはそれ以上細分化せず、そのノード自体を障害物として扱うため、
-        // 子がいても、このノードが障害物とマークされれば、経路探索では通行不可となる。
-        // より詳細な制御が必要な場合は、子のクリアや再評価が必要になることも。
+        //Node->bContainsObstacle = true;
+        
         return;
     }
 

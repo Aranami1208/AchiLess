@@ -172,7 +172,7 @@ void AClass_AchiLess::BeginPlay()
 
 		//スキルにウィジェットをセット
 		CardSkill->Widget = SkillWidgets[Index];
-		UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
+		//UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
 	}
 	
 	//UE_DEBUG_BREAK();
