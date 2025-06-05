@@ -394,9 +394,8 @@ void AClass_AchiLess::BoostReleased()
 
 UWorld* AClass_AchiLess::GetWorldCntext()
 {
-	return GetWorld()->SpawnActor
+	return GetWorld();
 }
-
 FVector2D AClass_AchiLess::GetHUDCircleCenterLocation()
 {
 
