@@ -12,6 +12,7 @@ ASpaceOctree::ASpaceOctree()
 {
     PrimaryActorTick.bCanEverTick = false; // Octreeは通常Tick不要なのでfalseに設定
     RootNodeIndex = INDEX_NONE;
+    SpecialObstacleTag = FName("DetailedCollision"); // デフォルトのタグ名
 }
 
 // Called when the game starts or when spawned
@@ -32,19 +33,9 @@ void ASpaceOctree::BeginPlay()
     
     for (AActor* Actor : FoundObstacleActors)
     {
-        //除外タグを持っていた場合、処理しない
-        if(Actor->ActorHasTag("NoCollisionForPathfinding"))continue;
-        //アクターのBoundingBoxを取得
-        FBox ObstacleBounds = Actor->GetComponentsBoundingBox();
-
-        UKismetSystemLibrary::PrintString(this, Actor->GetName());
-        
-        //バウンディングボックスが有効であるとき、判定するオブジェクトとして追加
-        if (ObstacleBounds.IsValid)
-        {
-            AddObstacle(ObstacleBounds);
-        }
-        
+       
+        AddObstacle(Actor);
+       
     }
     
     
@@ -151,6 +142,42 @@ FOctreeNode ASpaceOctree::GetOctreeNodeAtLocation(const FVector& Location)
     return FOctreeNode(); // ここには到達しないはずだが、念のため -> 無効なOctreeNodeを返す
 }
 
+void ASpaceOctree::AddObstacle(AActor* ObstacleActor)
+{
+    if (!ObstacleActor)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("AddObstacle called with null ObstacleActor."));
+        return;
+    }
+
+    // グローバルな除外タグのチェック
+    if (ObstacleActor->ActorHasTag("NoCollisionForPathfinding"))
+    {
+        // UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("Actor %s has NoCollisionForPathfinding tag, skipping."), *ObstacleActor->GetName()));
+        return;
+    }
+
+    // 特殊タグのチェック
+    if (SpecialObstacleTag != NAME_None && ObstacleActor->ActorHasTag(SpecialObstacleTag))
+    {
+        // UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("Actor %s has SpecialObstacleTag (%s), adding with detailed collision."), *ObstacleActor->GetName(), *SpecialObstacleTag.ToString()));
+        AddTaggedObstacle(ObstacleActor);
+    }
+    else
+    {
+        FBox ObstacleBounds = ObstacleActor->GetComponentsBoundingBox();
+        if (ObstacleBounds.IsValid)
+        {
+            // UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("Actor %s is a standard obstacle, adding with bounding box."), *ObstacleActor->GetName()));
+            AddBoundingBoxObstacle(ObstacleBounds);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Actor %s has an invalid bounding box."), *ObstacleActor->GetName());
+        }
+    }
+}
+
 void ASpaceOctree::SubdivideNode(int32 NodeIndex)
 {
 
@@ -189,7 +216,7 @@ void ASpaceOctree::SubdivideNode(int32 NodeIndex)
     }
 }
 
-void ASpaceOctree::AddObstacle(const FBox& ObstacleBounds)
+void ASpaceOctree::AddBoundingBoxObstacle(const FBox& ObstacleBounds)
 {
     if (RootNodeIndex == INDEX_NONE)
     {
@@ -198,7 +225,7 @@ void ASpaceOctree::AddObstacle(const FBox& ObstacleBounds)
     }
     AddObstacleToNode(RootNodeIndex, ObstacleBounds,0);
 
-    DrawDebugBox(GetWorld(), ObstacleBounds.GetCenter(), ObstacleBounds.GetExtent(), FColor::Yellow, true, -1.0f, 0, 500.0f);
+    DrawDebugBox(GetWorld(), ObstacleBounds.GetCenter(), ObstacleBounds.GetExtent(), FColor::Yellow, true, -1.0f, 0, 200.0f);
 }
 
 void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds,int32 Depth)
@@ -206,27 +233,32 @@ void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds
     FOctreeNode* Node = GetNode(NodeIndex);
     if (!Node)return;
 
-    //if (Depth >= MaxDepth)return;
 
-     // ノードが完全に障害物に含まれている、またはノードが十分に小さい(葉ノードとして扱うべき)場合は障害物としてマーク
-    // この条件は、分割を停止し、このノードを障害物としてマークする条件
+    // ノードが完全に障害物に含まれている、またはノードが十分に小さい(葉ノードとして扱うべき)場合は障害物としてマーク
+   // この条件は、分割を停止し、このノードを障害物としてマークする条件
     if (ObstacleBounds.IsInside(Node->Bounds))
     {
-        UKismetSystemLibrary::PrintString(this, "AddBlockNode");
         Node->bContainsObstacle = true;
 
         return;
     }
 
+   // if (Depth >= MaxDepth)return;
     //サイズが小さくなったらスキップ
-    if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSize)return;
+    if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSize)
+    {
+        ///Node->bContainsObstacle = true;
+        return;
+    };
+
+   
     // ノードが障害物と交差していない場合は処理をスキップ
     if (!Node->Bounds.Intersect(ObstacleBounds))
     {
         return;
     }
 
-   
+    
 
     // 上記の条件に当てはまらず、さらに分割が必要な場合
     // ノードがまだ子を持っていない（リーフノードである）場合、分割を試みる
@@ -243,6 +275,122 @@ void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds
         if (ChildIndex != INDEX_NONE)
         {
             AddObstacleToNode(ChildIndex, ObstacleBounds,Depth +1);
+        }
+    }
+}
+
+void ASpaceOctree::AddTaggedObstacle(AActor* TaggedActor)
+{
+    if (RootNodeIndex == INDEX_NONE)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Octree not initialized for AddTaggedObstacle."));
+        return;
+    }
+
+    // コリジョンを持つ可能性のある PrimitiveComponent を取得
+    UPrimitiveComponent* CollisionComponent = TaggedActor->FindComponentByClass<UPrimitiveComponent>();
+    if (!CollisionComponent)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Actor %s with tag %s has no UPrimitiveComponent. Falling back to AABB."), *TaggedActor->GetName(), *SpecialObstacleTag.ToString());
+        // フォールバックとして、アクター全体のバウンディングボックスを使用
+        FBox ActorBounds = TaggedActor->GetComponentsBoundingBox();
+        if (ActorBounds.IsValid)
+        {
+            AddBoundingBoxObstacle(ActorBounds);
+        }
+        return;
+    }
+
+    // アクターのバウンディングボックスもデバッグ表示
+    DrawDebugBox(GetWorld(), CollisionComponent->Bounds.GetBox().GetCenter(), CollisionComponent->Bounds.GetBox().GetExtent(), FColor::White, true, -1.0f, 0, 500.0f);
+
+    AddObstacleToNodeForTaggedObject(RootNodeIndex, TaggedActor, CollisionComponent, 0);
+}
+
+void ASpaceOctree::AddObstacleToNodeForTaggedObject(int32 NodeIndex, AActor* TaggedActor, UPrimitiveComponent* CollisionComponent, int32 Depth)
+{
+    FOctreeNode* Node = GetNode(NodeIndex);
+    if (!Node) return;
+
+    // 1. ノードがコリジョンコンポーネントのバウンディングボックスと交差しているか確認
+    //    CollisionComponent->Bounds は FBoxSphereBounds なので、.GetBox() で FBox を取得
+    if (!Node->Bounds.Intersect(CollisionComponent->Bounds.GetBox()))
+    {
+        return;
+    }
+
+    // 2. ノードのサイズがタグ付きオブジェクト用の最小サイズ (`MinNodeSizeForTaggedObject`) 以下か、
+    //    または最大深度に達した場合 (ここでは深度チェックは省略、サイズで判断)
+    if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSizeForTaggedObject)
+    {
+        // このノードがCollisionComponentと実際に重なっているかを物理クエリでテスト
+        FCollisionQueryParams QueryParams;
+        QueryParams.bTraceComplex = true; // より正確なメッシュとの衝突を見たい場合はtrue
+        // QueryParams.AddIgnoredActor(TaggedActor); // 通常、自分自身との衝突は考慮不要だが、Octree生成時は必要に応じて
+
+        // Octreeノードの形状 (ボックス) を作成
+        FCollisionShape NodeCollisionShape = FCollisionShape::MakeBox(Node->Bounds.GetExtent());
+
+        // CollisionComponent とのオーバーラップをテスト
+        bool bOverlaps = CollisionComponent->OverlapComponent(
+            Node->Bounds.GetCenter(),
+            FQuat::Identity, // Octreeノードは通常回転しない
+            NodeCollisionShape
+            // QueryParams は OverlapComponent には直接渡せないが、コンポーネントのコリジョン設定が使われる
+        );
+
+        if (bOverlaps)
+        {
+            Node->bContainsObstacle = true;
+            // UKismetSystemLibrary::PrintString(this, "Node marked as obstacle (tagged object).");
+            // タグ付きオブジェクトによってブロックされたノードは緑色でデバッグ表示
+            // DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Green, true, -1.0f, 0, 5.0f);
+        }
+        return; // これ以上分割しない
+    }
+
+    // 3. ノードがまだ子を持っていなければ分割
+    if (!Node->HasChildren())
+    {
+        SubdivideNode(NodeIndex);
+    }
+
+    // 4. 各子ノードに再帰的に処理を適用 (分割が成功した場合、または元々子がいた場合)
+    if (Node->HasChildren())
+    {
+        for (int32 ChildIndex : Node->ChildrenIndices)
+        {
+            if (ChildIndex != INDEX_NONE)
+            {
+                AddObstacleToNodeForTaggedObject(ChildIndex, TaggedActor, CollisionComponent, Depth + 1);
+            }
+        }
+    }
+
+    // オプション: 全ての子ノードが障害物なら、この親ノードも障害物としてマークする
+    bool bAllChildrenAreObstacles = true;
+    if (Node->HasChildren()) // 子がいる場合のみチェック
+    {
+        for (int32 ChildIndex : Node->ChildrenIndices)
+        {
+            if (ChildIndex != INDEX_NONE)
+            {
+                const FOctreeNode* ChildNode = GetNode(ChildIndex);
+                if (!ChildNode || !ChildNode->bContainsObstacle)
+                {
+                    bAllChildrenAreObstacles = false;
+                    break;
+                }
+            }
+            else
+            {
+                bAllChildrenAreObstacles = false;
+                break;
+            }
+        }
+        if (bAllChildrenAreObstacles)
+        {
+            Node->bContainsObstacle = true;
         }
     }
 }

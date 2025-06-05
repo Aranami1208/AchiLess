@@ -2,8 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "OctreeNode.h" 
+#include "OctreeNode.h" // OctreeNode.hをインクルード
 #include "SpaceOctree.generated.h"
+
+// 前方宣言
+class UPrimitiveComponent;
 
 UCLASS()
 class ACHILESS_API ASpaceOctree : public AActor
@@ -11,69 +14,91 @@ class ACHILESS_API ASpaceOctree : public AActor
     GENERATED_BODY()
 
 public:
+    // Sets default values for this actor's properties
     ASpaceOctree();
 
-protected:
-    virtual void BeginPlay() override;
-
-public:
-    int32 MaxDepth = 12;
-
-    virtual void Tick(float DeltaTime) override;
-
-    // 全てのオクツリーノードを格納する配列
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Octree")
-    TArray<FOctreeNode> AllNodes; // 全てのノードをこの配列で管理
-
-    // Octreeのルートノードのインデックス
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Octree")
-    int32 RootNodeIndex; // UOctreeNode*からint32に変更
-
-    // Octreeの初期サイズ
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree")
-    FVector Extent = FVector(50000.0f);
-
-    // Octreeの最小ノードサイズ (分割を止める閾値)
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree")
-    float MinNodeSize = 1000.0f;
-
-    // Octreeを初期化する関数
+    // Octreeの初期化
     UFUNCTION(BlueprintCallable, Category = "Octree")
     void InitializeOctree(const FVector& CenterLocation, const FVector& InExtent);
 
-    // 障害物をOctreeに登録する関数
+    // 特定の位置にあるOctreeノードを取得
     UFUNCTION(BlueprintCallable, Category = "Octree")
-    void AddObstacle(const FBox& ObstacleBounds);
+    FOctreeNode GetOctreeNodeAtLocation(const FVector& Location);
 
-    // 指定された位置が障害物を含んでいるか判定する関数
+    // 障害物をOctreeに追加 (AActor* を引数に取るように変更)
+    UFUNCTION(BlueprintCallable, Category = "Octree")
+    void AddObstacle(AActor* ObstacleActor);
+
+    // 指定された位置がブロックされているか確認
     UFUNCTION(BlueprintCallable, Category = "Octree")
     bool IsLocationBlocked(const FVector& Location) const;
 
-    // 指定された境界ボックスが障害物を含んでいるか判定する関数
+    // 指定されたボックスがブロックされているか確認
     UFUNCTION(BlueprintCallable, Category = "Octree")
     bool IsBoxBlocked(const FBox& Box) const;
 
-    // 特定のインデックスのノードを取得するヘルパー関数
+    // Octreeのルートノードインデックス
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Octree")
+    int32 RootNodeIndex;
+
+    // Octreeの全ノードを格納する配列
+    UPROPERTY() // Blueprintからは直接アクセスさせない想定
+        TArray<FOctreeNode> AllNodes;
+
+    // Octreeの空間的な広がり (中心からの各軸方向の距離)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree")
+    FVector Extent;
+
+    // ノードを分割する際の最小サイズ
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree", meta = (ClampMin = "1.0"))
+    float MinNodeSize = 50000.0f;
+
+    // タグ付きオブジェクトを処理する際の最小ノードサイズ (より細かく分割するため)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree", meta = (ClampMin = "1.0"))
+    float MinNodeSizeForTaggedObject = 2000.0f;
+
+    // 詳細なコリジョン判定を行うオブジェクトに付けるタグ
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Octree")
+    FName SpecialObstacleTag;
+
+    // デバッグ描画用
+    UFUNCTION(BlueprintCallable, Category = "Octree|Debug")
+    void DrawDebugOctreeNode(int32 NodeIndex, const FColor& Color) const;
+
+
+    // ヘルパー関数 (PathfindingSubsystem からもアクセスできるように public にする)
     FOctreeNode* GetNode(int32 NodeIndex);
     const FOctreeNode* GetNode(int32 NodeIndex) const;
 
 
-    
-    FOctreeNode GetOctreeNodeAtLocation(const FVector& Location);
+protected:
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 
-//protected:
-    // ノードを8つの子ノードに分割するヘルパー関数
-    void SubdivideNode(int32 NodeIndex); // UOctreeNode*からint32に変更
+public:
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
 
-    // 再帰的に障害物をOctreeに登録するヘルパー関数
-    void AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds,int32 Depth); // UOctreeNode*からint32に変更
+private:
+    // ノードを8つの子ノードに分割
+    void SubdivideNode(int32 NodeIndex);
 
-    // 再帰的に指定された位置がブロックされているか判定するヘルパー関数
-    bool IsLocationBlockedInNode(int32 NodeIndex, const FVector& Location) const; // UOctreeNode*からint32に変更
+    // 従来のバウンディングボックスベースで障害物をノードに追加する内部関数
+    void AddBoundingBoxObstacle(const FBox& ObstacleBounds);
+    // AddObstacleToNode は AddBoundingBoxObstacle から呼び出される
+    void AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds, int32 Depth);
 
-    // 再帰的に指定された境界ボックスがブロックされているか判定するヘルパー関数
-    bool IsBoxBlockedInNode(int32 NodeIndex, const FBox& Box) const; // UOctreeNode*からint32に変更
+    // タグ付きオブジェクトのメッシュベースで障害物を追加する関数
+    void AddTaggedObstacle(AActor* TaggedActor);
+    // タグ付きオブジェクトを処理するための再帰関数
+    void AddObstacleToNodeForTaggedObject(int32 NodeIndex, AActor* TaggedActor, UPrimitiveComponent* CollisionComponent, int32 Depth);
 
-    // デバッグ表示用の描画関数 (オプション)
-    void DrawDebugOctreeNode(int32 NodeIndex, const FColor& Color) const; // UOctreeNode*からint32に変更
+
+    // 指定された位置が特定のノード内でブロックされているか再帰的に確認
+    bool IsLocationBlockedInNode(int32 NodeIndex, const FVector& Location) const;
+    // 指定されたボックスが特定のノード内でブロックされているか再帰的に確認
+    bool IsBoxBlockedInNode(int32 NodeIndex, const FBox& Box) const;
+
+    // デバッグ描画用の再帰関数
+    //void DrawDebugOctree(int32 NodeIndex, const FColor& Color) const;
 };
