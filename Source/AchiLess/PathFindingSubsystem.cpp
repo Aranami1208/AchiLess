@@ -181,25 +181,52 @@ TArray<int32> UPathfindingSubsystem::GetNeighboringOctreeNodes(int32 CurrentOctr
     const FOctreeNode* CurrentOctreeNode = SpaceOctree->GetNode(CurrentOctreeNodeIndex);
     if (!CurrentOctreeNode) return Neighbors;
 
-    float Step = SpaceOctree->MinNodeSize;
+    // 現在のノードの中心と半分のサイズを取得
     FVector CurrentCenter = CurrentOctreeNode->Bounds.GetCenter();
+    FVector CurrentExtent = CurrentOctreeNode->Bounds.GetExtent();
 
+    // Octreeの最小ノードサイズ（または、現在のノードのサイズの半分など、適切なステップサイズ）
+    // 隣接ノードを検索する際の「わずかな外側への移動距離」
+    // Octreeの性質上、隣接するノードのサイズは様々なので、
+    // ここでのステップサイズは、現在のノードのサイズに基づいて、少しだけ外側に移動する量にする。
+    // 小さすぎると接しているノードを見逃し、大きすぎると対角線上のノードまで含んでしまう。
+    const float QueryOffset = 1.0f; // わずかなオフセット値 (小さくても0ではない値)
+
+    // 隣接する8方向（現在のノードから見た相対位置）を反復処理
+    // 6つの面、12のエッジ、8つのコーナーに対応する方向ベクトルを生成
+    // このループは26方向の隣接ノードをカバーしようと試みる
     for (int x = -1; x <= 1; ++x)
     {
         for (int y = -1; y <= 1; ++y)
         {
             for (int z = -1; z <= 1; ++z)
             {
-                if (x == 0 && y == 0 && z == 0) continue;
+                if (x == 0 && y == 0 && z == 0) continue; // 自分自身はスキップ
 
-                FVector NeighborLocation = CurrentCenter + FVector(x * Step, y * Step, z * Step);
-                FOctreeNode NeighborNode = SpaceOctree->GetOctreeNodeAtLocation(NeighborLocation); // FOctreeNodeを値で取得
-                if (NeighborNode.Bounds.IsValid) // 有効なノードが取得できたかチェック
+                // 隣接ノードを探索する位置を計算
+                // CurrentExtentを基にすることで、ノードのサイズに応じた移動を試みる
+                FVector NeighborQueryLocation = CurrentCenter +
+                    FVector(x * (CurrentExtent.X + QueryOffset),
+                        y * (CurrentExtent.Y + QueryOffset),
+                        z * (CurrentExtent.Z + QueryOffset));
+
+                // その位置にあるOctreeノードを取得
+                FOctreeNode NeighborNodeData = SpaceOctree->GetOctreeNodeAtLocation(NeighborQueryLocation);
+
+                // 取得したノードが有効かつ、現在のノードと異なり、かつまだリストに追加されていない場合
+                if (static_cast<bool>(NeighborNodeData.Bounds.IsValid))
                 {
-                    int32 NeighborNodeIndex = SpaceOctree->AllNodes.Find(NeighborNode);
-                    if (NeighborNodeIndex != INDEX_NONE && NeighborNodeIndex != CurrentOctreeNodeIndex && !Neighbors.Contains(NeighborNodeIndex))
+                    int32 NeighborNodeIndex = SpaceOctree->AllNodes.Find(NeighborNodeData);
+                    if (NeighborNodeIndex != INDEX_NONE &&
+                        NeighborNodeIndex != CurrentOctreeNodeIndex &&
+                        !Neighbors.Contains(NeighborNodeIndex))
                     {
                         Neighbors.Add(NeighborNodeIndex);
+
+                        // // デバッグ表示: 見つけた隣接ノードのBoundsを描画 (一時的なデバッグ用)
+                        // DrawDebugBox(GetWorld(), NeighborNodeData.Bounds.GetCenter(), NeighborNodeData.Bounds.GetExtent(), FColor::Yellow, false, 5.0f, 0, 5.0f);
+                        // // 現在のノードと隣接ノードを結ぶ線を描画 (一時的なデバッグ用)
+                        // DrawDebugLine(GetWorld(), CurrentCenter, NeighborNodeData.Bounds.GetCenter(), FColor::Cyan, false, 5.0f, 0, 2.0f);
                     }
                 }
             }

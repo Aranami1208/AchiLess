@@ -32,6 +32,8 @@ void ASpaceOctree::BeginPlay()
     
     for (AActor* Actor : FoundObstacleActors)
     {
+        //除外タグを持っていた場合、処理しない
+        if(Actor->ActorHasTag("NoCollisionForPathfinding"))continue;
         //アクターのBoundingBoxを取得
         FBox ObstacleBounds = Actor->GetComponentsBoundingBox();
 
@@ -217,7 +219,7 @@ void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds
     // この条件は、分割を停止し、このノードを障害物としてマークする条件
     if (ObstacleBounds.IsInside(Node->Bounds) )
     {
-        //Node->bContainsObstacle = true;
+        Node->bContainsObstacle = true;
         
         return;
     }

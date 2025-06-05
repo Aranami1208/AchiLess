@@ -31,15 +31,27 @@ bool AMyAIController::RequestPathToLocation(const FVector& TargetLocation)
     {
         CurrentPath = PathfindingSubsystem->FindPath(GetPawn()->GetActorLocation(), TargetLocation);
         DrawDebugSphere(GetWorld(), TargetLocation, 2000.0f, 12, FColor::Green, false, 10.0f);
-        if (CurrentPath.Num() > 0)
+        //経路が見つからなかった場合スキップ 
+        if (CurrentPath.Num() <= 0)
         {
-            for (FVector Path : CurrentPath)
-            {
-                DrawDebugBox(GetWorld(), Path, FVector(5000.f), FColor::Green, true, 0.1f, 0, 700.0f);
-            }
-            UE_LOG(LogTemp, Log, TEXT("Path found with %d points."), CurrentPath.Num());
-            return true;
+            UE_LOG(LogTemp, Warning, TEXT("Failed to find path."));
+            return false;
         }
+        
+        int32 Index = 0;
+        
+        for (FVector Path : CurrentPath)
+        {
+            if(Index != CurrentPath.Num()-1)
+            DrawDebugBox(GetWorld(), Path, FVector(1000.f * Index+1), FColor::Green, true, 0.1f, 0, 700.0f);
+            else
+            DrawDebugBox(GetWorld(), Path, FVector(1000.f * Index + 1), FColor::Magenta, true, 0.1f, 0, 700.0f);
+            Index++;
+        }
+
+        UE_LOG(LogTemp, Log, TEXT("Path found with %d points."), CurrentPath.Num());
+        return true;
+        
        
     }
     UE_LOG(LogTemp, Warning, TEXT("Failed to find path."));
