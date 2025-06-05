@@ -198,7 +198,7 @@ void ASpaceOctree::AddObstacle(const FBox& ObstacleBounds)
     }
     AddObstacleToNode(RootNodeIndex, ObstacleBounds,0);
 
-    DrawDebugBox(GetWorld(), ObstacleBounds.GetCenter(), ObstacleBounds.GetExtent(), FColor::Yellow, true, -1.0f, 0, 200.0f);
+    DrawDebugBox(GetWorld(), ObstacleBounds.GetCenter(), ObstacleBounds.GetExtent(), FColor::Yellow, true, -1.0f, 0, 500.0f);
 }
 
 void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds,int32 Depth)
@@ -206,7 +206,18 @@ void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds
     FOctreeNode* Node = GetNode(NodeIndex);
     if (!Node)return;
 
-    if (Depth >= MaxDepth)return;
+    //if (Depth >= MaxDepth)return;
+
+     // ノードが完全に障害物に含まれている、またはノードが十分に小さい(葉ノードとして扱うべき)場合は障害物としてマーク
+    // この条件は、分割を停止し、このノードを障害物としてマークする条件
+    if (ObstacleBounds.IsInside(Node->Bounds))
+    {
+        UKismetSystemLibrary::PrintString(this, "AddBlockNode");
+        Node->bContainsObstacle = true;
+
+        return;
+    }
+
     //サイズが小さくなったらスキップ
     if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSize)return;
     // ノードが障害物と交差していない場合は処理をスキップ
@@ -215,14 +226,7 @@ void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds
         return;
     }
 
-    // ノードが完全に障害物に含まれている、またはノードが十分に小さい(葉ノードとして扱うべき)場合は障害物としてマーク
-    // この条件は、分割を停止し、このノードを障害物としてマークする条件
-    if (ObstacleBounds.IsInside(Node->Bounds) )
-    {
-        Node->bContainsObstacle = true;
-        
-        return;
-    }
+   
 
     // 上記の条件に当てはまらず、さらに分割が必要な場合
     // ノードがまだ子を持っていない（リーフノードである）場合、分割を試みる

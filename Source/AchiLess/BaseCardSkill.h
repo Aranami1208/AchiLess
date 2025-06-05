@@ -9,7 +9,7 @@
 
 
 
-UCLASS()
+UCLASS(Blueprintable)
 class ACHILESS_API UBaseCardSkill : public UObject
 {
 	GENERATED_BODY()
