@@ -73,3 +73,5 @@ void UBaseCardSkill::UpdateCooDown(float DeltaTime)
 	Widget->EndCoolDown();
 
 }
+
+
