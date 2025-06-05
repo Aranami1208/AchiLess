@@ -20,6 +20,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	FCardData CardData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TWeakObjectPtr<class AClass_AchiLess> Owner;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -44,6 +45,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateCooDown(float DeltaTime);
+
+	
 
 protected:
 

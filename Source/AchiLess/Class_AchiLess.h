@@ -91,6 +91,10 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FCardData EmptyData;
 
+	UFUNCTION(BlueprintCallable)
+	UWorld* GetWorldCntext();
+
+
 private:
 	
 
