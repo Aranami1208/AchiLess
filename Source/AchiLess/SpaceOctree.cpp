@@ -247,7 +247,7 @@ void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds
     //サイズが小さくなったらスキップ
     if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSize)
     {
-        ///Node->bContainsObstacle = true;
+        //Node->bContainsObstacle = true;
         return;
     };
 
