@@ -8,10 +8,7 @@
 
 void UBaseCardSkill::ExecuteSkill_Implementation(ASpaceFighter* Target)
 {
-	//クールタイム中だったら処理しない
-	UKismetSystemLibrary::PrintString(this, "ExecuteSkill");
-	if (CurrentCooldownTime > 0.0f)return;
-	StartCoolDown();
+	
 }
 
 void UBaseCardSkill::StartCoolDown()

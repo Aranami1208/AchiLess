@@ -67,6 +67,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ReChangeDeck();
+
+	UFUNCTION(BlueprintCallable)
+	class AActor* SpawnSkillActor(TSubclassOf<AActor> SpawnActorClass);
 	
 	//使用するスキルのインデックスに加算する値
 	int32 UseDeck = 0;

@@ -222,3 +222,8 @@ FVector ASpaceFighter::GetCurrentVelocity()
 	return Velocity;
 }
 
+void ASpaceFighter::HealHP(float Heal)
+{
+	CurrentHp = FMath::Clamp(CurrentHp + Heal, 0, MyParameter.MaxHp);
+}
+

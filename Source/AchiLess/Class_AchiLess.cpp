@@ -328,7 +328,12 @@ void AClass_AchiLess::ExecuteSkill()
 	if (!CardSkills[SkillIndex + UseDeck])return;
 	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
 	//スキルを使う
-	CardSkills[SkillIndex+UseDeck]->ExecuteSkill_Implementation(this);
+
+	//クールタイム中だったら処理しない
+	UKismetSystemLibrary::PrintString(this, "ExecuteSkill");
+	if (CardSkills[SkillIndex + UseDeck]->IsOnCoolDown())return;
+	CardSkills[SkillIndex + UseDeck]->StartCoolDown();
+	CardSkills[SkillIndex+UseDeck]->ExecuteSkill(this);
 }
 
 void AClass_AchiLess::ChangeDeck()
@@ -358,6 +363,25 @@ void AClass_AchiLess::ReChangeDeck()
 	}
 
 	UseDeck = 0;
+}
+
+AActor* AClass_AchiLess::SpawnSkillActor(TSubclassOf<AActor> SpawnActorClass)
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnActorClass, GetActorTransform(), SpawnParams);
+
+	if (SpawnedActor)
+	{
+		UKismetSystemLibrary::PrintString(this, "SuccessActorSpawned");
+		return SpawnedActor;
+	}
+	else
+	{
+		UKismetSystemLibrary::PrintString(this, "ActorSpawnFailed");
+	}
+	return nullptr;
 }
 
 
@@ -391,6 +415,8 @@ void AClass_AchiLess::BoostReleased()
 {
 	bIsBoosting = false;
 }
+
+void HealHP(float Heal);
 
 UWorld* AClass_AchiLess::GetWorldCntext()
 {

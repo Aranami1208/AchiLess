@@ -21,7 +21,7 @@ public:
 	FCardData CardData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TWeakObjectPtr<class AClass_AchiLess> Owner;
+	class AClass_AchiLess* Owner;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UCardSkillWidget* Widget;
