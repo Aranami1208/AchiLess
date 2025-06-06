@@ -73,15 +73,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector GetCurrentVelocity();
 
+	UFUNCTION(BlueprintCallable)
+	void HealHP(float Heal);
+
+	// privateでもブルプリから読み取りのみ可
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FDataStruct MyParameter;
+
 protected:
 	FVector Velocity;//移動方向のベクトル
 
 	UPROPERTY(EditAnywhere)
 	bool bIsAcceleration;//アクセルが押されているかどうか
 
-	// privateでもブルプリから読み取りのみ可
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FDataStruct MyParameter;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float CurrentSpeed;
