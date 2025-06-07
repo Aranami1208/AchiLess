@@ -40,27 +40,20 @@ void AMyAIController::RequestPathToLocation(const FVector& TargetLocation)
 
         UE_LOG(LogTemp, Log, TEXT("Pathfinding request sent asynchronously."));
     }
-
+    return;
 }
 
 void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
 {
-
-    //ブラックボードを取得
     UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
-    if (!BlackboardComp)
-    {
-        UE_LOG(LogTemp, Error, TEXT("BlackboardComponent is not valid!"));
-
-        return;
-    }
+    if (!BlackboardComp)return;
 
     if (Path.Num() > 0)
     {
-        //経路探索が終わったらパスを初期化する
-        CurrentPath.Empty();
-        CurrentPathIndex = 0;
+        UE_LOG(LogTemp, Warning, TEXT("Async pathfinding complete! Path has %d points."), Path.Num());
+
         CurrentPath = Path;
+        CurrentPathIndex = 0;
 
         int32 Index = 0;
 
@@ -73,15 +66,18 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
             Index++;
         }
 
-        UE_LOG(LogTemp, Log, TEXT("Path found with %d points."), CurrentPath.Num());
 
-        //パスを検索出来ているのでtrueを返す
+        // ブラックボードに「パス有り」と設定
         BlackboardComp->SetValueAsBool(FName("HasPath"), true);
     }
     else
     {
+        UE_LOG(LogTemp, Error, TEXT("Async pathfinding failed to find a path."));
+        CurrentPath.Empty();
+        CurrentPathIndex = -1;
+
+        // ブラックボードに「パス無し」と設定
         BlackboardComp->SetValueAsBool(FName("HasPath"), false);
-        UE_LOG(LogTemp, Warning, TEXT("Failed to find path."));
     }
 }
 
