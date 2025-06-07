@@ -3,9 +3,11 @@
 
 #include "HealLight.h"
 #include "Class_AchiLess.h"
-
+#include "Kismet/KismetSystemLibrary.h"
 void UHealLight::ExecuteSkill_Implementation(class ASpaceFighter* Target)
 {
-	//HP‚ð30“‰ñ•œ
-	Owner->HealHP(Owner->MyParameter.MaxHp * 0.30f);
+	//HP‚ð{SkillValue1}“‰ñ•œ
+	float Heal = Owner->MyParameter.MaxHp * (CardData.SkillValue1 / 100);
+	//UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(Heal));
+	Owner->HealHP(Heal);
 }

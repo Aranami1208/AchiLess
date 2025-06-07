@@ -422,6 +422,18 @@ UWorld* AClass_AchiLess::GetWorldCntext()
 {
 	return GetWorld();
 }
+
+void AClass_AchiLess::PlaySoundEffect(USoundBase* InSound)
+{
+	if (!InSound)
+	{
+		UKismetSystemLibrary::PrintString(this, "SoundNotFound");
+		return;
+	}
+	//SEÇçƒê∂
+	UGameplayStatics::PlaySoundAtLocation(this, InSound, GetActorLocation());
+}
+
 FVector2D AClass_AchiLess::GetHUDCircleCenterLocation()
 {
 

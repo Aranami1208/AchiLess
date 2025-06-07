@@ -7,6 +7,7 @@
 #include "SpaceFighter.h"
 #include "DataStruct.h"
 #include "CardSkillWidget.h"
+#include "Sound/SoundBase.h"
 #include "Class_AchiLess.generated.h"
 
 
@@ -97,6 +98,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UWorld* GetWorldCntext();
 
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundBase* HealSound;
+
+	UFUNCTION(BlueprintCallable)
+
+	void PlaySoundEffect(USoundBase* InSound);
 
 private:
 	
@@ -147,6 +154,10 @@ private:
 	//ÉçÉbÉNÉIÉìëŒè€
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ASpaceFighter> LockOnTargetFigter;
+
+	//ñÓàÛÇÃëŒè€
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	AActor* ArrowTarget;
 
 	float MaxLockOnDistance;
 
