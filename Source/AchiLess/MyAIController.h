@@ -31,7 +31,11 @@ public:
 
     // ブループリントから経路探索を開始するための関数
     UFUNCTION(BlueprintCallable, Category = "AI Pathfinding")
-    bool RequestPathToLocation(const FVector& TargetLocation);
+    void RequestPathToLocation(const FVector& TargetLocation);
+
+    //経路探索完了時に呼ばれる関数
+    UFUNCTION()//デリゲートをバインドするために必要
+    void OnPathFindingCompleted(const TArray<FVector>& Path);
 
     // AIが次の経路ポイントに移動するためのRotatorを取得する関数
     UFUNCTION(BlueprintCallable, Category = "AI Pathfinding")

@@ -1,6 +1,7 @@
 #include "MyAIController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Class_AchiLess.h"
+#include "BehaviorTree/BlackboardComponent.h" 
 
 AMyAIController::AMyAIController()
 {
@@ -22,40 +23,66 @@ void AMyAIController::BeginPlay()
     }
 }
 
-bool AMyAIController::RequestPathToLocation(const FVector& TargetLocation)
+void AMyAIController::RequestPathToLocation(const FVector& TargetLocation)
 {
-    CurrentPath.Empty();
-    CurrentPathIndex = 0;
+    UWorld* World = GetWorld();
+    if (!World) return;
 
-    if (PathfindingSubsystem && GetPawn())
+    UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>();
+    if (PathSubsystem && GetPawn())
     {
-        CurrentPath = PathfindingSubsystem->FindPath(GetPawn()->GetActorLocation(), TargetLocation);
-        DrawDebugSphere(GetWorld(), TargetLocation, 2000.0f, 12, FColor::Green, false, 10.0f);
-        //経路が見つからなかった場合スキップ 
-        if (CurrentPath.Num() <= 0)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Failed to find path."));
-            return false;
-        }
-        
+        // コールバック用のデリゲートを作成し、このクラスの OnPathfindingCompleted 関数をバインドする
+        FOnPathfindingComplete Callback;
+        Callback.BindUFunction(this, FName("OnPathfindingCompleted"));
+
+        // 非同期に経路探索を開始
+        PathSubsystem->FindPathAsync(GetPawn()->GetActorLocation(), TargetLocation, Callback);
+
+        UE_LOG(LogTemp, Log, TEXT("Pathfinding request sent asynchronously."));
+    }
+
+}
+
+void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
+{
+
+    //ブラックボードを取得
+    UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+    if (!BlackboardComp)
+    {
+        UE_LOG(LogTemp, Error, TEXT("BlackboardComponent is not valid!"));
+
+        return;
+    }
+
+    if (Path.Num() > 0)
+    {
+        //経路探索が終わったらパスを初期化する
+        CurrentPath.Empty();
+        CurrentPathIndex = 0;
+        CurrentPath = Path;
+
         int32 Index = 0;
-        
+
         for (FVector Path : CurrentPath)
         {
-            if(Index != CurrentPath.Num()-1)
-            DrawDebugBox(GetWorld(), Path, FVector(1000.f * Index+1), FColor::Green, true, 0.1f, 0, 700.0f);
+            if (Index != CurrentPath.Num() - 1)
+                DrawDebugBox(GetWorld(), Path, FVector(1000.f * Index + 1), FColor::Green, true, 0.1f, 0, 700.0f);
             else
-            DrawDebugBox(GetWorld(), Path, FVector(1000.f * Index + 1), FColor::Magenta, true, 0.1f, 0, 700.0f);
+                DrawDebugBox(GetWorld(), Path, FVector(1000.f * Index + 1), FColor::Magenta, true, 0.1f, 0, 700.0f);
             Index++;
         }
 
         UE_LOG(LogTemp, Log, TEXT("Path found with %d points."), CurrentPath.Num());
-        return true;
-        
-       
+
+        //パスを検索出来ているのでtrueを返す
+        BlackboardComp->SetValueAsBool(FName("HasPath"), true);
     }
-    UE_LOG(LogTemp, Warning, TEXT("Failed to find path."));
-    return false;
+    else
+    {
+        BlackboardComp->SetValueAsBool(FName("HasPath"), false);
+        UE_LOG(LogTemp, Warning, TEXT("Failed to find path."));
+    }
 }
 
 FRotator AMyAIController::GetNextPathPointRotation(float DeltaTime, float AcceptanceRadius)

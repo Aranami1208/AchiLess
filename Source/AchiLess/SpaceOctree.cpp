@@ -144,6 +144,7 @@ FOctreeNode ASpaceOctree::GetOctreeNodeAtLocation(const FVector& Location)
 
 void ASpaceOctree::AddObstacle(AActor* ObstacleActor)
 {
+
     if (!ObstacleActor)
     {
         UE_LOG(LogTemp, Warning, TEXT("AddObstacle called with null ObstacleActor."));
@@ -160,11 +161,12 @@ void ASpaceOctree::AddObstacle(AActor* ObstacleActor)
     // 特殊タグのチェック
     if (SpecialObstacleTag != NAME_None && ObstacleActor->ActorHasTag(SpecialObstacleTag))
     {
-        // UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("Actor %s has SpecialObstacleTag (%s), adding with detailed collision."), *ObstacleActor->GetName(), *SpecialObstacleTag.ToString()));
+        UKismetSystemLibrary::PrintString(this, "DetailSubdivide");
         AddTaggedObstacle(ObstacleActor);
     }
     else
     {
+        UKismetSystemLibrary::PrintString(this, "NormalSubdivide");
         FBox ObstacleBounds = ObstacleActor->GetComponentsBoundingBox();
         if (ObstacleBounds.IsValid)
         {
@@ -183,20 +185,14 @@ void ASpaceOctree::SubdivideNode(int32 NodeIndex)
 
     FOctreeNode* Node = GetNode(NodeIndex);
 
-    UKismetSystemLibrary::PrintString(this, "AddNode");
+    //UKismetSystemLibrary::PrintString(this, "AddNode");
     /*
     UKismetSystemLibrary::PrintString(this, "BuildExtent"
         + FString::SanitizeFloat(Node->Bounds.GetExtent().X) + ","
         + FString::SanitizeFloat(Node->Bounds.GetExtent().Y) + ","
         + FString::SanitizeFloat(Node->Bounds.GetExtent().Z));
     */
-    // ノードのサイズが最小サイズ以下であれば、それ以上分割しない
-    if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSize)
-    {
-        UKismetSystemLibrary::PrintString(this, "MinNodeSize : Return");
-        return;
-    }
-
+   
     // ノードの中心点を取得
     FVector Center = Node->Bounds.GetCenter();
     // 各子ノードのExtentを計算
@@ -292,6 +288,7 @@ void ASpaceOctree::AddTaggedObstacle(AActor* TaggedActor)
     if (!CollisionComponent)
     {
         UE_LOG(LogTemp, Warning, TEXT("Actor %s with tag %s has no UPrimitiveComponent. Falling back to AABB."), *TaggedActor->GetName(), *SpecialObstacleTag.ToString());
+        UKismetSystemLibrary::PrintString(this, "NoCollitionComponent");
         // フォールバックとして、アクター全体のバウンディングボックスを使用
         FBox ActorBounds = TaggedActor->GetComponentsBoundingBox();
         if (ActorBounds.IsValid)
@@ -320,13 +317,12 @@ void ASpaceOctree::AddObstacleToNodeForTaggedObject(int32 NodeIndex, AActor* Tag
     }
 
     // 2. ノードのサイズがタグ付きオブジェクト用の最小サイズ (`MinNodeSizeForTaggedObject`) 以下か、
-    //    または最大深度に達した場合 (ここでは深度チェックは省略、サイズで判断)
     if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSizeForTaggedObject)
     {
         // このノードがCollisionComponentと実際に重なっているかを物理クエリでテスト
         FCollisionQueryParams QueryParams;
         QueryParams.bTraceComplex = true; // より正確なメッシュとの衝突を見たい場合はtrue
-        // QueryParams.AddIgnoredActor(TaggedActor); // 通常、自分自身との衝突は考慮不要だが、Octree生成時は必要に応じて
+        
 
         // Octreeノードの形状 (ボックス) を作成
         FCollisionShape NodeCollisionShape = FCollisionShape::MakeBox(Node->Bounds.GetExtent());
@@ -512,7 +508,7 @@ void ASpaceOctree::DrawDebugOctreeNode(int32 NodeIndex, const FColor& Color) con
     else
     {
         
-        DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Blue, true, -1.0f, 0, 500.0f);
+        //DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Blue, true, -1.0f, 0, 500.0f);
     }
 
     // 子ノードがあれば再帰的に描画

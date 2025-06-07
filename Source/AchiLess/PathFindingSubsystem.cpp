@@ -1,4 +1,6 @@
+
 #include "PathfindingSubsystem.h"
+#include "Async/Async.h"
 #include "Kismet/GameplayStatics.h"
 #include "Algo/Sort.h"
 
@@ -34,14 +36,13 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
 {
     TArray<FVector> Path;
 
+   
+
     if (!SpaceOctree || SpaceOctree->RootNodeIndex == INDEX_NONE)
     {
         UE_LOG(LogTemp, Warning, TEXT("Octree is not initialized or not found. Cannot find path."));
         return Path;
     }
-
-    // A*探索用の全ノードをクリア
-    AllAStarNodes.Empty();
 
     // スタートノードとエンドノードのOctreeNodeデータを取得
     FOctreeNode StartOctreeNodeData = SpaceOctree->GetOctreeNodeAtLocation(StartLocation);
@@ -77,14 +78,22 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
     }
 
     // A*アルゴリズムの実装
+
+
+     // A*アルゴリズムの全ノードを格納する配列
+  // FAStarNodeはUSTRUCTなので、直接配列に格納できる
+    TArray<FAStarNode> AllAStarNodes;
+
     TArray<int32> OpenListIndices; // OpenListもインデックスで管理
     TMap<int32, int32> ClosedList; // OctreeNodeIndex -> FAStarNodeIndex
 
     // スタートFAStarNodeを作成し、AllAStarNodesに追加
+    const FVector StartNodeCenter = SpaceOctree->GetNode(StartOctreeNodeIndex)->Bounds.GetCenter();
+
     FAStarNode StartAStarNode;
-    StartAStarNode.Initialize(StartOctreeNodeIndex, INDEX_NONE, 0.0f, CalculateHCost(GetAStarNodeCenter(AllAStarNodes.Num()), EndLocation));
+    StartAStarNode.Initialize(StartOctreeNodeIndex, INDEX_NONE, 0.0f, CalculateHCost(StartNodeCenter, EndLocation));
     int32 StartAStarNodeIndex = AllAStarNodes.Add(StartAStarNode);
-    OpenListIndices.Add(StartAStarNodeIndex);
+    
 
     // OctreeNodeIndex -> FAStarNodeIndex のマップ (既に見つけたノードへのポインタの代わりにインデックスを格納)
     TMap<int32, int32> OctreeNodeIndexToAStarNodeIndexMap;
@@ -111,7 +120,8 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
         // 目標ノードに到達した場合
         if (AllAStarNodes[CurrentAStarNodeIndex].OctreeNodeIndex == EndOctreeNodeIndex)
         {
-            return ReconstructPath(CurrentAStarNodeIndex);
+            //パスを再構築する
+            return ReconstructPath(CurrentAStarNodeIndex,AllAStarNodes);
         }
 
         // 現在のOctreeNodeを取得
@@ -166,6 +176,36 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
 
     UE_LOG(LogTemp, Warning, TEXT("Path not found."));
     return Path; // 経路が見つからなかった場合
+}
+
+void UPathfindingSubsystem::FindPathAsync(const FVector& StartLocation, const FVector& EndLocation, const FOnPathfindingComplete& OnCompleteCallback)
+{
+    //ワーカースレッドでこのクラスのメンバにアクセスできるように
+    UPathfindingSubsystem* Subsystem = this;
+
+    // ワーカースレッドで実行する処理をラムダ式で定義
+    Async(EAsyncExecution::ThreadPool, [Subsystem, StartLocation, EndLocation, OnCompleteCallback]()
+        {
+            // --- ここからワーカースレッドでの処理 ---
+
+            // スレッドセーフ化された同期関数を呼び出して、経路を計算
+            TArray<FVector> ResultPath = Subsystem->FindPath(StartLocation, EndLocation);
+
+            // --- ここまでワーカースレッドでの処理 ---
+
+
+            // 計算結果をゲームスレッドに返して、コールバックを実行
+            AsyncTask(ENamedThreads::GameThread, [OnCompleteCallback, ResultPath]()
+                {
+                    // --- ここからゲームスレッドでの処理 ---
+
+                    // OnCompleteCallback デリゲートを実行して、結果を呼び出し元に通知
+                    OnCompleteCallback.ExecuteIfBound(ResultPath);
+
+                    // --- ここまでゲームスレッドでの処理 ---
+                });
+        });
+
 }
 
 float UPathfindingSubsystem::CalculateHCost(const FVector& FromLocation, const FVector& ToLocation) const
@@ -237,28 +277,23 @@ TArray<int32> UPathfindingSubsystem::GetNeighboringOctreeNodes(int32 CurrentOctr
 
 }
 
-TArray<FVector> UPathfindingSubsystem::ReconstructPath(int32 EndAStarNodeIndex) const
+TArray<FVector> UPathfindingSubsystem::ReconstructPath(int32 EndAStarNodeIndex, const TArray<FAStarNode>& InAStarNodes) const
 {
     TArray<FVector> Path;
     int32 CurrentAStarNodeIndex = EndAStarNodeIndex;
     while (CurrentAStarNodeIndex != INDEX_NONE)
     {
-        const FAStarNode& CurrentNode = AllAStarNodes[CurrentAStarNodeIndex];
-        Path.Add(GetAStarNodeCenter(CurrentAStarNodeIndex)); // ヘルパー関数を使用
+        const FAStarNode& CurrentNode = InAStarNodes[CurrentAStarNodeIndex];
+        //オクツリー内の、現在追っているノードが有効であれば、ノードの中心を取得する
+        if (SpaceOctree && SpaceOctree->AllNodes.IsValidIndex(CurrentAStarNodeIndex))
+        {
+            Path.Add(SpaceOctree->AllNodes[CurrentAStarNodeIndex].Bounds.GetCenter());
+        }
         CurrentAStarNodeIndex = CurrentNode.ParentIndex;
     }
+
+    //経路を反転する
     Algo::Reverse(Path);
 
     return Path;
-}
-
-
-
-FVector UPathfindingSubsystem::GetAStarNodeCenter(int32 AStarNodeIndex) const
-{
-    if (AllAStarNodes.IsValidIndex(AStarNodeIndex) && SpaceOctree && SpaceOctree->AllNodes.IsValidIndex(AllAStarNodes[AStarNodeIndex].OctreeNodeIndex))
-    {
-        return SpaceOctree->AllNodes[AllAStarNodes[AStarNodeIndex].OctreeNodeIndex].Bounds.GetCenter();
-    }
-    return FVector::ZeroVector;
 }
