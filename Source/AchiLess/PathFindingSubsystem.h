@@ -8,6 +8,9 @@
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnPathfindingComplete, const TArray<FVector>&, Path);
 
+//オクツリー準備完了イベント用のデリゲート
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOctreeReady);
+
 UCLASS()
 class ACHILESS_API UPathfindingSubsystem : public UWorldSubsystem // UWorldSubsystem を継承
 {
@@ -35,6 +38,11 @@ public:
 
     //処理中かどうか
     bool bIsPathFinding = false;
+
+    //準備完了でブロードキャストされるいべんと
+    FOnOctreeReady OnOctreeReady;
+
+    bool IsOctreeReady();
 protected:
   
 
@@ -46,5 +54,8 @@ protected:
 
     // 経路を再構築する関数
     TArray<FVector> ReconstructPath(int32 EndAStarNodeIndex, TArray<FAStarNode>& InAStarNodes) const;
+
+private:
+    bool bIsOctreeInitialized = false;
 
 };

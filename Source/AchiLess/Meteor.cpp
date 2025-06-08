@@ -8,6 +8,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "SpaceOctree.h"
+#include "PathFindingSubsystem.h"
 #include "Kismet/KismetSystemLibrary.h"
 // Sets default values
 AMeteor::AMeteor()
@@ -109,25 +110,53 @@ void AMeteor::BeginPlay()
 		UKismetSystemLibrary::PrintString(this, "FailedCast");
 	}
 	
-	TArray<AActor*> Octrees;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpaceOctree::StaticClass(), Octrees);
-
-	if (Octrees.Num() == 0)
+	UWorld* World = GetWorld();
+	if (World)
 	{
-		UKismetSystemLibrary::PrintString(this, "OctreeIsNotFoundInMeteor");
-		return;
+		UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>();
+		if (PathSubsystem)
+		{
+			// ‚·‚Å‚ÉOctree‚Ì€”õ‚ª‚Å‚«‚Ä‚¢‚é‚©Šm”F
+			if (PathSubsystem->IsOctreeReady())
+			{
+				// €”õOK‚È‚çA‘¦À‚É“o˜^ˆ—‚ðŒÄ‚Ô
+				RegisterWithOctree();
+			}
+			else
+			{
+				// ‚Ü‚¾€”õ‚Å‚«‚Ä‚¢‚È‚¯‚ê‚ÎA€”õŠ®—¹ƒCƒxƒ“ƒg‚ÉŽ©•ª‚ÌŠÖ”‚ð“o˜^‚µ‚Ä‘Ò‚Â
+				PathSubsystem->OnOctreeReady.AddDynamic(this, &AMeteor::HandleOctreeReady);
+			}
+		}
 	}
-	ASpaceOctree* Octree = Cast<ASpaceOctree>(Octrees[0]);
 
-	if (!Octree)
+}
+
+void AMeteor::HandleOctreeReady()
+{
+	// €”õ‚ª‚Å‚«‚½‚Ì‚ÅA“o˜^ˆ—‚ðŽÀs
+	RegisterWithOctree();
+
+	// ƒCƒxƒ“ƒg‚ðŽó‚¯Žæ‚Á‚½‚Ì‚ÅAŽ©g‚Ì“o˜^‚ð‰ðœ‚·‚é
+	UWorld* World = GetWorld();
+	if (World)
 	{
-		UKismetSystemLibrary::PrintString(this, "OctreeCastFailedInMeteor");
-		return;
+		UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>();
+		if (PathSubsystem)
+		{
+			PathSubsystem->OnOctreeReady.RemoveDynamic(this, &AMeteor::HandleOctreeReady);
+		}
 	}
+}
 
-	//áŠQ•¨ˆê——‚ÉŽ©•ª‚ð’Ç‰Á
-	Octree->AddObstacle(this);
+void AMeteor::RegisterWithOctree()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
 
-	UKismetSystemLibrary::PrintString(this, "AddMeteor");
-
+	UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>();
+	if (PathSubsystem && PathSubsystem->SpaceOctree)
+	{
+		PathSubsystem->SpaceOctree->AddObstacle(this);
+	}
 }

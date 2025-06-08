@@ -514,8 +514,8 @@ void ASpaceOctree::DrawDebugOctreeNode(int32 NodeIndex, const FColor& Color) con
     }
     else
     {
-        
-        DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Blue, true, -1.0f, 0, 400.0f);
+        //if(Node->ChildrenIndices.Num() == 0)
+        //    DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Blue, true, -1.0f, 0, 400.0f);
     }
 
     // 子ノードがあれば再帰的に描画

@@ -27,7 +27,11 @@ void UPathfindingSubsystem::Deinitialize()
 
 void UPathfindingSubsystem::SetOctreeReference(ASpaceOctree* Ref)
 {
+    if (!Ref)return;
     SpaceOctree = Ref;
+
+    bIsOctreeInitialized = true;
+    OnOctreeReady.Broadcast();
 }
 
 
@@ -216,6 +220,11 @@ void UPathfindingSubsystem::FindPathAsync(const FVector& StartLocation, const FV
                     // --- ここまでゲームスレッドでの処理 ---
                 });
         });
+}
+
+bool UPathfindingSubsystem::IsOctreeReady()
+{
+    return bIsOctreeInitialized;
 }
 
 float UPathfindingSubsystem::CalculateHCost(const FVector& FromLocation, const FVector& ToLocation) const
