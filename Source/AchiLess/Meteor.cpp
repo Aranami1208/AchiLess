@@ -109,5 +109,25 @@ void AMeteor::BeginPlay()
 		UKismetSystemLibrary::PrintString(this, "FailedCast");
 	}
 	
-	
+	TArray<AActor*> Octrees;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpaceOctree::StaticClass(), Octrees);
+
+	if (Octrees.Num() == 0)
+	{
+		UKismetSystemLibrary::PrintString(this, "OctreeIsNotFoundInMeteor");
+		return;
+	}
+	ASpaceOctree* Octree = Cast<ASpaceOctree>(Octrees[0]);
+
+	if (!Octree)
+	{
+		UKismetSystemLibrary::PrintString(this, "OctreeCastFailedInMeteor");
+		return;
+	}
+
+	//áŠQ•¨ˆê——‚ÉŽ©•ª‚ð’Ç‰Á
+	Octree->AddObstacle(this);
+
+	UKismetSystemLibrary::PrintString(this, "AddMeteor");
+
 }

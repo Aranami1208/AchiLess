@@ -317,33 +317,39 @@ void ASpaceOctree::AddObstacleToNodeForTaggedObject(int32 NodeIndex, AActor* Tag
         return;
     }
 
+
+    // このノードがCollisionComponentと実際に重なっているかを物理クエリでテスト
+    FCollisionQueryParams QueryParams;
+    QueryParams.bTraceComplex = true; // より正確なメッシュとの衝突を見たい場合はtrue
+
+
+    // Octreeノードの形状 (ボックス) を作成
+    FCollisionShape NodeCollisionShape = FCollisionShape::MakeBox(Node->Bounds.GetExtent());
+
+    // CollisionComponent とのオーバーラップをテスト
+    bool bOverlaps = CollisionComponent->OverlapComponent(
+        Node->Bounds.GetCenter(),
+        FQuat::Identity, // Octreeノードは通常回転しない
+        NodeCollisionShape
+    );
+
+    if (bOverlaps)//重なっていた場合はtrueにする
+    {
+        Node->bContainsObstacle = true;
+    }
+    else
+    {
+        return;
+    }
+
     // 2. ノードのサイズがタグ付きオブジェクト用の最小サイズ (`MinNodeSizeForTaggedObject`) 以下か、
     if (Node->Bounds.GetExtent().GetMax() * 2.0f <= MinNodeSizeForTaggedObject)
     {
-        // このノードがCollisionComponentと実際に重なっているかを物理クエリでテスト
-        FCollisionQueryParams QueryParams;
-        QueryParams.bTraceComplex = true; // より正確なメッシュとの衝突を見たい場合はtrue
-        
-
-        // Octreeノードの形状 (ボックス) を作成
-        FCollisionShape NodeCollisionShape = FCollisionShape::MakeBox(Node->Bounds.GetExtent());
-
-        // CollisionComponent とのオーバーラップをテスト
-        bool bOverlaps = CollisionComponent->OverlapComponent(
-            Node->Bounds.GetCenter(),
-            FQuat::Identity, // Octreeノードは通常回転しない
-            NodeCollisionShape
-            // QueryParams は OverlapComponent には直接渡せないが、コンポーネントのコリジョン設定が使われる
-        );
-
-        if (bOverlaps)
-        {
-            Node->bContainsObstacle = true;
-            // UKismetSystemLibrary::PrintString(this, "Node marked as obstacle (tagged object).");
-            // タグ付きオブジェクトによってブロックされたノードは緑色でデバッグ表示
-            // DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Green, true, -1.0f, 0, 5.0f);
-        }
         return; // これ以上分割しない
+    }
+    else
+    {
+        Node->bContainsObstacle = false;
     }
 
     // 3. ノードがまだ子を持っていなければ分割
@@ -504,12 +510,12 @@ void ASpaceOctree::DrawDebugOctreeNode(int32 NodeIndex, const FColor& Color) con
     // デバッグ用のボックスを描画
     if (Node->bContainsObstacle)
     {
-        DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Red, true, -1.0f, 0, 700.0f);
+        DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Red, true, -1.0f, 0, 500.0f);
     }
     else
     {
         
-        //DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Blue, true, -1.0f, 0, 500.0f);
+        DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Blue, true, -1.0f, 0, 400.0f);
     }
 
     // 子ノードがあれば再帰的に描画
