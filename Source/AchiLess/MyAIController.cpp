@@ -57,13 +57,31 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
 
         int32 Index = 0;
 
+        FVector Start = Path[0];
+        FVector End = Start;
+
         for (FVector Path : CurrentPath)
         {
+            End = Path;
+            // 赤色の矢印を描画
+            UKismetSystemLibrary::DrawDebugArrow(
+                GetWorld(),          // ワールド
+                Start,       // 開始点
+                End,         // 終了点
+                1000.0f,              // 矢じりのサイズ
+                FColor::Green,         // 色
+                5.0f,               // 描画時間 (0か-1なら1フレーム)
+                700.0f                // 線の太さ
+            );
+            /*
             if (Index != CurrentPath.Num() - 1)
-                DrawDebugBox(GetWorld(), Path, FVector(1000.f * Index + 1), FColor::Green, true, 0.1f, 0, 700.0f);
+                DrawDebugBox(GetWorld(), Path, FVector(2000.f ), FColor::Green, true, 5.0f, 0, 700.0f);
             else
-                DrawDebugBox(GetWorld(), Path, FVector(1000.f * Index + 1), FColor::Magenta, true, 0.1f, 0, 700.0f);
+                DrawDebugBox(GetWorld(), Path, FVector(2000.f), FColor::Magenta, true, 5.0f, 0, 700.0f);
+            */
             Index++;
+
+            Start = Path;
         }
 
 

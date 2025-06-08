@@ -6,6 +6,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "PathFindingSubsystem.h"
 #include "DestructibleActor.h"
+#include "Meteor.h"
 
 // Sets default values
 ASpaceOctree::ASpaceOctree()
@@ -27,13 +28,13 @@ void ASpaceOctree::BeginPlay()
     TArray<AActor*> FoundObstacleActors;
 
     //破壊可能オブジェクト
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADestructibleActor::StaticClass(), FoundObstacleActors);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMeteor::StaticClass(), FoundObstacleActors);
     //レベルに直接配置したStaticMesh
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), FoundObstacleActors);
     
     for (AActor* Actor : FoundObstacleActors)
     {
-       
+        UKismetSystemLibrary::PrintString(this, "AddObstacle");
         AddObstacle(Actor);
        
     }

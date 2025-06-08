@@ -6,6 +6,8 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "SpaceOctree.h"
 #include "Kismet/KismetSystemLibrary.h"
 // Sets default values
 AMeteor::AMeteor()
@@ -106,4 +108,6 @@ void AMeteor::BeginPlay()
 	{
 		UKismetSystemLibrary::PrintString(this, "FailedCast");
 	}
+	
+	
 }

@@ -225,21 +225,22 @@ float UPathfindingSubsystem::CalculateHCost(const FVector& FromLocation, const F
 
 TArray<int32> UPathfindingSubsystem::GetNeighboringOctreeNodes(int32 CurrentOctreeNodeIndex) const
 {
+    //隣接ノードのインデックス
     TArray<int32> Neighbors;
+
+    //ツリーやノードのインデックスがない場合は処理しない
     if (!SpaceOctree || CurrentOctreeNodeIndex == INDEX_NONE) return Neighbors;
 
+    //現在のノードをインデックスから取得
     const FOctreeNode* CurrentOctreeNode = SpaceOctree->GetNode(CurrentOctreeNodeIndex);
+    //ノードが見つからなかった場合は処理しない
     if (!CurrentOctreeNode) return Neighbors;
 
     // 現在のノードの中心と半分のサイズを取得
     FVector CurrentCenter = CurrentOctreeNode->Bounds.GetCenter();
     FVector CurrentExtent = CurrentOctreeNode->Bounds.GetExtent();
 
-    // Octreeの最小ノードサイズ（または、現在のノードのサイズの半分など、適切なステップサイズ）
-    // 隣接ノードを検索する際の「わずかな外側への移動距離」
-    // Octreeの性質上、隣接するノードのサイズは様々なので、
-    // ここでのステップサイズは、現在のノードのサイズに基づいて、少しだけ外側に移動する量にする。
-    // 小さすぎると接しているノードを見逃し、大きすぎると対角線上のノードまで含んでしまう。
+    //自分のサイズ分移動しても、自分自身のノードを取得してしまうので、少しだけ外側に移動する分のオフセット
     const float QueryOffset = 1.0f; // わずかなオフセット値 (小さくても0ではない値)
 
     // 隣接する8方向（現在のノードから見た相対位置）を反復処理
@@ -272,11 +273,6 @@ TArray<int32> UPathfindingSubsystem::GetNeighboringOctreeNodes(int32 CurrentOctr
                         !Neighbors.Contains(NeighborNodeIndex))
                     {
                         Neighbors.Add(NeighborNodeIndex);
-
-                        // // デバッグ表示: 見つけた隣接ノードのBoundsを描画 (一時的なデバッグ用)
-                        // DrawDebugBox(GetWorld(), NeighborNodeData.Bounds.GetCenter(), NeighborNodeData.Bounds.GetExtent(), FColor::Yellow, false, 5.0f, 0, 5.0f);
-                        // // 現在のノードと隣接ノードを結ぶ線を描画 (一時的なデバッグ用)
-                        // DrawDebugLine(GetWorld(), CurrentCenter, NeighborNodeData.Bounds.GetCenter(), FColor::Cyan, false, 5.0f, 0, 2.0f);
                     }
                 }
             }
