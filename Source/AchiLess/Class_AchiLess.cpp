@@ -183,7 +183,10 @@ void AClass_AchiLess::Beam()
 {
 	if (!LockOnTargetFigter)
 	{
-		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), FighterMesh->GetComponentRotation());
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), FighterMesh->GetComponentRotation(),SpawnParams);
+
 	}
 	else//ロックオンしている時は偏差撃ちする
 	{
@@ -200,7 +203,11 @@ void AClass_AchiLess::Beam()
 		FRotator ToTarget = UTargetingFunction::CalcToPreTargetRotation(GetWorld(), this, BeamProjectileSpeed, EnemyLocation, EnemyVelocity);
 		
 		//計算した方向に発射
-		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), ToTarget);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+
+		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), ToTarget,SpawnParams);
+		
 	}
 }
 

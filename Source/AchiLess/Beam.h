@@ -14,13 +14,17 @@ class ACHILESS_API ABeam : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ABeam();
-
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	AActor* Fighter;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	void DestroyMe();
 	FVector GetVelocity() { return Velocity; }
+
+	
 
 public:	
 	// Called every frame

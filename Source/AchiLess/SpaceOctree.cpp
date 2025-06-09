@@ -64,7 +64,7 @@ void ASpaceOctree::BeginPlay()
      //デバッグ表示 (オプション)
      if (RootNodeIndex != INDEX_NONE)
      {
-         DrawDebugOctreeNode(RootNodeIndex, FColor::Blue);
+         //DrawDebugOctreeNode(RootNodeIndex, FColor::Blue);
      }
 }
 

@@ -195,6 +195,8 @@ void ASpaceFighter::AcceleReleased()
 void ASpaceFighter::Beam()
 {
 	ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), FighterMesh->GetComponentRotation());
+	UKismetSystemLibrary::PrintString(this, "BeamOwner = "+this->GetName());
+	beam->Owner = this;
 }
 
 void ASpaceFighter::TakeDamage(float InDamage)
