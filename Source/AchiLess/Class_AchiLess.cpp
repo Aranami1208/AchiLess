@@ -32,7 +32,8 @@ AClass_AchiLess::AClass_AchiLess() :
 	CurrentBoost(0.0f), // 初期化
 		CurrentMouseXInput(0.0f),
 	CurrentMouseYInput(0.0f),
-	bIsAIControll(false)
+	bIsAIControll(false),
+	InvincibleSec(0.3)
 {
 	//最大カード数
 	int32 DeckSize = 8;
@@ -101,6 +102,7 @@ void AClass_AchiLess::BeginPlay()
 
 		DataManager->ReadJsonData("TypeSpeed.json", MyParameter);
 	}
+
 
 
 	//ブーストを初期化
@@ -249,6 +251,7 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	//ブーストしていないときの処理
 	if (!bIsBoosting)
 	{
+		
 		CurrentBoost = FMath::Clamp(CurrentBoost + BoostCost, 0, MyParameter.MaxBoost);
 		
 		//速度を通常時の状態に戻す
@@ -260,6 +263,13 @@ void AClass_AchiLess::Tick(float DeltaTime)
 		//ブーストロックを解除
 		if (BoostLock) BoostLock = false;
 	}
+	else
+	{
+		InvincibleCount += DeltaTime;
+	}
+
+	//無敵時間を超えたら無敵状態フラグを下げる
+	if (InvincibleCount >= InvincibleSec) bIsInvencible = false;
 
 
 	//すべてのカードのクールタイム処理
@@ -282,8 +292,6 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	//PlayerInputComponent->BindAxis("Yaw", this, &AClass_AchiLess::Yaw);
 	//PlayerInputComponent->BindAxis("Roll", this, &AClass_AchiLess::Roll);
 	//PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Accelerate);
-	
-
 }
 
 void AClass_AchiLess::Pitch(float Value)
@@ -399,6 +407,7 @@ void AClass_AchiLess::Boost(float Seconds)
 
 	//ブースト状態
 	bIsBoosting = true;
+	bIsInvencible = true;
 
 	CurrentBoost -= BoostCost;
 
@@ -439,6 +448,13 @@ void AClass_AchiLess::PlaySoundEffect(USoundBase* InSound)
 	}
 	//SEを再生
 	UGameplayStatics::PlaySoundAtLocation(this, InSound, GetActorLocation());
+}
+
+void AClass_AchiLess::TakeDamage(float InDamage)
+{
+	//無敵フラグが立っていたらスキップ
+	if (bIsInvencible)return;
+	Super::TakeDamage(InDamage);
 }
 
 FVector2D AClass_AchiLess::GetHUDCircleCenterLocation()

@@ -47,7 +47,7 @@ public:
 	virtual void Beam();
 
 	UFUNCTION(BlueprintCallable, Category = "SpaceFighter")
-	void TakeDamage(float InDamage);
+	virtual void TakeDamage(float InDamage);
 
 
 	//ビーム連射開始処理

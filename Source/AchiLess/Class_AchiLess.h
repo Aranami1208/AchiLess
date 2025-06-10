@@ -10,7 +10,6 @@
 #include "Sound/SoundBase.h"
 #include "Class_AchiLess.generated.h"
 
-
 UCLASS()
 class ACHILESS_API AClass_AchiLess : public ASpaceFighter
 {
@@ -105,6 +104,11 @@ public:
 
 	void PlaySoundEffect(USoundBase* InSound);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsInvencible = false;
+
+	void TakeDamage(float InDamage);
+
 private:
 	
 
@@ -119,6 +123,11 @@ private:
 	//ブーストの無敵時間
 	UPROPERTY(EditAnywhere)
 	float InvincibleSec;
+
+	UPROPERTY(EditAnywhere)
+	float InvincibleCount;
+
+	
 
 	//加速率
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

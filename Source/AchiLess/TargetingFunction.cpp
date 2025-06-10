@@ -124,6 +124,8 @@ FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpac
 	const int32 MaxIterations = 10; // —\‘ª‚Ì”½•œ‰ñ”
 	const float ToleranceSq = FMath::Square(50.0f); // ‹–—eŒë· (’PˆÊ: cm)
 
+	
+
 	for (int32 i = 0; i < MaxIterations; ++i)
 	{
 		// ‘O‰ñ—\‘ª‚µ‚½“’BŠÔ‚ÅA“G‚ª‚Ç‚±‚É‚¢‚é‚©‚ğ—\‘ª
