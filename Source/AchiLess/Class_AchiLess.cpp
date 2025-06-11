@@ -32,7 +32,8 @@ AClass_AchiLess::AClass_AchiLess() :
 	CurrentBoost(0.0f), // 初期化
 		CurrentMouseXInput(0.0f),
 	CurrentMouseYInput(0.0f),
-	bIsAIControll(false)
+	bIsAIControll(false),
+	InvincibleSec(0.3)
 {
 	//最大カード数
 	int32 DeckSize = 8;
@@ -103,6 +104,7 @@ void AClass_AchiLess::BeginPlay()
 	}
 
 
+
 	//ブーストを初期化
 	CurrentBoost = MyParameter.MaxBoost;
 
@@ -152,7 +154,7 @@ void AClass_AchiLess::BeginPlay()
 		
 		//スキルにウィジェットをセット
 		CardSkill->Widget = SkillWidgets[Index];
-		UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
+		
 
 		Index++;
 	}
@@ -172,7 +174,7 @@ void AClass_AchiLess::BeginPlay()
 
 		//スキルにウィジェットをセット
 		CardSkill->Widget = SkillWidgets[Index];
-		UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
+		//UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
 	}
 	
 	//UE_DEBUG_BREAK();
@@ -183,7 +185,10 @@ void AClass_AchiLess::Beam()
 {
 	if (!LockOnTargetFigter)
 	{
-		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), FighterMesh->GetComponentRotation());
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), FighterMesh->GetComponentRotation(),SpawnParams);
+
 	}
 	else//ロックオンしている時は偏差撃ちする
 	{
@@ -196,38 +201,15 @@ void AClass_AchiLess::Beam()
 
 		float BeamProjectileSpeed = 100000;
 
-		FVector PredictedEnemyLocation = EnemyLocation;
-		float TravelTime = 0.0f;
-		const int32 MaxIterations = 10; // 予測の反復回数
-		const float ToleranceSq = FMath::Square(50.0f); // 許容誤差 (単位: cm)
-
-		for (int32 i = 0; i < MaxIterations; ++i)
-		{
-			// 前回予測した到達時間で、敵がどこにいるかを予測
-			FVector NextPredictedEnemyLocation = EnemyLocation + (EnemyVelocity * TravelTime);
-			float DistanceToPredictedTarget = FVector::DistSquared(MyLocation, NextPredictedEnemyLocation); // 距離の2乗で計算（平方根計算を避けるため）
-
-			// 予測位置までの距離から、弾が到達するのにかかる新しい時間を計算
-			float NextTravelTime = FMath::Sqrt(DistanceToPredictedTarget) / BeamProjectileSpeed;
-
-			// 予測時間の変化が許容範囲内であれば、収束したとみなす
-			if (FMath::Abs(NextTravelTime - TravelTime) < ToleranceSq) // ここも距離の許容誤差と合わせる
-			{
-				PredictedEnemyLocation = NextPredictedEnemyLocation;
-				break;
-			}
-
-			TravelTime = NextTravelTime;
-			PredictedEnemyLocation = NextPredictedEnemyLocation; // 予測位置を更新
-
-			// デバッグ表示 (予測位置)
-			// DrawDebugSphere(GetWorld(), PredictedEnemyLocation, 100.0f, 12, FColor::Yellow, false, 0.1f);
-		}
-
-		FVector BeamVec = (PredictedEnemyLocation - MyLocation).GetSafeNormal();
-
+		//角度を予測する
+		FRotator ToTarget = UTargetingFunction::CalcToPreTargetRotation(GetWorld(), this, BeamProjectileSpeed, EnemyLocation, EnemyVelocity);
+		
 		//計算した方向に発射
-		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), BeamVec.Rotation());
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+
+		ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), ToTarget,SpawnParams);
+		
 	}
 }
 
@@ -269,6 +251,7 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	//ブーストしていないときの処理
 	if (!bIsBoosting)
 	{
+		
 		CurrentBoost = FMath::Clamp(CurrentBoost + BoostCost, 0, MyParameter.MaxBoost);
 		
 		//速度を通常時の状態に戻す
@@ -280,6 +263,13 @@ void AClass_AchiLess::Tick(float DeltaTime)
 		//ブーストロックを解除
 		if (BoostLock) BoostLock = false;
 	}
+	else
+	{
+		InvincibleCount += DeltaTime;
+	}
+
+	//無敵時間を超えたら無敵状態フラグを下げる
+	if (InvincibleCount >= InvincibleSec) bIsInvencible = false;
 
 
 	//すべてのカードのクールタイム処理
@@ -302,8 +292,6 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	//PlayerInputComponent->BindAxis("Yaw", this, &AClass_AchiLess::Yaw);
 	//PlayerInputComponent->BindAxis("Roll", this, &AClass_AchiLess::Roll);
 	//PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Accelerate);
-	
-
 }
 
 void AClass_AchiLess::Pitch(float Value)
@@ -355,7 +343,12 @@ void AClass_AchiLess::ExecuteSkill()
 	if (!CardSkills[SkillIndex + UseDeck])return;
 	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
 	//スキルを使う
-	CardSkills[SkillIndex+UseDeck]->ExecuteSkill_Implementation(this);
+
+	//クールタイム中だったら処理しない
+	UKismetSystemLibrary::PrintString(this, "ExecuteSkill");
+	if (CardSkills[SkillIndex + UseDeck]->IsOnCoolDown())return;
+	CardSkills[SkillIndex + UseDeck]->StartCoolDown();
+	CardSkills[SkillIndex+UseDeck]->ExecuteSkill(this);
 }
 
 void AClass_AchiLess::ChangeDeck()
@@ -387,6 +380,25 @@ void AClass_AchiLess::ReChangeDeck()
 	UseDeck = 0;
 }
 
+AActor* AClass_AchiLess::SpawnSkillActor(TSubclassOf<AActor> SpawnActorClass)
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnActorClass, GetActorTransform(), SpawnParams);
+
+	if (SpawnedActor)
+	{
+		UKismetSystemLibrary::PrintString(this, "SuccessActorSpawned");
+		return SpawnedActor;
+	}
+	else
+	{
+		UKismetSystemLibrary::PrintString(this, "ActorSpawnFailed");
+	}
+	return nullptr;
+}
+
 
 void AClass_AchiLess::Boost(float Seconds)
 {
@@ -395,6 +407,7 @@ void AClass_AchiLess::Boost(float Seconds)
 
 	//ブースト状態
 	bIsBoosting = true;
+	bIsInvencible = true;
 
 	CurrentBoost -= BoostCost;
 
@@ -417,6 +430,31 @@ void AClass_AchiLess::Boost(float Seconds)
 void AClass_AchiLess::BoostReleased()
 {
 	bIsBoosting = false;
+}
+
+void HealHP(float Heal);
+
+UWorld* AClass_AchiLess::GetWorldCntext()
+{
+	return GetWorld();
+}
+
+void AClass_AchiLess::PlaySoundEffect(USoundBase* InSound)
+{
+	if (!InSound)
+	{
+		UKismetSystemLibrary::PrintString(this, "SoundNotFound");
+		return;
+	}
+	//SEを再生
+	UGameplayStatics::PlaySoundAtLocation(this, InSound, GetActorLocation());
+}
+
+void AClass_AchiLess::TakeDamage(float InDamage)
+{
+	//無敵フラグが立っていたらスキップ
+	if (bIsInvencible)return;
+	Super::TakeDamage(InDamage);
 }
 
 FVector2D AClass_AchiLess::GetHUDCircleCenterLocation()

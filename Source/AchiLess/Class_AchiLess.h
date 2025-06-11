@@ -7,8 +7,8 @@
 #include "SpaceFighter.h"
 #include "DataStruct.h"
 #include "CardSkillWidget.h"
+#include "Sound/SoundBase.h"
 #include "Class_AchiLess.generated.h"
-
 
 UCLASS()
 class ACHILESS_API AClass_AchiLess : public ASpaceFighter
@@ -67,6 +67,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ReChangeDeck();
+
+	UFUNCTION(BlueprintCallable)
+	class AActor* SpawnSkillActor(TSubclassOf<AActor> SpawnActorClass);
 	
 	//使用するスキルのインデックスに加算する値
 	int32 UseDeck = 0;
@@ -91,6 +94,21 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FCardData EmptyData;
 
+	UFUNCTION(BlueprintCallable)
+	UWorld* GetWorldCntext();
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundBase* HealSound;
+
+	UFUNCTION(BlueprintCallable)
+
+	void PlaySoundEffect(USoundBase* InSound);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsInvencible = false;
+
+	void TakeDamage(float InDamage);
+
 private:
 	
 
@@ -105,6 +123,11 @@ private:
 	//ブーストの無敵時間
 	UPROPERTY(EditAnywhere)
 	float InvincibleSec;
+
+	UPROPERTY(EditAnywhere)
+	float InvincibleCount;
+
+	
 
 	//加速率
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -140,6 +163,10 @@ private:
 	//ロックオン対象
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ASpaceFighter> LockOnTargetFigter;
+
+	//矢印の対象
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	AActor* ArrowTarget;
 
 	float MaxLockOnDistance;
 

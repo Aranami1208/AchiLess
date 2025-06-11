@@ -6,6 +6,9 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "SpaceOctree.h"
+#include "PathFindingSubsystem.h"
 #include "Kismet/KismetSystemLibrary.h"
 // Sets default values
 AMeteor::AMeteor()
@@ -30,9 +33,9 @@ AMeteor::AMeteor()
 	MeshComponent->SetStaticMesh(MeshFinder.Object);
 
 	//“–‚½‚è”»’è‚ÌÝ’è‚ð•ÏX
-	//MeshComponent->SetCollisionProfileName(TEXT("OverlapAll"));
+	MeshComponent->SetCollisionProfileName(TEXT("OverlapAll"));
 
-	//MeshComponent->SetGenerateOverlapEvents(true);
+	MeshComponent->SetGenerateOverlapEvents(true);
 }
 
 
@@ -105,5 +108,55 @@ void AMeteor::BeginPlay()
 	else
 	{
 		UKismetSystemLibrary::PrintString(this, "FailedCast");
+	}
+	
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>();
+		if (PathSubsystem)
+		{
+			// ‚·‚Å‚ÉOctree‚Ì€”õ‚ª‚Å‚«‚Ä‚¢‚é‚©Šm”F
+			if (PathSubsystem->IsOctreeReady())
+			{
+				// €”õOK‚È‚çA‘¦À‚É“o˜^ˆ—‚ðŒÄ‚Ô
+				RegisterWithOctree();
+			}
+			else
+			{
+				// ‚Ü‚¾€”õ‚Å‚«‚Ä‚¢‚È‚¯‚ê‚ÎA€”õŠ®—¹ƒCƒxƒ“ƒg‚ÉŽ©•ª‚ÌŠÖ”‚ð“o˜^‚µ‚Ä‘Ò‚Â
+				PathSubsystem->OnOctreeReady.AddDynamic(this, &AMeteor::HandleOctreeReady);
+			}
+		}
+	}
+
+}
+
+void AMeteor::HandleOctreeReady()
+{
+	// €”õ‚ª‚Å‚«‚½‚Ì‚ÅA“o˜^ˆ—‚ðŽÀs
+	RegisterWithOctree();
+
+	// ƒCƒxƒ“ƒg‚ðŽó‚¯Žæ‚Á‚½‚Ì‚ÅAŽ©g‚Ì“o˜^‚ð‰ðœ‚·‚é
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>();
+		if (PathSubsystem)
+		{
+			PathSubsystem->OnOctreeReady.RemoveDynamic(this, &AMeteor::HandleOctreeReady);
+		}
+	}
+}
+
+void AMeteor::RegisterWithOctree()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	UPathfindingSubsystem* PathSubsystem = World->GetSubsystem<UPathfindingSubsystem>();
+	if (PathSubsystem && PathSubsystem->SpaceOctree)
+	{
+		PathSubsystem->SpaceOctree->AddObstacle(this);
 	}
 }

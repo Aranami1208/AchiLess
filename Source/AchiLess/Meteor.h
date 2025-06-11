@@ -21,6 +21,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()//デリゲートのイベントを呼ぶために必要
+	void HandleOctreeReady();
+
+	//登録処理
+	void RegisterWithOctree();
+
 public:	
 	
 

@@ -9,7 +9,7 @@
 
 
 
-UCLASS()
+UCLASS(Blueprintable)
 class ACHILESS_API UBaseCardSkill : public UObject
 {
 	GENERATED_BODY()
@@ -20,7 +20,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	FCardData CardData;
 
-	TWeakObjectPtr<class AClass_AchiLess> Owner;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class AClass_AchiLess* Owner;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UCardSkillWidget* Widget;
@@ -44,6 +45,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateCooDown(float DeltaTime);
+
+	
 
 protected:
 

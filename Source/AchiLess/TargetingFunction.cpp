@@ -113,3 +113,46 @@ ASpaceFighter* UTargetingFunction::CheckOnTarget(UWorld* WorldContext,ASpaceFigh
 
 	return LockOnTargetFigter;
 }
+
+FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpaceFighter* Owner, float TargetSpeed, FVector TargetLocation, FVector TargetVelocity)
+{
+	FVector MyLocation = Owner->GetActorLocation();
+
+
+	FVector PredictedTargetLocation = TargetLocation;
+	float TravelTime = 0.0f;
+	const int32 MaxIterations = 10; // 予測の反復回数
+	const float ToleranceSq = FMath::Square(50.0f); // 許容誤差 (単位: cm)
+
+	
+
+	for (int32 i = 0; i < MaxIterations; ++i)
+	{
+		// 前回予測した到達時間で、敵がどこにいるかを予測
+		FVector NextPredictedTargetLocation = TargetLocation + (TargetVelocity * TravelTime);
+		float DistanceToPredictedTarget = FVector::DistSquared(MyLocation, NextPredictedTargetLocation); // 距離の2乗で計算（平方根計算を避けるため）
+
+		// 予測位置までの距離から、弾が到達するのにかかる新しい時間を計算
+		float NextTravelTime = FMath::Sqrt(DistanceToPredictedTarget) / TargetSpeed;
+
+		// 予測時間の変化が許容範囲内であれば、収束したとみなす
+		if (FMath::Abs(NextTravelTime - TravelTime) < ToleranceSq) // ここも距離の許容誤差と合わせる
+		{
+			PredictedTargetLocation = NextPredictedTargetLocation;
+			break;
+		}
+
+		TravelTime = NextTravelTime;
+		PredictedTargetLocation = NextPredictedTargetLocation; // 予測位置を更新
+
+		
+	}
+
+	// デバッグ表示 (予測位置)
+	//DrawDebugSphere(WorldContext, PredictedTargetLocation, 2000.0f, 12, FColor::Yellow, false, 10.0f);
+
+	FVector BeamVec = (PredictedTargetLocation - MyLocation).GetSafeNormal();
+
+	return BeamVec.Rotation();
+
+}

@@ -128,6 +128,7 @@ void ASpaceFighter::UpdateAchiLessRotation(const FRotator TargetRotation)
 
 	//デバッグ処理（ターゲット方向を描画）
 	
+	
 	FVector Start = FighterMesh->GetComponentLocation();
 	FVector End = Start + TargetForwardHorizontal * 50000;
 	
@@ -194,6 +195,8 @@ void ASpaceFighter::AcceleReleased()
 void ASpaceFighter::Beam()
 {
 	ABeam* beam = GetWorld()->SpawnActor<ABeam>(BeamClass, GetActorLocation(), FighterMesh->GetComponentRotation());
+	UKismetSystemLibrary::PrintString(this, "BeamOwner = "+this->GetName());
+	beam->Owner = this;
 }
 
 void ASpaceFighter::TakeDamage(float InDamage)
@@ -216,8 +219,13 @@ void ASpaceFighter::StopBeam()
 	GetWorldTimerManager().ClearTimer(BeamTimerHandle);
 }
 
-FVector ASpaceFighter::GetVelocity()
+FVector ASpaceFighter::GetCurrentVelocity()
 {
 	return Velocity;
+}
+
+void ASpaceFighter::HealHP(float Heal)
+{
+	CurrentHp = FMath::Clamp(CurrentHp + Heal, 0, MyParameter.MaxHp);
 }
 

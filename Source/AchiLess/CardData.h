@@ -38,6 +38,12 @@ struct FCardData : public FTableRowBase
     UPROPERTY(EditAnywhere,BlueprintReadWrite)
     float CoolTime;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float SkillValue1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float SkillValue2;
+
     UPROPERTY(EditAnywhere,BlueprintReadWrite)
     bool IsValid;
 };
