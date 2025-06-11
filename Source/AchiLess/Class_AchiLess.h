@@ -25,7 +25,8 @@ protected:
 	// ゲーム開始時のみ呼ばれるファイル
 	virtual void BeginPlay() override;
 
-	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UCardSkillWidget> CardSkillWidgetClass;
 
 public:
 

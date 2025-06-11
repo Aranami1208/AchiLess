@@ -84,6 +84,27 @@ void AClass_AchiLess::BeginPlay()
 
 	PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
+	if (CardSkillWidgetClass && PC)
+	{
+		// SkillWidgets 配列をクリアして、8つ分の要素を確保
+		SkillWidgets.Empty();
+		SkillWidgets.SetNum(8);
+
+		for (int32 i = 0; i < 8; ++i)
+		{
+			// ウィジェットを生成
+			UCardSkillWidget* CreatedWidget = CreateWidget<UCardSkillWidget>(PC, CardSkillWidgetClass);
+			if (CreatedWidget)
+			{
+				// 配列に格納
+				SkillWidgets[i] = CreatedWidget;
+
+				// ここでHUDに追加する処理が必要な場合があります
+				// 例: CreatedWidget->AddToViewport(); 
+				// (ただし、このウィジェットが別の親ウィジェットに配置される場合は不要)
+			}
+		}
+	}
 
 	//視野角を設定
 	Camera->FieldOfView = 90;
