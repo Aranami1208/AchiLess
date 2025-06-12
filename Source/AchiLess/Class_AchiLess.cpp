@@ -84,27 +84,7 @@ void AClass_AchiLess::BeginPlay()
 
 	PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-	if (CardSkillWidgetClass && PC)
-	{
-		// SkillWidgets 配列をクリアして、8つ分の要素を確保
-		SkillWidgets.Empty();
-		SkillWidgets.SetNum(8);
 
-		for (int32 i = 0; i < 8; ++i)
-		{
-			// ウィジェットを生成
-			UCardSkillWidget* CreatedWidget = CreateWidget<UCardSkillWidget>(PC, CardSkillWidgetClass);
-			if (CreatedWidget)
-			{
-				// 配列に格納
-				SkillWidgets[i] = CreatedWidget;
-
-				// ここでHUDに追加する処理が必要な場合があります
-				// 例: CreatedWidget->AddToViewport(); 
-				// (ただし、このウィジェットが別の親ウィジェットに配置される場合は不要)
-			}
-		}
-	}
 
 	//視野角を設定
 	Camera->FieldOfView = 90;
@@ -160,44 +140,9 @@ void AClass_AchiLess::BeginPlay()
 	// 定期的にロックオンチェックを行うための設定
 	GetWorldTimerManager().SetTimer(LockOnCheckTimerHandle, this, &AClass_AchiLess::CheckOnTarget, LockOnCheckInterval, true);
 
-	int32 Index = 0;
-	if (DeckData.Num() <= 0)return;
-	for (FCardData Card : DeckData)
-	{
-		if (!Card.CardSkillClass)continue;
-		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, Card.CardSkillClass);
-		//Cardのスキルクラスからインスタンスを生成
-		CardSkills[Index] =CardSkill;
+	//デッキの初期化処理
+	InitDeck();
 
-		//カードデータをセット
-		CardSkill->CardData = Card;
-		CardSkill->Owner = this;
-		
-		//スキルにウィジェットをセット
-		CardSkill->Widget = SkillWidgets[Index];
-		
-
-		Index++;
-	}
-
-	
-	
-	for (Index; Index < 8; Index++)
-	{
-		if (!EmptyData.CardSkillClass)break;
-		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, EmptyData.CardSkillClass);
-		//Cardのスキルクラスからインスタンスを生成
-		CardSkills[Index] = CardSkill;
-
-		//カードデータをセット
-		CardSkill->CardData = EmptyData;
-		CardSkill->Owner = this;
-
-		//スキルにウィジェットをセット
-		CardSkill->Widget = SkillWidgets[Index];
-		//UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
-	}
-	
 	//UE_DEBUG_BREAK();
 	
 }
@@ -313,6 +258,48 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	//PlayerInputComponent->BindAxis("Yaw", this, &AClass_AchiLess::Yaw);
 	//PlayerInputComponent->BindAxis("Roll", this, &AClass_AchiLess::Roll);
 	//PlayerInputComponent->BindAxis("Accelerate", this, &AClass_AchiLess::Accelerate);
+}
+
+void AClass_AchiLess::InitDeck()
+{
+	int32 Index = 0;
+	if (DeckData.Num() <= 0)return;
+	for (FCardData Card : DeckData)
+	{
+		if (!Card.CardSkillClass)continue;
+		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, Card.CardSkillClass);
+		//Cardのスキルクラスからインスタンスを生成
+		CardSkills[Index] = CardSkill;
+
+		//カードデータをセット
+		CardSkill->CardData = Card;
+		CardSkill->Owner = this;
+
+		//スキルにウィジェットをセット
+		CardSkill->Widget = SkillWidgets[Index];
+
+
+		Index++;
+	}
+
+
+
+	for (Index; Index < 8; Index++)
+	{
+		if (!EmptyData.CardSkillClass)break;
+		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, EmptyData.CardSkillClass);
+		//Cardのスキルクラスからインスタンスを生成
+		CardSkills[Index] = CardSkill;
+
+		//カードデータをセット
+		CardSkill->CardData = EmptyData;
+		CardSkill->Owner = this;
+
+		//スキルにウィジェットをセット
+		CardSkill->Widget = SkillWidgets[Index];
+		//UKismetSystemLibrary::PrintString(this, "SetSkillIndex:" + FString::FromInt(Index));
+	}
+
 }
 
 void AClass_AchiLess::Pitch(float Value)

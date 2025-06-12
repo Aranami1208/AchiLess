@@ -38,7 +38,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
-	//入力関数ブルプリから呼び出し可能
+	UFUNCTION(BlueprintCallable)
+	void InitDeck();
 
 	UFUNCTION(BlueprintCallable)
 	void Pitch(float Value);
