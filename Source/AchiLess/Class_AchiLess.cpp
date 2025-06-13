@@ -262,6 +262,8 @@ void AClass_AchiLess::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AClass_AchiLess::InitDeck()
 {
+	int32 DeckSize = 8;
+	int32 Half = 2;
 	int32 Index = 0;
 	if (DeckData.Num() <= 0)return;
 	for (FCardData Card : DeckData)
@@ -281,10 +283,8 @@ void AClass_AchiLess::InitDeck()
 
 		Index++;
 	}
-
-
-
-	for (Index; Index < 8; Index++)
+	
+	for (Index; Index < DeckSize; Index++)
 	{
 		if (!EmptyData.CardSkillClass)break;
 		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, EmptyData.CardSkillClass);
@@ -361,28 +361,30 @@ void AClass_AchiLess::ExecuteSkill()
 
 void AClass_AchiLess::ChangeDeck()
 {
+	int32 HalfDeckSize = 4;
 	UKismetSystemLibrary::PrintString(this,"DeckChange");
 	
-	for (int32 i = 0; i < 4; i++)
+	for (int32 i = 0; i < HalfDeckSize; i++)
 	{
 		if(CardSkills[i])
-		CardSkills[i]->ChangeWidget( SkillWidgets[i + 4]);
-		if(CardSkills[i+4])
-		CardSkills[i + 4]->ChangeWidget( SkillWidgets[i]);
+		CardSkills[i]->ChangeWidget( SkillWidgets[i + HalfDeckSize]);
+		if(CardSkills[i+HalfDeckSize])
+		CardSkills[i + HalfDeckSize]->ChangeWidget( SkillWidgets[i]);
 	}
-	UseDeck = 4;
+	UseDeck = HalfDeckSize;
 }
 
 void AClass_AchiLess::ReChangeDeck()
 {
+	int32 HalfDeckSize = 4;
 	UKismetSystemLibrary::PrintString(this, "DeckChange");
 
-	for (int32 i = 0; i < 4; i++)
+	for (int32 i = 0; i < HalfDeckSize; i++)
 	{
 		if (CardSkills[i])
 			CardSkills[i]->ChangeWidget(SkillWidgets[i]);
-		if (CardSkills[i + 4])
-			CardSkills[i + 4]->ChangeWidget(SkillWidgets[i+4]);
+		if (CardSkills[i + HalfDeckSize])
+			CardSkills[i + HalfDeckSize]->ChangeWidget(SkillWidgets[i+HalfDeckSize]);
 	}
 
 	UseDeck = 0;

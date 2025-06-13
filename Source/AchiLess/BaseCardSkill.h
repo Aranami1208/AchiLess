@@ -35,6 +35,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartCoolDown();
 
+
 	void ChangeWidget(UCardSkillWidget* InWIdget);
 
 	UFUNCTION(BlueprintCallable)

@@ -48,12 +48,14 @@ void ASelectLevelActor::BeginPlay()
 
 	for (FCardData* Card : AllCards)
 	{
+		
 		//Empty‚ÌData‚ÍƒŠƒXƒg‚É•\Ž¦‚µ‚È‚¢
 		if (Card->Tag == FName("Empty"))
 		{
 			EmptyData = *Card;
 			continue;
 		}
+		
 
 		UCardItemWidget* CardWidget = CreateWidget<UCardItemWidget>(GetWorld(), CardItemClass);
 
