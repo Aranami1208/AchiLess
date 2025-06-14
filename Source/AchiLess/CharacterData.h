@@ -35,6 +35,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FCardData EmptyData;
 
+	TObjectPtr<UTexture2D> EmptyImage;
+
 private:
 
 	//プレイヤーのパラメータ情報を保持

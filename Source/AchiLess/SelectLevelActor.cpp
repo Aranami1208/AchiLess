@@ -11,7 +11,7 @@
 #include "CardItemWidget.h"//
 #include "Components/UniformGridSlot.h"//
 #include "Components/UniformGridPanel.h"//
-
+#include "CharacterData.h"
 
 // Sets default values
 ASelectLevelActor::ASelectLevelActor()
@@ -24,6 +24,9 @@ ASelectLevelActor::ASelectLevelActor()
 // Called when the game starts or when spawned
 void ASelectLevelActor::BeginPlay()
 {
+	UGameInstance* GInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	UCharacterData* MyGInstance = Cast<UCharacterData>(GInstance);
+
 	Super::BeginPlay();
 
 	//Jsonファイルを一括読み込み
@@ -53,6 +56,8 @@ void ASelectLevelActor::BeginPlay()
 		if (Card->Tag == FName("Empty"))
 		{
 			EmptyData = *Card;
+			//GC対策でハード参照を持っておく
+			MyGInstance->EmptyImage = *Card->CardImage.LoadSynchronous();
 			continue;
 		}
 		
