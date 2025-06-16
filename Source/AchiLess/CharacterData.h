@@ -35,6 +35,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FCardData EmptyData;
 
+	UPROPERTY()
 	TObjectPtr<UTexture2D> EmptyImage;
 
 private:

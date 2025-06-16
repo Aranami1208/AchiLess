@@ -268,7 +268,13 @@ void AClass_AchiLess::InitDeck()
 	if (DeckData.Num() <= 0)return;
 	for (FCardData Card : DeckData)
 	{
-		if (!Card.CardSkillClass)continue;
+		if (!Card.CardSkillClass)
+		{
+			//スキルクラスが見つからなかった場合はセットしない
+			UKismetSystemLibrary::PrintString(this, "Skill" + FString::FromInt(Index) + "IsSkillClassNotFound");
+			Index++;
+			continue;
+		}
 		UBaseCardSkill* CardSkill = NewObject<UBaseCardSkill>(this, Card.CardSkillClass);
 		//Cardのスキルクラスからインスタンスを生成
 		CardSkills[Index] = CardSkill;
