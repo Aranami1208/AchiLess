@@ -140,6 +140,8 @@ void AClass_AchiLess::BeginPlay()
 	// 定期的にロックオンチェックを行うための設定
 	GetWorldTimerManager().SetTimer(LockOnCheckTimerHandle, this, &AClass_AchiLess::CheckOnTarget, LockOnCheckInterval, true);
 
+	DeckData = CharacterData->GetDeckAll();
+
 	//デッキの初期化処理
 	InitDeck();
 
@@ -265,6 +267,8 @@ void AClass_AchiLess::InitDeck()
 	int32 DeckSize = 8;
 	int32 Half = 2;
 	int32 Index = 0;
+
+
 	if (DeckData.Num() <= 0)return;
 	for (FCardData Card : DeckData)
 	{
