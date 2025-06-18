@@ -38,6 +38,12 @@ public:
 	UPROPERTY()
 	TObjectPtr<UTexture2D> EmptyImage;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FName CurrentLevel = "None";
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName NextLevel = "None";
+
 private:
 
 	//プレイヤーのパラメータ情報を保持
