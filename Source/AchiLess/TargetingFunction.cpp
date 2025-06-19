@@ -132,7 +132,7 @@ FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpac
 		//FVector NextPredictedTargetLocation = TargetLocation + (TargetVelocity * TravelTime);
 		
 		//25.06.19 T.Aranami 追加：加速度を考慮した計算をする
-		FVector NextPredictedTargetLocation = TargetLocation + (TargetVelocity * TravelTime) + (2.0f * TargetAcceleration * FMath::Square(TravelTime));
+		FVector NextPredictedTargetLocation = TargetLocation + (TargetVelocity * TravelTime) + (0.5f * TargetAcceleration * FMath::Square(TravelTime));
 
 		float DistanceToPredictedTarget = FVector::DistSquared(MyLocation, NextPredictedTargetLocation); // 距離の2乗で計算（平方根計算を避けるため）
 

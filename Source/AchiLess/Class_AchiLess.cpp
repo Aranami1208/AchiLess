@@ -167,7 +167,7 @@ void AClass_AchiLess::Beam()
 		FVector MyLocation = GetActorLocation();
 		FVector EnemyLocation = LockOnTargetFigter->GetActorLocation();
 
-		FVector EnemyVelocity = LockOnTargetFigter->GetVelocity();
+		FVector EnemyVelocity = LockOnTargetFigter->FighterMesh->GetComponentRotation().Vector()*LockOnTargetFigter->GetCurrentSpeed();
 
 		FVector EnemyAcceleration = LockOnTargetFigter->CurrentAcceleration;
 

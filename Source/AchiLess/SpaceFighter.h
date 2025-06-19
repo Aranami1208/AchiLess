@@ -84,6 +84,8 @@ public:
 	FVector PreviousVelocity;
 	FVector CurrentAcceleration;
 
+	float GetCurrentSpeed() { return CurrentSpeed; }
+
 protected:
 	FVector Velocity;//ˆÚ“®•ûŒü‚ÌƒxƒNƒgƒ‹
 
