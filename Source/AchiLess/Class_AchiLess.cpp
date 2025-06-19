@@ -104,7 +104,9 @@ void AClass_AchiLess::BeginPlay()
 		DataManager->ReadJsonData("TypeSpeed.json", MyParameter);
 	}
 
-
+	//最初の速度を設定
+	PreviousVelocity = GetActorRotation().Vector() *  MyParameter.MinSpeed;
+	CurrentAcceleration = PreviousVelocity;
 
 	//ブーストを初期化
 	CurrentBoost = MyParameter.MaxBoost;
@@ -167,10 +169,12 @@ void AClass_AchiLess::Beam()
 
 		FVector EnemyVelocity = LockOnTargetFigter->GetVelocity();
 
+		FVector EnemyAcceleration = LockOnTargetFigter->CurrentAcceleration;
+
 		float BeamProjectileSpeed = 100000;
 
 		//角度を予測する
-		FRotator ToTarget = UTargetingFunction::CalcToPreTargetRotation(GetWorld(), this, BeamProjectileSpeed, EnemyLocation, EnemyVelocity);
+		FRotator ToTarget = UTargetingFunction::CalcToPreTargetRotation(GetWorld(), this, BeamProjectileSpeed, EnemyLocation, EnemyVelocity,EnemyAcceleration);
 		
 		//計算した方向に発射
 		FActorSpawnParameters SpawnParams;
@@ -247,7 +251,23 @@ void AClass_AchiLess::Tick(float DeltaTime)
 		Skill->UpdateCooDown(DeltaTime);
 	}
 	
-	//全開との差分を取りたいため毎フレームリセット
+
+	//加速度の計算
+	FVector CurrentFrameVelocity = Velocity; // 現在のフレームの計算されたVelocity
+	
+	if (DeltaTime > KINDA_SMALL_NUMBER) // DeltaTimeが0に近い場合を除外
+	{
+		CurrentAcceleration = (CurrentFrameVelocity - PreviousVelocity) / DeltaTime; // ここで DeltaTime で割る
+	}
+	else
+	{
+		CurrentAcceleration = FVector::ZeroVector; // DeltaTimeが0の場合は加速度なしとする
+	}
+	
+
+	PreviousVelocity = CurrentFrameVelocity; // 次のフレームのために現在の速度を保存
+	
+	//前回との差分を取りたいため毎フレームリセット
 	CurrentMouseXInput = 0.0f;
 	CurrentMouseYInput = 0.0f;
 

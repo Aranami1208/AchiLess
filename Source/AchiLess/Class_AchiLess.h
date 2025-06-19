@@ -111,6 +111,8 @@ public:
 
 	void TakeDamage(float InDamage);
 
+	
+
 private:
 	
 

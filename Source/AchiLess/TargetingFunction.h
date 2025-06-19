@@ -20,5 +20,5 @@ public:
 	static class ASpaceFighter* CheckOnTarget(UWorld* WorldContext,class ASpaceFighter* Owner,FVector Location, FVector Direction, float Radius, float MaxDistance,float FOV);
 	
 	UFUNCTION(BlueprintCallable)
-	static FRotator CalcToPreTargetRotation(UWorld* WorldContext, class ASpaceFighter* Owner, float TargetSpeed, FVector TargetLocation, FVector TargetVelocity);
+	static FRotator CalcToPreTargetRotation(UWorld* WorldContext, class ASpaceFighter* Owner, float TargetSpeed, FVector TargetLocation, FVector TargetVelocity,FVector TargetAcceleration);
 };

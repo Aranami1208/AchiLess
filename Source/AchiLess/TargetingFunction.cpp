@@ -114,7 +114,7 @@ ASpaceFighter* UTargetingFunction::CheckOnTarget(UWorld* WorldContext,ASpaceFigh
 	return LockOnTargetFigter;
 }
 
-FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpaceFighter* Owner, float TargetSpeed, FVector TargetLocation, FVector TargetVelocity)
+FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpaceFighter* Owner, float TargetSpeed, FVector TargetLocation, FVector TargetVelocity, FVector TargetAcceleration)
 {
 	FVector MyLocation = Owner->GetActorLocation();
 
@@ -129,7 +129,11 @@ FRotator UTargetingFunction::CalcToPreTargetRotation(UWorld* WorldContext, ASpac
 	for (int32 i = 0; i < MaxIterations; ++i)
 	{
 		// ‘O‰ñ—\‘ª‚µ‚½“ž’BŽžŠÔ‚ÅA“G‚ª‚Ç‚±‚É‚¢‚é‚©‚ð—\‘ª
-		FVector NextPredictedTargetLocation = TargetLocation + (TargetVelocity * TravelTime);
+		//FVector NextPredictedTargetLocation = TargetLocation + (TargetVelocity * TravelTime);
+		
+		//25.06.19 T.Aranami ’Ç‰ÁF‰Á‘¬“x‚ðl—¶‚µ‚½ŒvŽZ‚ð‚·‚é
+		FVector NextPredictedTargetLocation = TargetLocation + (TargetVelocity * TravelTime) + (2.0f * TargetAcceleration * FMath::Square(TravelTime));
+
 		float DistanceToPredictedTarget = FVector::DistSquared(MyLocation, NextPredictedTargetLocation); // ‹——£‚Ì2æ‚ÅŒvŽZi•½•ûªŒvŽZ‚ð”ð‚¯‚é‚½‚ßj
 
 		// —\‘ªˆÊ’u‚Ü‚Å‚Ì‹——£‚©‚çA’e‚ª“ž’B‚·‚é‚Ì‚É‚©‚©‚éV‚µ‚¢ŽžŠÔ‚ðŒvŽZ

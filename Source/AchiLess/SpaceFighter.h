@@ -80,6 +80,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FDataStruct MyParameter;
 
+	//前フレームの速度
+	FVector PreviousVelocity;
+	FVector CurrentAcceleration;
+
 protected:
 	FVector Velocity;//移動方向のベクトル
 
