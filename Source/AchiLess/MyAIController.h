@@ -39,7 +39,7 @@ public:
 
     // AIが次の経路ポイントに移動するためのRotatorを取得する関数
     UFUNCTION(BlueprintCallable, Category = "AI Pathfinding")
-    FRotator GetNextPathPointRotation(float DeltaTime, float AcceptanceRadius);
+    FRotator GetNextPathPointRotation(float DeltaTime, float AcceptanceRadius, UPARAM(ref) float& ToNextPointDistance);
 
     // パス上の次のポイントに進む
     UFUNCTION(BlueprintCallable, Category = "AI Pathfinding")

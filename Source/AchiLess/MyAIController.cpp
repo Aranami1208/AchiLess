@@ -1,5 +1,6 @@
 #include "MyAIController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Class_AchiLess.h"
 #include "BehaviorTree/BlackboardComponent.h" 
 
@@ -54,12 +55,14 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
 
         CurrentPath = Path;
         CurrentPathIndex = 0;
+        UKismetSystemLibrary::PrintString(this, "ResetPathIndex");
 
         int32 Index = 0;
 
         FVector Start = Path[0];
         FVector End = Start;
 
+        
         for (FVector Path : CurrentPath)
         {
             End = Path;
@@ -70,8 +73,8 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
                 End,         // 終了点
                 1000.0f,              // 矢じりのサイズ
                 FColor::Green,         // 色
-                5.0f,               // 描画時間 (0か-1なら1フレーム)
-                700.0f                // 線の太さ
+                0,               // 描画時間 (0か-1なら1フレーム)
+                400.0f                // 線の太さ
             );
             /*
             if (Index != CurrentPath.Num() - 1)
@@ -79,11 +82,11 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
             else
                 DrawDebugBox(GetWorld(), Path, FVector(2000.f), FColor::Magenta, true, 5.0f, 0, 700.0f);
             */
+
             Index++;
 
             Start = Path;
         }
-
 
         // ブラックボードに「パス有り」と設定
         BlackboardComp->SetValueAsBool(FName("HasPath"), true);
@@ -99,8 +102,9 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
     }
 }
 
-FRotator AMyAIController::GetNextPathPointRotation(float DeltaTime, float AcceptanceRadius)
+FRotator AMyAIController::GetNextPathPointRotation(float DeltaTime, float AcceptanceRadius, float& ToNextPointDistance)
 {
+    UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentPathIndex));
     if (CurrentPath.Num() == 0 || CurrentPathIndex >= CurrentPath.Num() || !GetPawn())
     {
         return FRotator::ZeroRotator; // 有効なパスがない、または終了している
@@ -109,9 +113,10 @@ FRotator AMyAIController::GetNextPathPointRotation(float DeltaTime, float Accept
     FVector CurrentLocation = GetPawn()->GetActorLocation();
     FVector TargetPoint = CurrentPath[CurrentPathIndex];
     
+    ToNextPointDistance = FVector::Distance(CurrentLocation, TargetPoint);
 
     // ターゲットポイントに十分に近づいたら次のポイントへ
-    if (FVector::Distance(CurrentLocation, TargetPoint) < AcceptanceRadius)
+    if (ToNextPointDistance < AcceptanceRadius)
     {
         AdvanceToNextPathPoint();
         if (CurrentPathIndex >= CurrentPath.Num())

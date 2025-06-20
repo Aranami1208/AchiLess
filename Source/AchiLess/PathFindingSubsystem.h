@@ -55,6 +55,8 @@ protected:
     // Œo˜H‚ğÄ\’z‚·‚éŠÖ”
     TArray<FVector> ReconstructPath(int32 EndAStarNodeIndex, TArray<FAStarNode>& InAStarNodes) const;
 
+    TArray<FVector> PreviousPath;
+
 private:
     bool bIsOctreeInitialized = false;
 

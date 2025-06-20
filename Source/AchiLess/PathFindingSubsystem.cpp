@@ -42,7 +42,7 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
     if (!SpaceOctree || SpaceOctree->RootNodeIndex == INDEX_NONE)
     {
         UE_LOG(LogTemp, Warning, TEXT("Octree is not initialized or not found. Cannot find path."));
-        return Path;
+        return PreviousPath;
     }
 
     
@@ -54,7 +54,7 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
     if (!StartOctreeNodeData.Bounds.IsValid || !EndOctreeNodeData.Bounds.IsValid)
     {
         UE_LOG(LogTemp, Warning, TEXT("Start or End Octree Node data is invalid. Cannot find path."));
-        return Path;
+        return PreviousPath;
     }
 
     // スタートノードのOctreeNodeIndexとエンドノードのOctreeNodeIndexを取得
@@ -64,20 +64,20 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
     if (StartOctreeNodeIndex == INDEX_NONE || EndOctreeNodeIndex == INDEX_NONE)
     {
         UE_LOG(LogTemp, Warning, TEXT("Could not find index for Start or End Octree Node data."));
-        return Path;
+        return PreviousPath;
     }
 
     // スタートノードが障害物の場合、経路は存在しない
     if (SpaceOctree->IsLocationBlocked(StartLocation))
     {
         UE_LOG(LogTemp, Warning, TEXT("Start location is blocked. Cannot find path."));
-        return Path;
+        return PreviousPath;
     }
     // エンドノードが障害物の場合、経路は存在しない
     if (SpaceOctree->IsLocationBlocked(EndLocation))
     {
         UE_LOG(LogTemp, Warning, TEXT("End location is blocked. Cannot find path."));
-        return Path;
+        return PreviousPath;
     }
 
     // A*アルゴリズムの実装
@@ -178,7 +178,7 @@ TArray<FVector> UPathfindingSubsystem::FindPath(const FVector& StartLocation, co
     }
 
     UE_LOG(LogTemp, Warning, TEXT("Path not found."));
-    return Path; // 経路が見つからなかった場合
+    return PreviousPath; // 経路が見つからなかった場合
 }
 
 void UPathfindingSubsystem::FindPathAsync(const FVector& StartLocation, const FVector& EndLocation, const FOnPathfindingComplete& OnCompleteCallback)

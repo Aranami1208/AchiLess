@@ -162,7 +162,7 @@ void AClass_AchiLess::Beam()
 	}
 	else//ƒƒbƒNƒIƒ“‚µ‚Ä‚¢‚é‚Í•Î·Œ‚‚¿‚·‚é
 	{
-		UKismetSystemLibrary::PrintString(this, "<<<LockOnTarget>>>");
+		//UKismetSystemLibrary::PrintString(this, "<<<LockOnTarget>>>");
 
 		FVector MyLocation = GetActorLocation();
 		FVector EnemyLocation = LockOnTargetFigter->GetActorLocation();
