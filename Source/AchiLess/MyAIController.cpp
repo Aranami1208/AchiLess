@@ -54,7 +54,7 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
         UE_LOG(LogTemp, Warning, TEXT("Async pathfinding complete! Path has %d points."), Path.Num());
 
         CurrentPath = Path;
-        CurrentPathIndex = 0;
+        CurrentPathIndex = 1;
         UKismetSystemLibrary::PrintString(this, "ResetPathIndex");
 
         int32 Index = 0;
