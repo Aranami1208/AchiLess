@@ -514,7 +514,19 @@ void AClass_AchiLess::TakeDamage(float InDamage)
 {
 	//無敵フラグが立っていたらスキップ
 	if (bIsInvencible)return;
-	Super::TakeDamage(InDamage);
+
+	float MinCutRate = 0.0f;
+	float MaxCutRate = 1.0f;
+
+	//ダメージカットの倍率は0～100％セント
+	DamageCutRate = FMath::Clamp(DamageCutRate, MinCutRate, MaxCutRate);
+
+	//ガードによるダメージカット処理
+	float Damage = InDamage - (InDamage * DamageCutRate);
+
+	UKismetSystemLibrary::PrintString(this, "Damage:" + FString::SanitizeFloat(Damage));
+
+	Super::TakeDamage(Damage);
 }
 
 FVector2D AClass_AchiLess::GetHUDCircleCenterLocation()

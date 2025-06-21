@@ -118,6 +118,9 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float DiffenceBuffRate = 1.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DamageCutRate = 0.0f;
+
 	void TakeDamage(float InDamage);
 
 	
