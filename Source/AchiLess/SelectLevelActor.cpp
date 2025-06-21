@@ -109,7 +109,7 @@ void ASelectLevelActor::LoadAllJson()
 
 	//UKismetSystemLibrary::PrintString(this, Directory);
 
-	UKismetSystemLibrary::PrintString(this, "Files:" + FString::FromInt(FilePaths.Num()));
+	//UKismetSystemLibrary::PrintString(this, "Files:" + FString::FromInt(FilePaths.Num()));
 
 	UADataManager* DataManager = NewObject<UADataManager>();
 
@@ -143,7 +143,7 @@ void ASelectLevelActor::AchiLessSelectLeft()
 	{
 		SelectIndex = FileNum - 1;
 	}
-	UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
+	//UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
 }
 
 void ASelectLevelActor::AchiLessSelectRight()
@@ -154,7 +154,7 @@ void ASelectLevelActor::AchiLessSelectRight()
 	{
 		SelectIndex = 0;
 	}
-	UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
+	//UKismetSystemLibrary::PrintString(this, FString::FromInt(SelectIndex));
 }
 
 void ASelectLevelActor::SetReload()

@@ -104,6 +104,14 @@ void AClass_AchiLess::BeginPlay()
 		DataManager->ReadJsonData("TypeSpeed.json", MyParameter);
 	}
 
+	//敵だった場合
+	if (bIsAIControll)
+	{
+		UADataManager* DataManager = NewObject<UADataManager>();
+		//敵機として設定されているデータを読み込む
+		DataManager->ReadJsonData(CharacterData->EnemyAchiLessName + ".json", MyParameter);
+	}
+
 	//最初の速度を設定
 	PreviousVelocity = GetActorRotation().Vector() *  MyParameter.MinSpeed;
 	CurrentAcceleration = PreviousVelocity;

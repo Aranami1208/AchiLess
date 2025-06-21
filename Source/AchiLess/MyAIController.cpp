@@ -73,7 +73,7 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
                 End,         // 終了点
                 1000.0f,              // 矢じりのサイズ
                 FColor::Green,         // 色
-                0,               // 描画時間 (0か-1なら1フレーム)
+                0.1f,               // 描画時間 (0か-1なら1フレーム)
                 400.0f                // 線の太さ
             );
             /*

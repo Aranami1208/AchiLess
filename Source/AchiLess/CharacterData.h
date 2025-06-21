@@ -32,6 +32,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	TArray<FCardData> GetDeckAll();
 
+	//“GAchiLess‚Ì–¼‘O
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString EnemyAchiLessName;
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FCardData EmptyData;
 
