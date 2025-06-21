@@ -58,6 +58,7 @@ AClass_AchiLess::AClass_AchiLess() :
 	CameraSpringArm->bUsePawnControlRotation = false;
 	
 
+
 	//機体の回転とカメラの動きを独立させる設定
 	//CameraSpringArm->bInheritPitch = false;
 	//CameraSpringArm->bInheritRoll = false;
@@ -104,12 +105,21 @@ void AClass_AchiLess::BeginPlay()
 		DataManager->ReadJsonData("TypeSpeed.json", MyParameter);
 	}
 
+	
+
 	//敵だった場合
 	if (bIsAIControll)
 	{
 		UADataManager* DataManager = NewObject<UADataManager>();
 		//敵機として設定されているデータを読み込む
 		DataManager->ReadJsonData(CharacterData->EnemyAchiLessName + ".json", MyParameter);
+		//プレイヤーの場合はチーム0
+		Team = Enemy;
+	}
+	else
+	{
+		//プレイヤーの場合はチーム0
+		Team = Player;
 	}
 
 	//最初の速度を設定
@@ -216,7 +226,9 @@ void AClass_AchiLess::Tick(float DeltaTime)
 	UpdateAchiLessRotation(SpringArmRotation);
 
 	FVector Forward = FighterMesh->GetComponentRotation().Vector();//進行方向ベクトルを取得する
-	Velocity = Forward * CurrentSpeed * BoostRate;//スピードを掛けた移動量
+	Velocity = Forward * CurrentSpeed * BoostRate * SpeedBuffRate;//スピードを掛けた移動量
+
+	//UKismetSystemLibrary::PrintString(this, "SpeedBuff" + FString::SanitizeFloat(SpeedBuffRate));
 
 	//移動と衝突判定処理 
 	AddActorWorldOffset(Velocity * DeltaTime, true);

@@ -109,6 +109,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsInvencible = false;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float SpeedBuffRate = 1.0f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float AttackBuffRate = 1.0f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float DiffenceBuffRate = 1.0f;
+
 	void TakeDamage(float InDamage);
 
 	

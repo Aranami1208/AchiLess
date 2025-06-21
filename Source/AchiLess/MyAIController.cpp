@@ -55,7 +55,7 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
 
         CurrentPath = Path;
         CurrentPathIndex = 1;
-        UKismetSystemLibrary::PrintString(this, "ResetPathIndex");
+        //UKismetSystemLibrary::PrintString(this, "ResetPathIndex");
 
         int32 Index = 0;
 
@@ -93,6 +93,7 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
     }
     else
     {
+        CurrentPathIndex = 0;
         UE_LOG(LogTemp, Error, TEXT("Async pathfinding failed to find a path."));
         CurrentPath.Empty();
         CurrentPathIndex = -1;
@@ -104,7 +105,7 @@ void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
 
 FRotator AMyAIController::GetNextPathPointRotation(float DeltaTime, float AcceptanceRadius, float& ToNextPointDistance)
 {
-    UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentPathIndex));
+    //UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentPathIndex));
     if (CurrentPath.Num() == 0 || CurrentPathIndex >= CurrentPath.Num() || !GetPawn())
     {
         return FRotator::ZeroRotator; // 有効なパスがない、または終了している

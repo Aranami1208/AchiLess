@@ -86,6 +86,22 @@ public:
 
 	float GetCurrentSpeed() { return CurrentSpeed; }
 
+	
+
+	enum Team
+	{
+		//プレイヤーチーム
+		Player,
+		//敵チーム
+		Enemy,
+		//第三勢力
+		Onother,
+	};
+
+	//所属チーム
+	UPROPERTY(EditAnywhere)
+	int Team;
+
 protected:
 	FVector Velocity;//移動方向のベクトル
 

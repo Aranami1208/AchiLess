@@ -117,6 +117,9 @@ void ASelectLevelActor::LoadAllJson()
 	{
 		FDataStruct Data;
 		DataManager->ReadJsonData(FilePath, Data);
+
+		//AchiLess‚Ìƒf[ƒ^‚Ì‚İ“Ç‚İ‚Ş
+		if(!Data.MeshFileName.Equals("HopeLights"))
 		AchiLessParams.Add(Data);
 	}
 }
