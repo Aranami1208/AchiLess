@@ -6,6 +6,7 @@
 #include "CardDetail.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "SelectLevelActor.h"
+#include "MySaveGame.h"
 
 void UCardItemWidget::InitCard(const FCardData& InCard)
 {
@@ -33,7 +34,9 @@ void UCardItemWidget::InitCard(const FCardData& InCard)
 
 	float ViewCardScale = 0.6;
 
-	if (CardData.IsValid == true)
+	
+
+	if (CardData.IsValid == true )
 	{
 
 		//’Êíó‘Ô‚Ì‰æ‘œİ’è 

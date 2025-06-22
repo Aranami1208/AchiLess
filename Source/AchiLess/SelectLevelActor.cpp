@@ -12,7 +12,7 @@
 #include "Components/UniformGridSlot.h"//
 #include "Components/UniformGridPanel.h"//
 #include "CharacterData.h"
-
+#include "MySaveGame.h"
 // Sets default values
 ASelectLevelActor::ASelectLevelActor()
 {
@@ -60,6 +60,13 @@ void ASelectLevelActor::BeginPlay()
 			MyGInstance->EmptyImage = *Card->CardImage.LoadSynchronous();
 			continue;
 		}
+
+		const UMySaveGame* SaveData = MyGInstance->GetSaveData();
+
+
+		//isValid‚ªfalse‚Ìê‡AUnlockID‚Éˆê’v‚·‚é‚à‚Ì‚ª‚ ‚Á‚½‚ç true
+		if (!Card->IsValid)
+			Card->IsValid = SaveData->UnlockCardID.Contains(Card->CardID);
 		
 
 		UCardItemWidget* CardWidget = CreateWidget<UCardItemWidget>(GetWorld(), CardItemClass);
@@ -107,9 +114,7 @@ void ASelectLevelActor::LoadAllJson()
 
 	FileNum = FilePaths.Num();
 
-	//UKismetSystemLibrary::PrintString(this, Directory);
-
-	//UKismetSystemLibrary::PrintString(this, "Files:" + FString::FromInt(FilePaths.Num()));
+	
 
 	UADataManager* DataManager = NewObject<UADataManager>();
 

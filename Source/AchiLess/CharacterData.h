@@ -7,6 +7,7 @@
 #include "DataStruct.h"
 #include "CardData.h"
 #include "PathFindingSubsystem.h"
+#include "MySaveGame.h"
 #include "CharacterData.generated.h"
 
 /**
@@ -18,6 +19,21 @@ class ACHILESS_API UCharacterData : public UGameInstance
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable)
+	virtual void Initialize();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void Deinitialize();
+
+	UFUNCTION(BlueprintCallable)
+	bool AsyncSave();
+
+	UFUNCTION(BlueprintCallable)
+	UMySaveGame* SyncLoad();
+
+public:
+
+
 	//parameterをセットする
 	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	void SetParameter(FDataStruct CharaParam);
@@ -31,6 +47,14 @@ public:
 	FCardData GetDeck(int32 Index);
 	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	TArray<FCardData> GetDeckAll();
+
+	/// <summary>
+	/// HighScore更新
+	/// </summary>
+	/// <param name="Score">今回のスコア</param>
+	/// <returns>HighScoreを更新された場合はtrue、更新されなかった場合はfalse</returns>
+	UFUNCTION(BlueprintCallable, Category = "CharacterData")
+	bool UpdateHighScore(int32 Score);
 
 	//敵AchiLessの名前
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -48,6 +72,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName NextLevel = "None";
 
+	UFUNCTION(BlueprintCallable, Category = "CharacterData")
+	const class UMySaveGame* GetSaveData() { return saveData; }
+
+
+
 private:
 
 	//プレイヤーのパラメータ情報を保持
@@ -55,5 +84,15 @@ private:
 
 	//プレイヤーのデッキに入っているカード
 	TArray<FCardData> Deck;
+
+	const FString SlotNameGameData = FString("SaveData");
+
+
+	//セーブデータ
+	UPROPERTY()
+	class UMySaveGame* saveData = nullptr;
+
+	UFUNCTION()
+	void SaveCompleted(const FString& SlotName, const int32 UserIndex, bool bSuccess);
 	
 };
