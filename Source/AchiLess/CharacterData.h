@@ -75,7 +75,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	const class UMySaveGame* GetSaveData() { return saveData; }
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MyScore = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 KillPoint = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 DestructPoint = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 EvationPoint = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 EnemyScore = 0;
 
 private:
 
