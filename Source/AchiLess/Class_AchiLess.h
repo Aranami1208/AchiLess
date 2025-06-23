@@ -96,6 +96,9 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FCardData EmptyData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FCardData SelectCardData;
+
 	UFUNCTION(BlueprintCallable)
 	UWorld* GetWorldCntext();
 

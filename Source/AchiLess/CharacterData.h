@@ -92,6 +92,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool UpdateHigh = false;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TArray<FCardData> DropCardData;
 private:
 
 	//プレイヤーのパラメータ情報を保持

@@ -25,6 +25,7 @@
 #include "CharacterData.h"
 
 
+
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
 	CameraSpringArm(nullptr),
@@ -375,21 +376,25 @@ void AClass_AchiLess::Roll(float Value)
 void AClass_AchiLess::SelectSkill1()
 {
 	SkillIndex = 0;
+	SelectCardData =  CardSkills[SkillIndex + UseDeck]->CardData;
 }
 
 void AClass_AchiLess::SelectSkill2()
 {
 	SkillIndex = 1;
+	SelectCardData = CardSkills[SkillIndex + UseDeck]->CardData;
 }
 
 void AClass_AchiLess::SelectSkill3()
 {
 	SkillIndex = 2;
+	SelectCardData = CardSkills[SkillIndex + UseDeck]->CardData;
 }
 
 void AClass_AchiLess::SelectSkill4()
 {
 	SkillIndex = 3;
+	SelectCardData = CardSkills[SkillIndex + UseDeck]->CardData;
 }
 
 void AClass_AchiLess::ExecuteSkill()
@@ -513,7 +518,16 @@ void AClass_AchiLess::PlaySoundEffect(USoundBase* InSound)
 void AClass_AchiLess::TakeDamage(float InDamage)
 {
 	//無敵フラグが立っていたらスキップ
-	if (bIsInvencible)return;
+	if (bIsInvencible)
+	{
+		UCharacterData* GameInstance = Cast<UCharacterData>( UGameplayStatics::GetGameInstance(GetWorld()));
+
+		//ブーストでジャストガードした場合にポイントを追加
+		int32 AddPoint = 15;
+
+		GameInstance->EvationPoint += AddPoint;
+		return;
+	}
 
 	float MinCutRate = 0.0f;
 	float MaxCutRate = 1.0f;
