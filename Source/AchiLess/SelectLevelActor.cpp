@@ -65,6 +65,7 @@ void ASelectLevelActor::BeginPlay()
 
 
 		//isValid‚ªfalse‚Ìê‡AUnlockID‚Éˆê’v‚·‚é‚à‚Ì‚ª‚ ‚Á‚½‚ç true
+		
 		if (!Card->IsValid)
 			Card->IsValid = SaveData->UnlockCardID.Contains(Card->CardID);
 		

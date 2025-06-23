@@ -90,6 +90,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 EnemyScore = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool UpdateHigh = false;
 private:
 
 	//プレイヤーのパラメータ情報を保持
