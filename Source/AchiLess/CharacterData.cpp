@@ -31,6 +31,11 @@ bool UCharacterData::AsyncSave()
 		return false;
 	}
 
+	for (FCardData data : GetCarddata)
+	{
+		//取得したカードをアンロックしたカードの一覧に追加する
+		saveData->UnlockCardID.AddUnique(data.CardID);
+	}
 
 	//セーブ完了で呼び出す関数を設定　
 	FAsyncSaveGameToSlotDelegate delegate = FAsyncSaveGameToSlotDelegate::CreateUObject(this, &UCharacterData::SaveCompleted);

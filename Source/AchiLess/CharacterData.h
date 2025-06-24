@@ -95,6 +95,13 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TArray<FCardData> DropCardData;
+
+	//入手したカード一覧
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FCardData> GetCarddata;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FCardData GetCard;
 private:
 
 	//プレイヤーのパラメータ情報を保持

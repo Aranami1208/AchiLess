@@ -58,6 +58,7 @@ void ASelectLevelActor::BeginPlay()
 			EmptyData = *Card;
 			//GC対策でハード参照を持っておく
 			MyGInstance->EmptyImage = *Card->CardImage.LoadSynchronous();
+			MyGInstance->GetCard = EmptyData;
 			continue;
 		}
 

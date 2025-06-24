@@ -48,6 +48,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Roll(float Value);
 
+	UFUNCTION(BlueprintCallable)
+	void ChangeCard();
 	
 	UFUNCTION(BlueprintCallable)
 	void SelectSkill1();

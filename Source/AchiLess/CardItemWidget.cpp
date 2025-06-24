@@ -68,7 +68,7 @@ void UCardItemWidget::InitCard(const FCardData& InCard)
 
 	//AddDynamicだとBlueprintと連携が可能(Add出は不可)
 	CardButton->OnClicked.AddDynamic(this, &UCardItemWidget::OnCardClicked);
-	UKismetSystemLibrary::PrintString(this, "Create Card Item WIdget");
+	//UKismetSystemLibrary::PrintString(this, "Create Card Item WIdget");
 }
 
 void UCardItemWidget::OnCardClicked()

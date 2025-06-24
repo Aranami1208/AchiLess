@@ -372,6 +372,12 @@ void AClass_AchiLess::Roll(float Value)
 	
 }
 
+void AClass_AchiLess::ChangeCard()
+{
+	SkillWidgets[SkillIndex + UseDeck]->InitCard(Cast<UCharacterData>(UGameplayStatics::GetGameInstance(GetWorld()))->GetCard);
+	CardSkills[SkillIndex + UseDeck]->ChangeWidget(SkillWidgets[SkillIndex + UseDeck]);
+}
+
 
 void AClass_AchiLess::SelectSkill1()
 {
