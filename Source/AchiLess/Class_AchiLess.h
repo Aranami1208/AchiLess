@@ -126,7 +126,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DamageCutRate = 0.0f;
 
-	void TakeDamage(float InDamage);
+
+	void TakeDamage(float InDamage)override;
 
 	
 

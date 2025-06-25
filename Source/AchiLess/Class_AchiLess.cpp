@@ -530,7 +530,7 @@ void AClass_AchiLess::TakeDamage(float InDamage)
 
 		//ブーストでジャストガードした場合にポイントを追加
 		int32 AddPoint = 15;
-
+		UKismetSystemLibrary::PrintString(this, "AddEvationPoint");
 		GameInstance->EvationPoint += AddPoint;
 		return;
 	}
