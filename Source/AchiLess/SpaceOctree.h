@@ -14,6 +14,11 @@ class ACHILESS_API ASpaceOctree : public AActor
     GENERATED_BODY()
 
 public:
+
+    // Actorの破棄時に呼び出されるデリゲート
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnOctreeDestroyed, ASpaceOctree*);
+    static FOnOctreeDestroyed OnOctreeDestroyed; // staticデリゲートとして宣言
+
     // Sets default values for this actor's properties
     ASpaceOctree();
 
@@ -74,12 +79,16 @@ public:
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
+    void EndPlay(const EEndPlayReason::Type EndPlayReason)override;
 
 public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
 
 private:
+
+    mutable FCriticalSection OctreeDataLock;
+
     // ノードを8つの子ノードに分割
     void SubdivideNode(int32 NodeIndex);
 

@@ -544,7 +544,7 @@ void AClass_AchiLess::TakeDamage(float InDamage)
 	//ガードによるダメージカット処理
 	float Damage = InDamage - (InDamage * DamageCutRate);
 
-	UKismetSystemLibrary::PrintString(this, "Damage:" + FString::SanitizeFloat(Damage));
+	//UKismetSystemLibrary::PrintString(this, "Damage:" + FString::SanitizeFloat(Damage));
 
 	Super::TakeDamage(Damage);
 }

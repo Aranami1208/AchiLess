@@ -202,7 +202,7 @@ void UPathfindingSubsystem::FindPathAsync(const FVector& StartLocation, const FV
     Async(EAsyncExecution::ThreadPool, [this,Subsystem, StartLocation, EndLocation, OnCompleteCallback]()
         {
             // --- ここからワーカースレッドでの処理 ---
-
+            
             // 経路を計算
             TArray<FVector> ResultPath = Subsystem->FindPath(StartLocation, EndLocation);
 
@@ -234,6 +234,7 @@ float UPathfindingSubsystem::CalculateHCost(const FVector& FromLocation, const F
 
 TArray<int32> UPathfindingSubsystem::GetNeighboringOctreeNodes(int32 CurrentOctreeNodeIndex) const
 {
+    
     //隣接ノードのインデックス
     TArray<int32> Neighbors;
 
@@ -270,6 +271,7 @@ TArray<int32> UPathfindingSubsystem::GetNeighboringOctreeNodes(int32 CurrentOctr
                         y * (CurrentExtent.Y + QueryOffset),
                         z * (CurrentExtent.Z + QueryOffset));
 
+                if (!SpaceOctree)return Neighbors;
                 // その位置にあるOctreeノードを取得
                 FOctreeNode NeighborNodeData = SpaceOctree->GetOctreeNodeAtLocation(NeighborQueryLocation);
 
