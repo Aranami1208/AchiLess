@@ -526,12 +526,6 @@ void AClass_AchiLess::TakeDamage(float InDamage)
 	//無敵フラグが立っていたらスキップ
 	if (bIsInvencible)
 	{
-		UCharacterData* GameInstance = Cast<UCharacterData>( UGameplayStatics::GetGameInstance(GetWorld()));
-
-		//ブーストでジャストガードした場合にポイントを追加
-		int32 AddPoint = 15;
-		UKismetSystemLibrary::PrintString(this, "AddEvationPoint");
-		GameInstance->EvationPoint += AddPoint;
 		return;
 	}
 
