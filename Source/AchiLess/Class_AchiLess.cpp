@@ -25,6 +25,7 @@
 #include "CharacterData.h"
 
 
+
 // Sets default values
 AClass_AchiLess::AClass_AchiLess() :
 	CameraSpringArm(nullptr),
@@ -371,25 +372,35 @@ void AClass_AchiLess::Roll(float Value)
 	
 }
 
+void AClass_AchiLess::ChangeCard()
+{
+	SkillWidgets[SkillIndex + UseDeck]->InitCard(Cast<UCharacterData>(UGameplayStatics::GetGameInstance(GetWorld()))->GetCard);
+	CardSkills[SkillIndex + UseDeck]->ChangeWidget(SkillWidgets[SkillIndex + UseDeck]);
+}
+
 
 void AClass_AchiLess::SelectSkill1()
 {
 	SkillIndex = 0;
+	SelectCardData =  CardSkills[SkillIndex + UseDeck]->CardData;
 }
 
 void AClass_AchiLess::SelectSkill2()
 {
 	SkillIndex = 1;
+	SelectCardData = CardSkills[SkillIndex + UseDeck]->CardData;
 }
 
 void AClass_AchiLess::SelectSkill3()
 {
 	SkillIndex = 2;
+	SelectCardData = CardSkills[SkillIndex + UseDeck]->CardData;
 }
 
 void AClass_AchiLess::SelectSkill4()
 {
 	SkillIndex = 3;
+	SelectCardData = CardSkills[SkillIndex + UseDeck]->CardData;
 }
 
 void AClass_AchiLess::ExecuteSkill()
@@ -513,7 +524,10 @@ void AClass_AchiLess::PlaySoundEffect(USoundBase* InSound)
 void AClass_AchiLess::TakeDamage(float InDamage)
 {
 	//無敵フラグが立っていたらスキップ
-	if (bIsInvencible)return;
+	if (bIsInvencible)
+	{
+		return;
+	}
 
 	float MinCutRate = 0.0f;
 	float MaxCutRate = 1.0f;
@@ -524,7 +538,7 @@ void AClass_AchiLess::TakeDamage(float InDamage)
 	//ガードによるダメージカット処理
 	float Damage = InDamage - (InDamage * DamageCutRate);
 
-	UKismetSystemLibrary::PrintString(this, "Damage:" + FString::SanitizeFloat(Damage));
+	//UKismetSystemLibrary::PrintString(this, "Damage:" + FString::SanitizeFloat(Damage));
 
 	Super::TakeDamage(Damage);
 }

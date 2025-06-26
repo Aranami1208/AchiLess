@@ -48,6 +48,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Roll(float Value);
 
+	UFUNCTION(BlueprintCallable)
+	void ChangeCard();
 	
 	UFUNCTION(BlueprintCallable)
 	void SelectSkill1();
@@ -96,6 +98,9 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FCardData EmptyData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FCardData SelectCardData;
+
 	UFUNCTION(BlueprintCallable)
 	UWorld* GetWorldCntext();
 
@@ -121,7 +126,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DamageCutRate = 0.0f;
 
-	void TakeDamage(float InDamage);
+
+	void TakeDamage(float InDamage)override;
 
 	
 

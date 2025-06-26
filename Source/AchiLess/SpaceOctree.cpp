@@ -34,7 +34,7 @@ void ASpaceOctree::BeginPlay()
     
     for (AActor* Actor : FoundObstacleActors)
     {
-        UKismetSystemLibrary::PrintString(this, "AddObstacle");
+        //UKismetSystemLibrary::PrintString(this, "AddObstacle");
         AddObstacle(Actor);
        
     }
@@ -51,7 +51,7 @@ void ASpaceOctree::BeginPlay()
         }
         else
         {
-            UKismetSystemLibrary::PrintString (this, "NoSubsystem");
+            //UKismetSystemLibrary::PrintString (this, "NoSubsystem");
         }
     }
     else
@@ -66,6 +66,23 @@ void ASpaceOctree::BeginPlay()
      {
          //DrawDebugOctreeNode(RootNodeIndex, FColor::Blue);
      }
+}
+
+// staticデリゲートの定義
+ASpaceOctree::FOnOctreeDestroyed ASpaceOctree::OnOctreeDestroyed;
+
+void ASpaceOctree::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
+
+    // このOctreeが破棄されることをブロードキャスト
+    OnOctreeDestroyed.Broadcast(this);
+
+    // 必要に応じて、ここでOctreeDataLockを使ってAllNodesをEmpty()にするなどのクリーンアップを行う
+    FScopeLock Lock(&OctreeDataLock);
+    AllNodes.Empty();
+    RootNodeIndex = INDEX_NONE;
+    RootNodeIndex = INDEX_NONE;
 }
 
 // Called every frame
@@ -162,12 +179,12 @@ void ASpaceOctree::AddObstacle(AActor* ObstacleActor)
     // 特殊タグのチェック
     if (SpecialObstacleTag != NAME_None && ObstacleActor->ActorHasTag(SpecialObstacleTag))
     {
-        UKismetSystemLibrary::PrintString(this, "DetailSubdivide");
+        //UKismetSystemLibrary::PrintString(this, "DetailSubdivide");
         AddTaggedObstacle(ObstacleActor);
     }
     else
     {
-        UKismetSystemLibrary::PrintString(this, "NormalSubdivide");
+        //UKismetSystemLibrary::PrintString(this, "NormalSubdivide");
         FBox ObstacleBounds = ObstacleActor->GetComponentsBoundingBox();
         if (ObstacleBounds.IsValid)
         {
@@ -222,7 +239,7 @@ void ASpaceOctree::AddBoundingBoxObstacle(const FBox& ObstacleBounds)
     }
     AddObstacleToNode(RootNodeIndex, ObstacleBounds,0);
 
-    DrawDebugBox(GetWorld(), ObstacleBounds.GetCenter(), ObstacleBounds.GetExtent(), FColor::Yellow, true, -1.0f, 0, 200.0f);
+    //DrawDebugBox(GetWorld(), ObstacleBounds.GetCenter(), ObstacleBounds.GetExtent(), FColor::Yellow, true, -1.0f, 0, 200.0f);
 }
 
 void ASpaceOctree::AddObstacleToNode(int32 NodeIndex, const FBox& ObstacleBounds,int32 Depth)
@@ -300,7 +317,7 @@ void ASpaceOctree::AddTaggedObstacle(AActor* TaggedActor)
     }
 
     // アクターのバウンディングボックスもデバッグ表示
-    DrawDebugBox(GetWorld(), CollisionComponent->Bounds.GetBox().GetCenter(), CollisionComponent->Bounds.GetBox().GetExtent(), FColor::White, true, -1.0f, 0, 500.0f);
+    //DrawDebugBox(GetWorld(), CollisionComponent->Bounds.GetBox().GetCenter(), CollisionComponent->Bounds.GetBox().GetExtent(), FColor::White, true, -1.0f, 0, 500.0f);
 
     AddObstacleToNodeForTaggedObject(RootNodeIndex, TaggedActor, CollisionComponent, 0);
 }
@@ -447,6 +464,8 @@ bool ASpaceOctree::IsBoxBlocked(const FBox& Box) const
 
 FOctreeNode* ASpaceOctree::GetNode(int32 NodeIndex)
 {
+    // Octreeデータへのアクセスをロック
+    FScopeLock Lock(&OctreeDataLock);
     if (NodeIndex != INDEX_NONE && AllNodes.IsValidIndex(NodeIndex))
     {
         return &AllNodes[NodeIndex]; // AllNodes は非 const なので、非 const ポインタを返せる
@@ -456,6 +475,9 @@ FOctreeNode* ASpaceOctree::GetNode(int32 NodeIndex)
 
 const FOctreeNode* ASpaceOctree::GetNode(int32 NodeIndex) const
 {
+ 
+    // Octreeデータへのアクセスをロック
+    FScopeLock Lock(&OctreeDataLock);
     if (NodeIndex != INDEX_NONE && AllNodes.IsValidIndex(NodeIndex))
     {
         return &AllNodes[NodeIndex]; // AllNodes は const と見なされるので、const ポインタを返す
@@ -514,8 +536,8 @@ void ASpaceOctree::DrawDebugOctreeNode(int32 NodeIndex, const FColor& Color) con
     }
     else
     {
-        //if(Node->ChildrenIndices.Num() == 0)
-        //    DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Blue, true, -1.0f, 0, 400.0f);
+        if(Node->ChildrenIndices.Num() == 0)
+            DrawDebugBox(GetWorld(), Node->Bounds.GetCenter(), Node->Bounds.GetExtent(), FColor::Blue, true, -1.0f, 0, 400.0f);
     }
 
     // 子ノードがあれば再帰的に描画

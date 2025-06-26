@@ -75,8 +75,33 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CharacterData")
 	const class UMySaveGame* GetSaveData() { return saveData; }
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MyScore = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 KillPoint = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 DestructPoint = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 EvationPoint = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 EnemyScore = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool UpdateHigh = false;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TArray<FCardData> DropCardData;
+
+	//入手したカード一覧
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FCardData> GetCarddata;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FCardData GetCard;
 private:
 
 	//プレイヤーのパラメータ情報を保持

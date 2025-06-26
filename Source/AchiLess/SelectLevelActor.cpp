@@ -35,7 +35,7 @@ void ASelectLevelActor::BeginPlay()
 	//グリッドパネルがない場合は処理しない
 	if (!GridPanel)return;
 
-	UKismetSystemLibrary::PrintString(this, "GridPanelLoadOK");
+	//UKismetSystemLibrary::PrintString(this, "GridPanelLoadOK");
 
 	FString ContextString =TEXT("Loading Card Data Table");
 	UDataTable* CardDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/Assets/Card/CardDataTable.CardDataTable"));
@@ -58,6 +58,7 @@ void ASelectLevelActor::BeginPlay()
 			EmptyData = *Card;
 			//GC対策でハード参照を持っておく
 			MyGInstance->EmptyImage = *Card->CardImage.LoadSynchronous();
+			MyGInstance->GetCard = EmptyData;
 			continue;
 		}
 
@@ -65,6 +66,7 @@ void ASelectLevelActor::BeginPlay()
 
 
 		//isValidがfalseの場合、UnlockIDに一致するものがあったら true
+		
 		if (!Card->IsValid)
 			Card->IsValid = SaveData->UnlockCardID.Contains(Card->CardID);
 		

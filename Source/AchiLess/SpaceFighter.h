@@ -99,7 +99,7 @@ public:
 	};
 
 	//Š‘®ƒ`[ƒ€
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int Team;
 
 protected:

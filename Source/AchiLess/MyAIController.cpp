@@ -46,6 +46,13 @@ void AMyAIController::RequestPathToLocation(const FVector& TargetLocation)
 
 void AMyAIController::OnPathFindingCompleted(const TArray<FVector>& Path)
 {
+
+    if (!IsValid(this))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("AMyAIController::OnPathfindingComplete called on invalid (destroyed) object. Pathfinding result ignored."));
+        return;
+    }
+
     UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
     if (!BlackboardComp)return;
 
