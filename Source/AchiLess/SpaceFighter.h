@@ -102,6 +102,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int Team;
 
+	float BeamFireTimeRate = 1.0f;
+
 protected:
 	FVector Velocity;//ˆÚ“®•ûŒü‚ÌƒxƒNƒgƒ‹
 

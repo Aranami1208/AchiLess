@@ -210,7 +210,8 @@ void ASpaceFighter::StartBeam()
 	//‰Ÿ‚µ‚½uŠÔ‚Éˆê”­Œ‚‚Â
 	Beam();
 
-	float BeamInterval = 0.1f;
+	float BeamInterval = 0.1f * BeamFireTimeRate;
+
 	GetWorldTimerManager().SetTimer(BeamTimerHandle, this, &ASpaceFighter::Beam, BeamInterval, true);
 }
 
