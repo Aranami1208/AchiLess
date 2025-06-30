@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "CardData.h"
+#include "Class_AchiLess.h"
 #include "BaseCardSkill.generated.h"
 
 
@@ -31,6 +32,7 @@ public:
 	void ExecuteSkill(class ASpaceFighter* Target);
 	virtual void ExecuteSkill_Implementation(class ASpaceFighter* Target);//C++オーバーライドする用
 
+	void SetOwner(AActor* Actor) { Owner = Cast<AClass_AchiLess>(Actor); }
 
 	UFUNCTION(BlueprintCallable)
 	void StartCoolDown();

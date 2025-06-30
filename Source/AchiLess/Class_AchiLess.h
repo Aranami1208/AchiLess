@@ -129,7 +129,9 @@ public:
 
 	void TakeDamage(float InDamage)override;
 
-	
+	//ロックオン対象
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<ASpaceFighter> LockOnTargetFigter;
 
 private:
 	
@@ -182,9 +184,7 @@ private:
 	//HUDの円のサイズ（px）
 	float HUDCircleRadiusPixel = 180.0f;
 	
-	//ロックオン対象
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<ASpaceFighter> LockOnTargetFigter;
+	
 
 	//矢印の対象
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
