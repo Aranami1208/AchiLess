@@ -19,6 +19,11 @@ ADebuffSpeed::ADebuffSpeed()
 void ADebuffSpeed::BeginPlay()
 {
 	Super::BeginPlay();
+	
+}
+
+void ADebuffSpeed::AddEffect()
+{
 	User = Cast<AClass_AchiLess>(Owner);
 	if (!User)
 	{
@@ -29,8 +34,9 @@ void ADebuffSpeed::BeginPlay()
 	TargetActor = Cast<AClass_AchiLess>(User->LockOnTargetFigter);
 
 	if (!TargetActor)return;
-	TargetActor->SpeedBuffRate -= EffectRate;
-	//UKismetSystemLibrary::PrintString(this, "SuccessDebuff");
+	TargetActor->SpeedBuffRate = TargetActor->SpeedBuffRate - EffectRate;
+	//UKismetSystemLibrary::PrintString(this, "EffectRate:" + FString::SanitizeFloat(EffectRate));
+	//UKismetSystemLibrary::PrintString(this, "SpeedBuffRate:" + FString::SanitizeFloat(TargetActor->SpeedBuffRate));
 	//タイマーハンドルのセット
 	GetWorld()->GetTimerManager().SetTimer(
 		RestoreTimer,           // タイマーを識別するハンドル
@@ -46,7 +52,7 @@ void ADebuffSpeed::RestoreEffect()
 {
 	UKismetSystemLibrary::PrintString(this, "RestoreDebuff");
 	//if (!TargetActor)return;
-	TargetActor->SpeedBuffRate += EffectRate;
+	TargetActor->SpeedBuffRate = TargetActor->SpeedBuffRate + EffectRate;
 	Destroy();
 }
 

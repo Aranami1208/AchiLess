@@ -211,7 +211,7 @@ void ASpaceFighter::StartBeam()
 	Beam();
 
 	float BeamInterval = 0.1f * BeamFireTimeRate;
-
+	UKismetSystemLibrary::PrintString(this, "Rate:" + FString::SanitizeFloat(BeamFireTimeRate));
 	GetWorldTimerManager().SetTimer(BeamTimerHandle, this, &ASpaceFighter::Beam, BeamInterval, true);
 }
 

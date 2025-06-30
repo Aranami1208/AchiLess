@@ -15,6 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	ADebuffSpeed();
 	class AClass_AchiLess* User;
+	void AddEffect();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -31,6 +32,7 @@ protected:
 	//Œø‰Ê‚ğÁ‚·
 	FTimerHandle RestoreTimer;
 
+	
 	void RestoreEffect();
 	
 public:	

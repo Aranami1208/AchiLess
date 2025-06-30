@@ -406,15 +406,15 @@ void AClass_AchiLess::SelectSkill4()
 void AClass_AchiLess::ExecuteSkill()
 {
 	UE_DEBUG_BREAK();
-	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
+	//UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
 	//スキルが設定されていないときはスキップ
 	if (SkillIndex == -1)return;
 	if (!CardSkills[SkillIndex + UseDeck])return;
-	UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
+	//UKismetSystemLibrary::PrintString(this, "SkillIndex:" + FString::FromInt(SkillIndex));
 	//スキルを使う
 
 	//クールタイム中だったら処理しない
-	UKismetSystemLibrary::PrintString(this, "ExecuteSkill");
+	//UKismetSystemLibrary::PrintString(this, "ExecuteSkill");
 	if (CardSkills[SkillIndex + UseDeck]->IsOnCoolDown())return;
 	CardSkills[SkillIndex + UseDeck]->StartCoolDown();
 	CardSkills[SkillIndex+UseDeck]->ExecuteSkill(this);
@@ -423,7 +423,7 @@ void AClass_AchiLess::ExecuteSkill()
 void AClass_AchiLess::ChangeDeck()
 {
 	int32 HalfDeckSize = 4;
-	UKismetSystemLibrary::PrintString(this,"DeckChange");
+	//UKismetSystemLibrary::PrintString(this,"DeckChange");
 	
 	for (int32 i = 0; i < HalfDeckSize; i++)
 	{

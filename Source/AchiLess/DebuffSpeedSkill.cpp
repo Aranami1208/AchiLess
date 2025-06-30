@@ -13,5 +13,7 @@ void UDebuffSpeedSkill::ExecuteSkill_Implementation(ASpaceFighter* Target)
 	
 	//UKismetSystemLibrary::PrintString(this, "SkillActorSpawned");
 	SkillActor->EffectRate = CardData.SkillValue1;
+	//UKismetSystemLibrary::PrintString(this, "SkillValue1:" + FString::SanitizeFloat(SkillActor->EffectRate));
 	SkillActor->EffectTime = CardData.SkillValue2;
+	SkillActor->AddEffect();
 }
